@@ -15,6 +15,12 @@ import { QuoteDetail } from './pages/QuoteDetail';
 import { CustomerDashboard } from './pages/CustomerDashboard';
 import { CustomerList } from './pages/CustomerList';
 import { CustomerProfile } from './pages/CustomerProfile';
+import { EmployeeDashboard } from './pages/EmployeeDashboard';
+import { EmployeeList } from './pages/EmployeeList';
+import { EmployeeProfile } from './pages/EmployeeProfile';
+import { PartnerDashboard } from './pages/PartnerDashboard';
+import { PartnerList } from './pages/PartnerList';
+import { PartnerProfile } from './pages/PartnerProfile';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -39,6 +45,12 @@ export default function App() {
             <Route path="customers/dashboard" element={<CustomerDashboard />} />
             <Route path="customers" element={<CustomerList />} />
             <Route path="customer/:id" element={<CustomerProfile />} />
+            <Route path="employees/dashboard" element={<EmployeeDashboard />} />
+            <Route path="employees" element={<EmployeeList />} />
+            <Route path="employee/:id" element={<EmployeeProfile />} />
+            <Route path="partners/dashboard" element={<PartnerDashboard />} />
+            <Route path="partners" element={<PartnerList />} />
+            <Route path="partner/:id" element={<PartnerProfile />} />
             <Route path="*" element={<div style={{ padding: 24 }}>Page Not Found</div>} />
           </Route>
         </Routes>

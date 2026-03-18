@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { Typography, Card, Table, Tag, Input, Button, Space, theme } from 'antd';
-import { SearchOutlined, PlusOutlined, FilterOutlined } from '@ant-design/icons';
+import { Typography, Card, Table, Tag, Input, Button, Space, theme, Popconfirm, message } from 'antd';
+import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { MOCK_CUSTOMERS } from '../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,10 +16,17 @@ export const CustomerList: React.FC = () => {
     return new Intl.NumberFormat('en-SG', { style: 'currency', currency: 'SGD', maximumFractionDigits: 0 }).format(value);
   };
 
-  const filteredCustomers = MOCK_CUSTOMERS.filter(c => 
-    c.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+  const [customers, setCustomers] = useState(MOCK_CUSTOMERS);
+
+  const filteredCustomers = customers.filter(c =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     c.industry.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const handleDelete = (id: string) => {
+    setCustomers(customers.filter(c => c.id !== id));
+    message.success('Customer deleted');
+  };
 
   const columns = [
     { 
@@ -45,6 +52,18 @@ export const CustomerList: React.FC = () => {
     { title: 'Active Projects', dataIndex: 'activeProjects', key: 'activeProjects' },
     { title: 'Total Revenue', dataIndex: 'totalRevenue', key: 'totalRevenue', render: (val: number) => formatCurrency(val) },
     { title: 'Last Contact', dataIndex: 'lastContact', key: 'lastContact' },
+    {
+      title: 'Action',
+      key: 'action',
+      render: (_: any, record: any) => (
+        <Space size="small">
+          <Button type="text" size="small" icon={<EditOutlined />} onClick={() => navigate(`/customer/${record.id}`)} />
+          <Popconfirm title="Delete this customer?" onConfirm={() => handleDelete(record.id)}>
+            <Button type="text" size="small" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </Space>
+      )
+    },
   ];
 
   return (

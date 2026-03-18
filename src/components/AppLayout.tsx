@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, theme } from 'antd';
-import { 
-  AppstoreOutlined, 
-  ProjectOutlined, 
-  FileTextOutlined, 
+import {
+  AppstoreOutlined,
+  ProjectOutlined,
+  FileTextOutlined,
   SettingOutlined,
   UserOutlined,
   MoonOutlined,
   SunOutlined,
   BellOutlined,
   SwapOutlined,
-  TeamOutlined
+  TeamOutlined,
+  ShopOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
@@ -24,7 +25,7 @@ interface AppLayoutProps {
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [currentModule, setCurrentModule] = useState<'sales' | 'customers'>('sales');
+  const [currentModule, setCurrentModule] = useState<'sales' | 'customers' | 'employees' | 'partners'>('sales');
   const navigate = useNavigate();
   const location = useLocation();
   const { token } = theme.useToken();
@@ -32,6 +33,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
   useEffect(() => {
     if (location.pathname.startsWith('/customers') || location.pathname.startsWith('/customer/')) {
       setCurrentModule('customers');
+    } else if (location.pathname.startsWith('/employees') || location.pathname.startsWith('/employee/')) {
+      setCurrentModule('employees');
+    } else if (location.pathname.startsWith('/partners') || location.pathname.startsWith('/partner/')) {
+      setCurrentModule('partners');
     } else if (location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/pipeline') || location.pathname.startsWith('/deal/')) {
       setCurrentModule('sales');
     }
@@ -63,7 +68,33 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
     },
   ];
 
-  const menuItems = currentModule === 'sales' ? salesMenuItems : customerMenuItems;
+  const employeeMenuItems = [
+    {
+      key: '/employees/dashboard',
+      icon: <AppstoreOutlined />,
+      label: 'Dashboard',
+    },
+    {
+      key: '/employees',
+      icon: <TeamOutlined />,
+      label: 'Employees',
+    },
+  ];
+
+  const partnerMenuItems = [
+    {
+      key: '/partners/dashboard',
+      icon: <AppstoreOutlined />,
+      label: 'Dashboard',
+    },
+    {
+      key: '/partners',
+      icon: <ShopOutlined />,
+      label: 'Partners',
+    },
+  ];
+
+  const menuItems = currentModule === 'sales' ? salesMenuItems : currentModule === 'customers' ? customerMenuItems : currentModule === 'employees' ? employeeMenuItems : partnerMenuItems;
 
   const moduleMenu = {
     items: [
@@ -83,6 +114,24 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
         onClick: () => {
           setCurrentModule('customers');
           navigate('/customers/dashboard');
+        }
+      },
+      {
+        key: 'employees',
+        label: 'Employee Management',
+        icon: <UserOutlined />,
+        onClick: () => {
+          setCurrentModule('employees');
+          navigate('/employees/dashboard');
+        }
+      },
+      {
+        key: 'partners',
+        label: 'Partner Management',
+        icon: <ShopOutlined />,
+        onClick: () => {
+          setCurrentModule('partners');
+          navigate('/partners/dashboard');
         }
       }
     ]
@@ -114,7 +163,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
           </div>
           {!collapsed && (
             <span style={{ marginLeft: 12, fontWeight: 600, fontSize: 16, color: token.colorText }}>
-              {currentModule === 'sales' ? 'TPH Sales' : 'TPH Customers'}
+              {currentModule === 'sales' ? 'TPH Sales' : currentModule === 'customers' ? 'TPH Customers' : currentModule === 'employees' ? 'TPH Employees' : 'TPH Partners'}
             </span>
           )}
         </div>
