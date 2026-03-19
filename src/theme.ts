@@ -33,6 +33,19 @@ export const getThemeConfig = (isDarkMode: boolean) => ({
     },
     Menu: {
       fontSize: 13,
+      ...(isDarkMode ? {
+        darkItemBg: '#141414',
+        darkSubMenuItemBg: '#141414',
+        darkItemSelectedBg: '#2a2a2a',
+        darkItemHoverBg: '#1f1f1f',
+      } : {}),
+    },
+    Layout: {
+      ...(isDarkMode ? {
+        siderBg: '#141414',
+        headerBg: '#1a1a1a',
+        triggerBg: '#1f1f1f',
+      } : {}),
     },
     Card: {
       fontSize: 13,
