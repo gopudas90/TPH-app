@@ -11,7 +11,8 @@ import {
   BellOutlined,
   SwapOutlined,
   TeamOutlined,
-  ShopOutlined
+  ShopOutlined,
+  InboxOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
@@ -25,7 +26,7 @@ interface AppLayoutProps {
 
 export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme }) => {
   const [collapsed, setCollapsed] = useState(false);
-  const [currentModule, setCurrentModule] = useState<'sales' | 'customers' | 'employees' | 'partners'>('sales');
+  const [currentModule, setCurrentModule] = useState<'sales' | 'customers' | 'employees' | 'partners' | 'assets'>('sales');
   const navigate = useNavigate();
   const location = useLocation();
   const { token } = theme.useToken();
@@ -37,6 +38,8 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
       setCurrentModule('employees');
     } else if (location.pathname.startsWith('/partners') || location.pathname.startsWith('/partner/')) {
       setCurrentModule('partners');
+    } else if (location.pathname.startsWith('/assets') || location.pathname.startsWith('/asset/')) {
+      setCurrentModule('assets');
     } else if (location.pathname.startsWith('/dashboard') || location.pathname.startsWith('/pipeline') || location.pathname.startsWith('/deal/')) {
       setCurrentModule('sales');
     }
@@ -94,7 +97,21 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
     },
   ];
 
-  const menuItems = currentModule === 'sales' ? salesMenuItems : currentModule === 'customers' ? customerMenuItems : currentModule === 'employees' ? employeeMenuItems : partnerMenuItems;
+  const assetMenuItems = [
+    {
+      key: '/assets/dashboard',
+      icon: <AppstoreOutlined />,
+      label: 'Dashboard',
+    },
+    {
+      key: '/assets',
+      icon: <InboxOutlined />,
+      label: 'Assets',
+    },
+  ];
+
+  const menuItemsMap = { sales: salesMenuItems, customers: customerMenuItems, employees: employeeMenuItems, partners: partnerMenuItems, assets: assetMenuItems };
+  const menuItems = menuItemsMap[currentModule];
 
   const moduleMenu = {
     items: [
@@ -133,6 +150,15 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
           setCurrentModule('partners');
           navigate('/partners/dashboard');
         }
+      },
+      {
+        key: 'assets',
+        label: 'Asset Management',
+        icon: <InboxOutlined />,
+        onClick: () => {
+          setCurrentModule('assets');
+          navigate('/assets/dashboard');
+        }
       }
     ]
   };
@@ -163,7 +189,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
           </div>
           {!collapsed && (
             <span style={{ marginLeft: 12, fontWeight: 600, fontSize: 16, color: token.colorText }}>
-              {currentModule === 'sales' ? 'TPH Sales' : currentModule === 'customers' ? 'TPH Customers' : currentModule === 'employees' ? 'TPH Employees' : 'TPH Partners'}
+              {({ sales: 'TPH Sales', customers: 'TPH Customers', employees: 'TPH Employees', partners: 'TPH Partners', assets: 'TPH Assets' })[currentModule]}
             </span>
           )}
         </div>
@@ -191,7 +217,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
           <Space size="middle">
             <Dropdown menu={moduleMenu} placement="bottomRight">
               <Button type="text" icon={<AppstoreOutlined />} title="Switch Module">
-                <span style={{ fontSize: 13 }}>{currentModule === 'sales' ? 'Sales Management' : currentModule === 'customers' ? 'Customer Account Management' : currentModule === 'employees' ? 'Employee Management' : 'Partner Management'}</span>
+                <span style={{ fontSize: 13 }}>{{ sales: 'Sales Management', customers: 'Customer Account Management', employees: 'Employee Management', partners: 'Partner Management', assets: 'Asset Management' }[currentModule]}</span>
                 <SwapOutlined style={{ fontSize: 10, marginLeft: 4 }} />
               </Button>
             </Dropdown>
