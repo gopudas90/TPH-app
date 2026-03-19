@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Typography, Card, Table, Tag, Input, Button, Space, theme, Rate, Popconfirm, message, Tooltip, Progress } from 'antd';
 import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined, StarFilled, StopOutlined } from '@ant-design/icons';
-import { MOCK_PARTNERS } from '../data/mockData';
+import { MOCK_PARTNERS } from '../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;

@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { Typography, Card, Tabs, Button, Descriptions, Tag, Divider, Row, Col, Table, Space, Avatar, Timeline, Input, Progress, theme, Steps, FloatButton, List, Tooltip, Drawer, Checkbox } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, FilePdfOutlined, CheckCircleOutlined, UserOutlined, PlusOutlined, RobotOutlined, FormOutlined, FireOutlined, FolderOpenOutlined, DeleteOutlined, UpOutlined, DownOutlined, HolderOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MOCK_DEALS, PIPELINE_STAGES } from '../data/mockData';
-import { AIChatDrawer } from '../components/AIChatDrawer';
+import { MOCK_DEALS, PIPELINE_STAGES } from '../../data/mockData';
+import { AIChatDrawer } from '../../components/AIChatDrawer';
 import {
   DndContext,
   closestCenter,

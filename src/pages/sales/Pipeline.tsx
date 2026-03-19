@@ -2,7 +2,7 @@
 import React, { useState, useMemo } from 'react';
 import { Typography, Card, Tag, Avatar, Tooltip, Space, Input, Select, Button, theme, Badge, Radio, Table, Row, Col, InputNumber } from 'antd';
 import { SearchOutlined, FilterOutlined, PlusOutlined, UserOutlined, CalendarOutlined, DollarOutlined, AppstoreOutlined, UnorderedListOutlined, FireOutlined, CloseOutlined } from '@ant-design/icons';
-import { PIPELINE_STAGES, MOCK_DEALS } from '../data/mockData';
+import { PIPELINE_STAGES, MOCK_DEALS } from '../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;

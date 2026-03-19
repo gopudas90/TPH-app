@@ -3,9 +3,9 @@ import React, { useState } from 'react';
 import { Typography, Card, Tabs, Button, Descriptions, Tag, Row, Col, Table, Space, theme, Statistic, Input, Select, Tooltip, Drawer, Form, List, Timeline, Alert, Checkbox, message } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, ToolOutlined, CalendarOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined, EnvironmentOutlined, InboxOutlined, BarChartOutlined, CheckCircleOutlined, ExportOutlined, ImportOutlined, RobotOutlined, BulbOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MOCK_ASSETS, MOCK_ASSET_BOOKINGS } from '../data/mockData';
-import { formatCurrency } from '../utils';
-import { detectConflicts } from '../utils/assetUtils';
+import { MOCK_ASSETS, MOCK_ASSET_BOOKINGS } from '../../data/mockData';
+import { formatCurrency } from '../../utils';
+import { detectConflicts } from '../../utils/assetUtils';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;

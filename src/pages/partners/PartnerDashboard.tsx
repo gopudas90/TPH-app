@@ -2,7 +2,7 @@
 import React, { useMemo } from 'react';
 import { Typography, Row, Col, Card, Statistic, Table, Tag, theme, Progress, Rate, Tooltip } from 'antd';
 import { ShopOutlined, DollarOutlined, CheckCircleOutlined, StarOutlined, WarningOutlined, SafetyCertificateOutlined, ClockCircleOutlined } from '@ant-design/icons';
-import { MOCK_PARTNERS } from '../data/mockData';
+import { MOCK_PARTNERS } from '../../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;

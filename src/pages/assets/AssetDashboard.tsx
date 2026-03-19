@@ -2,9 +2,9 @@
 import React, { useMemo, useState } from 'react';
 import { Typography, Row, Col, Card, Statistic, Tag, theme, Progress, Table, Alert, Empty, Segmented } from 'antd';
 import { InboxOutlined, DollarOutlined, BarChartOutlined, ToolOutlined, WarningOutlined, CalendarOutlined, CheckCircleOutlined, SwapOutlined, RobotOutlined, ShoppingCartOutlined, BulbOutlined } from '@ant-design/icons';
-import { MOCK_ASSETS, MOCK_CONSUMABLES, MOCK_ASSET_BOOKINGS } from '../data/mockData';
-import { formatCurrency } from '../utils';
-import { detectConflicts } from '../utils/assetUtils';
+import { MOCK_ASSETS, MOCK_CONSUMABLES, MOCK_ASSET_BOOKINGS } from '../../data/mockData';
+import { formatCurrency } from '../../utils';
+import { detectConflicts } from '../../utils/assetUtils';
 
 const { Title, Text } = Typography;
 
@@ -22,6 +22,7 @@ export const AssetDashboard: React.FC = () => {
     lowStockItems,
     upcomingMaintenance,
     topUtilised,
+    checkedOutBookings,
   } = useMemo(() => {
     const activeAssets = MOCK_ASSETS.filter(a => a.condition !== 'Retired');
     const value = MOCK_ASSETS.reduce((sum, a) => sum + a.currentValue, 0);

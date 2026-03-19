@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { Typography, Card, Table, Tag, Input, Button, Space, theme, Tabs, Tooltip, Progress, Popconfirm, message, InputNumber, Row, Col, Statistic, Badge, Descriptions, Modal, Select, Drawer } from 'antd';
 import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined, WarningOutlined, ShopOutlined, SaveOutlined, CloseOutlined, ExclamationCircleOutlined, InboxOutlined, BarChartOutlined, HistoryOutlined } from '@ant-design/icons';
-import { MOCK_CONSUMABLES, MOCK_CONSUMPTION_LOG } from '../data/mockData';
-import { formatCurrency } from '../utils';
+import { MOCK_CONSUMABLES, MOCK_CONSUMPTION_LOG } from '../../data/mockData';
+import { formatCurrency } from '../../utils';
 
 const { Title, Text } = Typography;
 

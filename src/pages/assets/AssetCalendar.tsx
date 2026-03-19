@@ -2,8 +2,8 @@
 import React, { useState, useMemo } from 'react';
 import { Typography, Card, Button, Space, theme, Tag, Tooltip, Select, Row, Col, Badge, Segmented, Switch, Popover, Modal } from 'antd';
 import { LeftOutlined, RightOutlined, WarningOutlined, CalendarOutlined, ExportOutlined, ImportOutlined } from '@ant-design/icons';
-import { MOCK_ASSET_BOOKINGS, MOCK_ASSETS } from '../data/mockData';
-import { detectConflicts } from '../utils/assetUtils';
+import { MOCK_ASSET_BOOKINGS, MOCK_ASSETS } from '../../data/mockData';
+import { detectConflicts } from '../../utils/assetUtils';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;

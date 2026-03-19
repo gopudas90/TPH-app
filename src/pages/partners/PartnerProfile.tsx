@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Typography, Card, Tabs, Button, Descriptions, Tag, Row, Col, Table, Space, Avatar, theme, Statistic, Input, Select, Tooltip, Drawer, Form, List, Rate, Timeline, Progress } from 'antd';
 import { ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined, GlobalOutlined, ShopOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, SafetyCertificateOutlined, StarOutlined, ClockCircleOutlined, WarningOutlined, CheckCircleOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined, StarFilled, StopOutlined, RobotOutlined, BulbOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MOCK_PARTNERS } from '../data/mockData';
+import { MOCK_PARTNERS } from '../../data/mockData';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;

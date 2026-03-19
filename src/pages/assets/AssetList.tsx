@@ -2,8 +2,8 @@
 import React, { useState } from 'react';
 import { Typography, Card, Table, Tag, Input, Button, Space, theme, Popconfirm, message, Progress, Tooltip } from 'antd';
 import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined, RobotOutlined, ToolOutlined } from '@ant-design/icons';
-import { MOCK_ASSETS, MOCK_ASSET_BOOKINGS } from '../data/mockData';
-import { formatCurrency } from '../utils';
+import { MOCK_ASSETS, MOCK_ASSET_BOOKINGS } from '../../data/mockData';
+import { formatCurrency } from '../../utils';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
