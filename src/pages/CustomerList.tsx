@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { Typography, Card, Table, Tag, Input, Button, Space, theme, Popconfirm, message } from 'antd';
-import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { Typography, Card, Table, Tag, Input, Button, Space, theme, Popconfirm, message, Tooltip, Progress } from 'antd';
+import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined, RobotOutlined } from '@ant-design/icons';
 import { MOCK_CUSTOMERS } from '../data/mockData';
 import { useNavigate } from 'react-router-dom';
 
@@ -49,6 +49,40 @@ export const CustomerList: React.FC = () => {
       }
     },
     { title: 'Account Manager', dataIndex: 'accountManager', key: 'accountManager' },
+    {
+      title: 'Health Score',
+      dataIndex: 'healthScore',
+      key: 'healthScore',
+      width: 140,
+      sorter: (a: any, b: any) => a.healthScore - b.healthScore,
+      render: (val: number, record: any) => {
+        const color = val >= 80 ? token.colorSuccess : val >= 60 ? token.colorWarning : token.colorError;
+        const label = val >= 80 ? 'Healthy' : val >= 60 ? 'Needs Attention' : 'At Risk';
+        return (
+          <Tooltip
+            title={
+              <div style={{ fontSize: 12 }}>
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>AI Health Score: {val}/100 — {label}</div>
+                <div style={{ marginBottom: 4 }}>Engagement Frequency: {record.healthScoreBreakdown?.engagementFrequency}%</div>
+                <div style={{ marginBottom: 4 }}>Revenue Trend: {record.healthScoreBreakdown?.revenueTrend}%</div>
+                <div style={{ marginBottom: 4 }}>NPS Contribution: {record.healthScoreBreakdown?.npsContribution}%</div>
+                <div style={{ marginBottom: 6 }}>Responsiveness: {record.healthScoreBreakdown?.responsiveness}%</div>
+                <div style={{ fontStyle: 'italic', borderTop: '1px solid rgba(255,255,255,0.2)', paddingTop: 4 }}>{record.healthScoreExplanation}</div>
+              </div>
+            }
+            placement="topLeft"
+            overlayStyle={{ maxWidth: 340 }}
+          >
+            <div style={{ cursor: 'help' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Progress percent={val} size="small" strokeColor={color} showInfo={false} style={{ flex: 1, margin: 0 }} />
+                <Text strong style={{ fontSize: 12, color, minWidth: 28 }}>{val}</Text>
+              </div>
+            </div>
+          </Tooltip>
+        );
+      }
+    },
     { title: 'Active Projects', dataIndex: 'activeProjects', key: 'activeProjects' },
     { title: 'Total Revenue', dataIndex: 'totalRevenue', key: 'totalRevenue', render: (val: number) => formatCurrency(val) },
     { title: 'Last Contact', dataIndex: 'lastContact', key: 'lastContact' },

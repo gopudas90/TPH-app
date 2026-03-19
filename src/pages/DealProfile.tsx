@@ -4,6 +4,7 @@ import { Typography, Card, Tabs, Button, Descriptions, Tag, Divider, Row, Col, T
 import { ArrowLeftOutlined, EditOutlined, FilePdfOutlined, CheckCircleOutlined, UserOutlined, PlusOutlined, RobotOutlined, FormOutlined, FireOutlined, FolderOpenOutlined, DeleteOutlined, UpOutlined, DownOutlined, HolderOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_DEALS, PIPELINE_STAGES } from '../data/mockData';
+import { AIChatDrawer } from '../components/AIChatDrawer';
 import {
   DndContext,
   closestCenter,
@@ -94,6 +95,7 @@ export const DealProfile: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState('1');
   const [activeDrawer, setActiveDrawer] = useState<'notes' | 'documents' | null>(null);
+  const [isChatOpen, setIsChatOpen] = useState(false);
   
   // Notes State
   const [newNote, setNewNote] = useState('');
@@ -219,17 +221,33 @@ export const DealProfile: React.FC = () => {
   ]);
 
   const [quoteData, setQuoteData] = useState([
-    { id: '1', version: 'v1.0 (Initial)', date: '2026-03-10', value: 85700, discount: 0, status: 'Draft', isAIGenerated: true },
-    { id: '2', version: 'v1.1 (Revised AV)', date: '2026-03-12', value: 92500, discount: 2000, status: 'Sent', isAIGenerated: false },
-    { id: '3', version: 'v2.0 (Final Neg)', date: '2026-03-15', value: 89000, discount: 5000, status: 'Approved', isAIGenerated: false },
+    { id: '1', version: 'v1.0', label: 'Initial', date: '2026-03-10', value: 85700, discount: 0, status: 'Draft', isAIGenerated: true, createdBy: 'Sarah Jenkins', changes: 'Initial quote generated from client brief', itemCount: 7 },
+    { id: '2', version: 'v1.1', label: 'Revised AV', date: '2026-03-12', value: 92500, discount: 2000, status: 'Sent', isAIGenerated: false, createdBy: 'Mark Davis', changes: 'Upgraded AV package, added breakout room projectors', itemCount: 8 },
+    { id: '3', version: 'v2.0', label: 'Final Neg', date: '2026-03-15', value: 89000, discount: 5000, status: 'Approved', isAIGenerated: false, createdBy: 'Sarah Jenkins', changes: 'Applied negotiated discount on lighting and scenic packages', itemCount: 7 },
   ]);
 
   const quoteColumns = [
-    { title: 'Version', dataIndex: 'version', key: 'version', render: (text: string, record: any) => (
+    { title: 'Quote', dataIndex: 'label', key: 'label', render: (text: string, record: any) => (
       <Space>
-        {text}
-        {record.isAIGenerated && <Tag color="purple" icon={<RobotOutlined />}>AI Generated</Tag>}
+        <Text strong style={{ fontSize: 13 }}>{text}</Text>
+        {record.isAIGenerated && <Tag color="purple" icon={<RobotOutlined />}>AI</Tag>}
       </Space>
+    )},
+    { title: 'Version', dataIndex: 'version', key: 'version', width: 80, align: 'center' as const, render: (text: string, record: any) => (
+      <Tooltip
+        title={
+          <div style={{ fontSize: 12 }}>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>{text} — {record.label}</div>
+            <div>Created: {record.date}</div>
+            <div>By: {record.createdBy}</div>
+            <div>Items: {record.itemCount}</div>
+            <div style={{ marginTop: 4, fontStyle: 'italic' }}>{record.changes}</div>
+          </div>
+        }
+        placement="top"
+      >
+        <Tag style={{ cursor: 'help', margin: 0 }}>{text}</Tag>
+      </Tooltip>
     )},
     { title: 'Date Created', dataIndex: 'date', key: 'date' },
     { title: 'Discount', dataIndex: 'discount', key: 'discount', render: (val: number) => val > 0 ? <Text type="danger">-{formatCurrency(val)}</Text> : '-' },
@@ -648,8 +666,15 @@ export const DealProfile: React.FC = () => {
       </Drawer>
 
       <FloatButton.Group shape="circle" style={{ right: 24, bottom: 24 }}>
-        <FloatButton icon={<RobotOutlined />} type="primary" tooltip="AI Chat Assistant" />
+        <FloatButton icon={<RobotOutlined />} type="primary" tooltip="AI Chat Assistant" onClick={() => setIsChatOpen(true)} />
       </FloatButton.Group>
+
+      <AIChatDrawer
+        open={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        dealName={deal.name}
+        dealId={deal.id}
+      />
     </div>
   );
 };

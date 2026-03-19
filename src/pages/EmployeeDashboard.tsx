@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useMemo } from 'react';
-import { Typography, Row, Col, Card, Statistic, Table, Tag, theme, Progress, Tooltip } from 'antd';
+import { Typography, Row, Col, Card, Statistic, Table, Tag, theme, Progress, Tooltip, Space } from 'antd';
 import { TeamOutlined, DollarOutlined, CheckCircleOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons';
 import { MOCK_EMPLOYEES } from '../data/mockData';
 import { useNavigate } from 'react-router-dom';

@@ -1,6 +1,6 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { Typography, Card, Table, Tag, Input, Button, Space, theme, Rate, Popconfirm, message } from 'antd';
+import { Typography, Card, Table, Tag, Input, Button, Space, theme, Rate, Popconfirm, message, Tooltip, Progress } from 'antd';
 import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined, StarFilled, StopOutlined } from '@ant-design/icons';
 import { MOCK_PARTNERS } from '../data/mockData';
 import { useNavigate } from 'react-router-dom';
@@ -57,6 +57,39 @@ export const PartnerList: React.FC = () => {
       dataIndex: 'avgRating',
       key: 'avgRating',
       render: (val: number) => <Rate disabled defaultValue={val} allowHalf style={{ fontSize: 13 }} />
+    },
+    {
+      title: 'Health Score',
+      dataIndex: 'healthScore',
+      key: 'healthScore',
+      width: 140,
+      sorter: (a: any, b: any) => a.healthScore - b.healthScore,
+      render: (val: number, record: any) => {
+        const color = val >= 80 ? token.colorSuccess : val >= 60 ? token.colorWarning : token.colorError;
+        const label = val >= 80 ? 'Healthy' : val >= 60 ? 'Needs Attention' : 'At Risk';
+        return (
+          <Tooltip
+            title={
+              <div style={{ fontSize: 12 }}>
+                <div style={{ fontWeight: 600, marginBottom: 6 }}>Partner Health: {val}/100 — {label}</div>
+                <div style={{ marginBottom: 4 }}>Quality Rating: {record.healthScoreBreakdown?.qualityRating}%</div>
+                <div style={{ marginBottom: 4 }}>On-Time Delivery: {record.healthScoreBreakdown?.onTimeDelivery}%</div>
+                <div style={{ marginBottom: 4 }}>Cost Efficiency: {record.healthScoreBreakdown?.costEfficiency}%</div>
+                <div>Responsiveness: {record.healthScoreBreakdown?.responsiveness}%</div>
+              </div>
+            }
+            placement="topLeft"
+            overlayStyle={{ maxWidth: 300 }}
+          >
+            <div style={{ cursor: 'help' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Progress percent={val} size="small" strokeColor={color} showInfo={false} style={{ flex: 1, margin: 0 }} />
+                <Text strong style={{ fontSize: 12, color, minWidth: 28 }}>{val}</Text>
+              </div>
+            </div>
+          </Tooltip>
+        );
+      }
     },
     {
       title: 'On-Time',

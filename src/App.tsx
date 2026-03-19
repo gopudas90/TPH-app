@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import { getThemeConfig } from './theme';
@@ -24,11 +24,6 @@ import { PartnerProfile } from './pages/PartnerProfile';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
-
-  useEffect(() => {
-    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    setIsDarkMode(prefersDark);
-  }, []);
 
   const toggleTheme = () => setIsDarkMode(!isDarkMode);
 

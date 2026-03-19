@@ -197,7 +197,20 @@ export const MOCK_CUSTOMERS = [
     preferredChannel: 'email',
     preferences: 'High-end venues, modern production style, $100k-$250k budget range',
     npsScore: 9,
-    eventsProduced: 12
+    eventsProduced: 12,
+    healthScore: 92,
+    healthScoreBreakdown: {
+      engagementFrequency: 95,
+      revenueTrend: 88,
+      npsContribution: 90,
+      responsiveness: 96,
+    },
+    healthScoreExplanation: 'Excellent account health. Consistent engagement with 2 active projects, strong upward revenue trend (+18% YoY), high NPS of 9/10, and average response time under 4 hours.',
+    aiRecommendedActions: [
+      { id: 'a1', action: 'Proactive outreach for Q4 product launch', detail: 'Acme Corp typically runs a Q4 product launch event in October. Based on past 3 years of engagement, consider reaching out by mid-August to secure the brief.', timing: 'Aug 2026', priority: 'High', type: 'Outreach' },
+      { id: 'a2', action: 'Upsell VIP experience package', detail: 'Client has consistently upgraded to premium AV packages. Their upcoming Tech Summit is a strong candidate for the new VIP Networking Lounge add-on (est. +SGD 25K).', timing: 'Apr 2026', priority: 'High', type: 'Upsell' },
+      { id: 'a3', action: 'Schedule annual account review', detail: 'Last formal account review was 6 months ago. Industry best practice suggests quarterly reviews for Platinum clients. Align with Q2 planning cycle.', timing: 'May 2026', priority: 'Mid', type: 'Relationship' },
+    ]
   },
   {
     id: 'C-1002',
@@ -217,7 +230,19 @@ export const MOCK_CUSTOMERS = [
     preferredChannel: 'phone',
     preferences: 'Practical venues, standard production, $50k-$100k budget range',
     npsScore: 8,
-    eventsProduced: 5
+    eventsProduced: 5,
+    healthScore: 71,
+    healthScoreBreakdown: {
+      engagementFrequency: 65,
+      revenueTrend: 72,
+      npsContribution: 80,
+      responsiveness: 68,
+    },
+    healthScoreExplanation: 'Good health with room for improvement. Engagement has slowed — only 1 active project vs. 3 last year. Revenue trend is flat. NPS is solid at 8/10 but response times have increased to ~2 days.',
+    aiRecommendedActions: [
+      { id: 'a4', action: 'Re-engagement call with Michael Scott', detail: 'Last meaningful interaction was 3 weeks ago. Globex typically plans their annual D&D in Q3 — use this as an anchor for a catch-up call.', timing: 'Apr 2026', priority: 'High', type: 'Outreach' },
+      { id: 'a5', action: 'Offer early-bird pricing for H2 events', detail: 'Globex responded well to discount incentives last year. A 5% early-bird offer for H2 2026 bookings could re-activate the pipeline.', timing: 'May 2026', priority: 'Mid', type: 'Upsell' },
+    ]
   },
   {
     id: 'C-1003',
@@ -237,7 +262,19 @@ export const MOCK_CUSTOMERS = [
     preferredChannel: 'WhatsApp',
     preferences: 'Creative venues, interactive production, $20k-$50k budget range',
     npsScore: 7,
-    eventsProduced: 2
+    eventsProduced: 2,
+    healthScore: 48,
+    healthScoreBreakdown: {
+      engagementFrequency: 35,
+      revenueTrend: 42,
+      npsContribution: 70,
+      responsiveness: 45,
+    },
+    healthScoreExplanation: 'At-risk account. No active projects and last contact was 3 weeks ago. Revenue has declined 30% YoY. NPS is acceptable at 7/10 but engagement is very low. Requires immediate attention.',
+    aiRecommendedActions: [
+      { id: 'a6', action: 'Urgent: Schedule win-back meeting', detail: 'Initech has had zero active projects for 2 months and engagement is declining. Peter Gibbons mentioned budget constraints in the last call — consider offering a scaled-down package for their developer conference.', timing: 'Immediate', priority: 'High', type: 'Outreach' },
+      { id: 'a7', action: 'Send industry insights report', detail: 'Share the "Tech Events Trends 2026" report. Positions TPH as a thought leader and provides a non-sales reason to re-engage. Initech values creative, interactive production styles.', timing: 'Apr 2026', priority: 'Mid', type: 'Relationship' },
+    ]
   }
 ];
 
@@ -562,7 +599,13 @@ export const MOCK_PARTNERS = [
     avgRating: 4.7,
     onTimeRate: 96,
     totalSpend: 385000,
-    lastEngagement: '2026-03-10'
+    lastEngagement: '2026-03-10',
+    healthScore: 91,
+    healthScoreBreakdown: { qualityRating: 94, onTimeDelivery: 96, costEfficiency: 82, responsiveness: 92 },
+    aiRecommendedActions: [
+      { id: 'pa1', action: 'Lock in Q3-Q4 rates early', detail: 'SoundWave has been consistently reliable with a 4.7 rating. Secure preferential rates for the upcoming peak season (Sep-Dec) before their calendar fills up.', timing: 'May 2026', priority: 'High', type: 'Cost Saving' },
+      { id: 'pa2', action: 'Explore exclusive partnership for Esports events', detail: 'Their concert sound specialisation aligns well with the Esports Tournament Finals (SGD 850K deal). Consider a volume deal for dedicated AV support.', timing: 'Jun 2026', priority: 'Mid', type: 'Strategic' },
+    ]
   },
   {
     id: 'P-1002',
@@ -588,7 +631,12 @@ export const MOCK_PARTNERS = [
     avgRating: 4.9,
     onTimeRate: 98,
     totalSpend: 520000,
-    lastEngagement: '2026-03-14'
+    lastEngagement: '2026-03-14',
+    healthScore: 96,
+    healthScoreBreakdown: { qualityRating: 98, onTimeDelivery: 98, costEfficiency: 88, responsiveness: 95 },
+    aiRecommendedActions: [
+      { id: 'pa3', action: 'Nominate for Preferred Partner of the Year', detail: 'BrightLights has the highest rating (4.9) and on-time rate (98%) across all partners. Recognition strengthens the relationship and incentivises continued excellence.', timing: 'Apr 2026', priority: 'Mid', type: 'Relationship' },
+    ]
   },
   {
     id: 'P-1003',
@@ -615,7 +663,13 @@ export const MOCK_PARTNERS = [
     avgRating: 4.2,
     onTimeRate: 88,
     totalSpend: 142000,
-    lastEngagement: '2026-02-28'
+    lastEngagement: '2026-02-28',
+    healthScore: 68,
+    healthScoreBreakdown: { qualityRating: 84, onTimeDelivery: 58, costEfficiency: 72, responsiveness: 60 },
+    aiRecommendedActions: [
+      { id: 'pa4', action: 'Address on-time delivery issues', detail: 'MoveIt\'s on-time rate has dropped to 88% — below the 90% threshold. Schedule a review meeting to discuss SLA improvements before assigning to critical projects.', timing: 'Apr 2026', priority: 'High', type: 'Performance' },
+      { id: 'pa5', action: 'Evaluate alternative logistics partners', detail: 'Given declining reliability, consider onboarding a backup logistics partner for high-priority events while working on improvement plan with MoveIt.', timing: 'May 2026', priority: 'Mid', type: 'Risk Mitigation' },
+    ]
   },
   {
     id: 'P-1004',
@@ -641,7 +695,12 @@ export const MOCK_PARTNERS = [
     avgRating: 4.5,
     onTimeRate: 93,
     totalSpend: 198000,
-    lastEngagement: '2026-03-05'
+    lastEngagement: '2026-03-05',
+    healthScore: 85,
+    healthScoreBreakdown: { qualityRating: 90, onTimeDelivery: 86, costEfficiency: 78, responsiveness: 88 },
+    aiRecommendedActions: [
+      { id: 'pa6', action: 'Discuss Halal catering expansion', detail: 'Growing demand for Halal-certified catering at corporate events. GreenLeaf is well positioned — explore adding premium Halal menu tiers for gala dinners.', timing: 'May 2026', priority: 'Mid', type: 'Strategic' },
+    ]
   },
   {
     id: 'P-1005',
@@ -668,7 +727,12 @@ export const MOCK_PARTNERS = [
     avgRating: 4.8,
     onTimeRate: 95,
     totalSpend: 680000,
-    lastEngagement: '2026-03-12'
+    lastEngagement: '2026-03-12',
+    healthScore: 93,
+    healthScoreBreakdown: { qualityRating: 96, onTimeDelivery: 92, costEfficiency: 85, responsiveness: 94 },
+    aiRecommendedActions: [
+      { id: 'pa7', action: 'Negotiate annual retainer agreement', detail: 'QuickBuild is our highest-spend partner (SGD 680K). An annual retainer with guaranteed minimums could secure priority scheduling and 8-12% cost savings.', timing: 'Jun 2026', priority: 'High', type: 'Cost Saving' },
+    ]
   },
   {
     id: 'P-1006',
@@ -694,7 +758,12 @@ export const MOCK_PARTNERS = [
     avgRating: 4.0,
     onTimeRate: 85,
     totalSpend: 96000,
-    lastEngagement: '2026-02-15'
+    lastEngagement: '2026-02-15',
+    healthScore: 62,
+    healthScoreBreakdown: { qualityRating: 80, onTimeDelivery: 50, costEfficiency: 70, responsiveness: 55 },
+    aiRecommendedActions: [
+      { id: 'pa8', action: 'Review SLA compliance', detail: 'PowerGen\'s on-time rate (85%) is the lowest among active partners. Their insurance expires Sep 2026 — ensure renewal before assigning to Q4 events.', timing: 'Apr 2026', priority: 'High', type: 'Performance' },
+    ]
   },
   {
     id: 'P-1007',
@@ -720,7 +789,12 @@ export const MOCK_PARTNERS = [
     avgRating: 4.6,
     onTimeRate: 92,
     totalSpend: 175000,
-    lastEngagement: '2026-01-20'
+    lastEngagement: '2026-01-20',
+    healthScore: 78,
+    healthScoreBreakdown: { qualityRating: 92, onTimeDelivery: 84, costEfficiency: 65, responsiveness: 72 },
+    aiRecommendedActions: [
+      { id: 'pa9', action: 'Re-engage for upcoming projection mapping projects', detail: 'Vertex hasn\'t been engaged since January. The Virtual Reality Showcase (SGD 280K) needs projection mapping — they are the ideal fit.', timing: 'Apr 2026', priority: 'High', type: 'Outreach' },
+    ]
   },
   {
     id: 'P-1008',
@@ -746,6 +820,11 @@ export const MOCK_PARTNERS = [
     avgRating: 2.1,
     onTimeRate: 50,
     totalSpend: 28000,
-    lastEngagement: '2025-10-31'
+    lastEngagement: '2025-10-31',
+    healthScore: 18,
+    healthScoreBreakdown: { qualityRating: 22, onTimeDelivery: 10, costEfficiency: 30, responsiveness: 12 },
+    aiRecommendedActions: [
+      { id: 'pa10', action: 'Maintain blacklist — do not engage', detail: 'FastTrack has repeated no-shows and unprofessional conduct. No remediation steps have been taken. Continue sourcing manpower from alternative suppliers.', timing: 'N/A', priority: 'High', type: 'Risk Mitigation' },
+    ]
   }
 ];

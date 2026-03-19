@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { Typography, Card, Tabs, Button, Descriptions, Tag, Divider, Row, Col, Table, Space, Avatar, Timeline, theme, Statistic, List, Input, Select, Tooltip, Drawer, Form, Popconfirm } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined, WhatsAppOutlined, CheckCircleOutlined, UserOutlined, FileTextOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, SaveOutlined, CloseOutlined, FilePdfOutlined } from '@ant-design/icons';
+import { Typography, Card, Tabs, Button, Descriptions, Tag, Divider, Row, Col, Table, Space, Avatar, Timeline, theme, Statistic, List, Input, Select, Tooltip, Drawer, Form, Popconfirm, Progress } from 'antd';
+import { ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined, WhatsAppOutlined, CheckCircleOutlined, UserOutlined, FileTextOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, SaveOutlined, CloseOutlined, FilePdfOutlined, RobotOutlined, CalendarOutlined, BulbOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_CUSTOMERS, MOCK_DEALS } from '../data/mockData';
 
@@ -314,12 +314,9 @@ export const CustomerProfile: React.FC = () => {
                     />
                   </Form>
                 </Card>
-              </Col>
-              
-              <Col span={8}>
-                <Card 
-                  title="Preferences & Settings" 
-                  style={{ marginBottom: 24 }}
+
+                <Card
+                  title="Preferences & Settings"
                   extra={
                     isEditingPreferences ? (
                       <Space>
@@ -359,6 +356,95 @@ export const CustomerProfile: React.FC = () => {
                       </div>
                     </>
                   )}
+                </Card>
+              </Col>
+
+              <Col span={8}>
+                {/* AI Health Score */}
+                <Card
+                  title={<Space size={8}><RobotOutlined style={{ color: token.colorPrimary }} />AI Health Score</Space>}
+                  style={{ marginBottom: 24 }}
+                >
+                  {(() => {
+                    const score = customer.healthScore || 0;
+                    const color = score >= 80 ? token.colorSuccess : score >= 60 ? token.colorWarning : token.colorError;
+                    const label = score >= 80 ? 'Healthy' : score >= 60 ? 'Needs Attention' : 'At Risk';
+                    const breakdown = customer.healthScoreBreakdown || {};
+                    return (
+                      <>
+                        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                          <div style={{ position: 'relative', display: 'inline-block' }}>
+                            <Progress
+                              type="dashboard"
+                              percent={score}
+                              strokeColor={color}
+                              format={() => (
+                                <div>
+                                  <div style={{ fontSize: 28, fontWeight: 700, color }}>{score}</div>
+                                  <div style={{ fontSize: 11, color: token.colorTextSecondary }}>{label}</div>
+                                </div>
+                              )}
+                              size={130}
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          {[
+                            { label: 'Engagement Frequency', value: breakdown.engagementFrequency },
+                            { label: 'Revenue Trend', value: breakdown.revenueTrend },
+                            { label: 'NPS Contribution', value: breakdown.npsContribution },
+                            { label: 'Responsiveness', value: breakdown.responsiveness },
+                          ].map((item) => (
+                            <div key={item.label}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                                <Text type="secondary" style={{ fontSize: 12 }}>{item.label}</Text>
+                                <Text style={{ fontSize: 12, fontWeight: 500 }}>{item.value}%</Text>
+                              </div>
+                              <Progress
+                                percent={item.value}
+                                size="small"
+                                showInfo={false}
+                                strokeColor={item.value >= 80 ? token.colorSuccess : item.value >= 60 ? token.colorWarning : token.colorError}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </Card>
+
+                {/* AI Recommended Actions */}
+                <Card
+                  title={<Space size={8}><BulbOutlined style={{ color: token.colorPrimary }} />Next Recommended Actions</Space>}
+                >
+                  <List
+                    dataSource={customer.aiRecommendedActions || []}
+                    renderItem={(item: any) => {
+                      const priorityColor = item.priority === 'High' ? 'red' : item.priority === 'Mid' ? 'orange' : 'green';
+                      const typeColor = item.type === 'Outreach' ? 'blue' : item.type === 'Upsell' ? 'purple' : 'cyan';
+                      return (
+                        <div style={{
+                          padding: '12px 14px',
+                          marginBottom: 10,
+                          borderRadius: 8,
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                          background: token.colorBgContainer
+                        }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 6 }}>
+                            <Text strong style={{ fontSize: 13, flex: 1 }}>{item.action}</Text>
+                          </div>
+                          <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8, lineHeight: 1.5 }}>{item.detail}</Text>
+                          <Space size={4}>
+                            <Tag color={priorityColor} style={{ fontSize: 11, margin: 0 }}>{item.priority}</Tag>
+                            <Tag color={typeColor} style={{ fontSize: 11, margin: 0 }}>{item.type}</Tag>
+                            <Tag icon={<CalendarOutlined />} style={{ fontSize: 11, margin: 0 }}>{item.timing}</Tag>
+                          </Space>
+                        </div>
+                      );
+                    }}
+                    locale={{ emptyText: 'No recommendations at this time.' }}
+                  />
                 </Card>
               </Col>
             </Row>

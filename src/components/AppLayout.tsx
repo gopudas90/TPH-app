@@ -190,7 +190,10 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
           </div>
           <Space size="middle">
             <Dropdown menu={moduleMenu} placement="bottomRight">
-              <Button type="text" icon={<AppstoreOutlined />} title="Switch Module" />
+              <Button type="text" icon={<AppstoreOutlined />} title="Switch Module">
+                <span style={{ fontSize: 13 }}>{currentModule === 'sales' ? 'Sales Management' : currentModule === 'customers' ? 'Customer Account Management' : currentModule === 'employees' ? 'Employee Management' : 'Partner Management'}</span>
+                <SwapOutlined style={{ fontSize: 10, marginLeft: 4 }} />
+              </Button>
             </Dropdown>
             <Button 
               type="text" 

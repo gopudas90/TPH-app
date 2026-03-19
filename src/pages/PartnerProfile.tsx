@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { Typography, Card, Tabs, Button, Descriptions, Tag, Row, Col, Table, Space, Avatar, theme, Statistic, Input, Select, Tooltip, Drawer, Form, List, Rate, Timeline, Progress } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined, GlobalOutlined, ShopOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, SafetyCertificateOutlined, StarOutlined, ClockCircleOutlined, WarningOutlined, CheckCircleOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined, StarFilled, StopOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined, GlobalOutlined, ShopOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, SafetyCertificateOutlined, StarOutlined, ClockCircleOutlined, WarningOutlined, CheckCircleOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined, StarFilled, StopOutlined, RobotOutlined, BulbOutlined, CalendarOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_PARTNERS } from '../data/mockData';
 
@@ -354,6 +354,90 @@ export const PartnerProfile: React.FC = () => {
               </Col>
 
               <Col span={8}>
+                {/* AI Health Score */}
+                <Card
+                  title={<Space size={8}><RobotOutlined style={{ color: token.colorPrimary }} />AI Health Score</Space>}
+                  style={{ marginBottom: 24 }}
+                >
+                  {(() => {
+                    const score = partner.healthScore || 0;
+                    const color = score >= 80 ? token.colorSuccess : score >= 60 ? token.colorWarning : token.colorError;
+                    const label = score >= 80 ? 'Healthy' : score >= 60 ? 'Needs Attention' : 'At Risk';
+                    const breakdown = partner.healthScoreBreakdown || {};
+                    return (
+                      <>
+                        <div style={{ textAlign: 'center', marginBottom: 16 }}>
+                          <Progress
+                            type="dashboard"
+                            percent={score}
+                            strokeColor={color}
+                            format={() => (
+                              <div>
+                                <div style={{ fontSize: 28, fontWeight: 700, color }}>{score}</div>
+                                <div style={{ fontSize: 11, color: token.colorTextSecondary }}>{label}</div>
+                              </div>
+                            )}
+                            size={130}
+                          />
+                        </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                          {[
+                            { label: 'Quality Rating', value: breakdown.qualityRating },
+                            { label: 'On-Time Delivery', value: breakdown.onTimeDelivery },
+                            { label: 'Cost Efficiency', value: breakdown.costEfficiency },
+                            { label: 'Responsiveness', value: breakdown.responsiveness },
+                          ].map((item) => (
+                            <div key={item.label}>
+                              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                                <Text type="secondary" style={{ fontSize: 12 }}>{item.label}</Text>
+                                <Text style={{ fontSize: 12, fontWeight: 500 }}>{item.value}%</Text>
+                              </div>
+                              <Progress
+                                percent={item.value}
+                                size="small"
+                                showInfo={false}
+                                strokeColor={item.value >= 80 ? token.colorSuccess : item.value >= 60 ? token.colorWarning : token.colorError}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    );
+                  })()}
+                </Card>
+
+                {/* AI Recommended Actions */}
+                <Card
+                  title={<Space size={8}><BulbOutlined style={{ color: token.colorPrimary }} />Next Recommended Actions</Space>}
+                  style={{ marginBottom: 24 }}
+                >
+                  <List
+                    dataSource={partner.aiRecommendedActions || []}
+                    renderItem={(item: any) => {
+                      const priorityColor = item.priority === 'High' ? 'red' : item.priority === 'Mid' ? 'orange' : 'green';
+                      const typeColor = item.type === 'Outreach' ? 'blue' : item.type === 'Cost Saving' ? 'green' : item.type === 'Strategic' ? 'purple' : item.type === 'Performance' ? 'orange' : item.type === 'Risk Mitigation' ? 'red' : 'cyan';
+                      return (
+                        <div style={{
+                          padding: '12px 14px',
+                          marginBottom: 10,
+                          borderRadius: 8,
+                          border: `1px solid ${token.colorBorderSecondary}`,
+                          background: token.colorBgContainer
+                        }}>
+                          <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 6 }}>{item.action}</Text>
+                          <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 8, lineHeight: 1.5 }}>{item.detail}</Text>
+                          <Space size={4}>
+                            <Tag color={priorityColor} style={{ fontSize: 11, margin: 0 }}>{item.priority}</Tag>
+                            <Tag color={typeColor} style={{ fontSize: 11, margin: 0 }}>{item.type}</Tag>
+                            <Tag icon={<CalendarOutlined />} style={{ fontSize: 11, margin: 0 }}>{item.timing}</Tag>
+                          </Space>
+                        </div>
+                      );
+                    }}
+                    locale={{ emptyText: 'No recommendations at this time.' }}
+                  />
+                </Card>
+
                 <Card
                   title="Rate Card"
                   style={{ marginBottom: 24 }}
