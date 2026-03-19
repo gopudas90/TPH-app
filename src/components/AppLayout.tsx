@@ -12,7 +12,8 @@ import {
   SwapOutlined,
   TeamOutlined,
   ShopOutlined,
-  InboxOutlined
+  InboxOutlined,
+  DatabaseOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
@@ -107,6 +108,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
       key: '/assets',
       icon: <InboxOutlined />,
       label: 'Assets',
+    },
+    {
+      key: '/assets/inventory',
+      icon: <DatabaseOutlined />,
+      label: 'Inventory',
     },
   ];
 

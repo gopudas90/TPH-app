@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { Typography, Card, Tabs, Button, Descriptions, Tag, Row, Col, Table, Space, theme, Statistic, Input, Select, Tooltip, Drawer, Form, List, Timeline } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, ToolOutlined, CalendarOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined, EnvironmentOutlined, InboxOutlined, BarChartOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import { Typography, Card, Tabs, Button, Descriptions, Tag, Row, Col, Table, Space, theme, Statistic, Input, Select, Tooltip, Drawer, Form, List, Timeline, Alert, Checkbox, message } from 'antd';
+import { ArrowLeftOutlined, EditOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, ToolOutlined, CalendarOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined, EnvironmentOutlined, InboxOutlined, BarChartOutlined, CheckCircleOutlined, ExportOutlined, ImportOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MOCK_ASSETS } from '../data/mockData';
+import { MOCK_ASSETS, MOCK_ASSET_BOOKINGS } from '../data/mockData';
 import { formatCurrency } from '../utils';
+import { detectConflicts } from '../utils/assetUtils';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -15,7 +16,7 @@ export const AssetProfile: React.FC = () => {
   const navigate = useNavigate();
   const { token } = theme.useToken();
   const [activeTab, setActiveTab] = useState('details');
-  const [activeDrawer, setActiveDrawer] = useState<'notes' | 'documents' | null>(null);
+  const [activeDrawer, setActiveDrawer] = useState<'notes' | 'documents' | 'checkout' | 'checkin' | null>(null);
 
   const initialAsset = MOCK_ASSETS.find(a => a.id === id);
 
@@ -25,6 +26,31 @@ export const AssetProfile: React.FC = () => {
 
   const [asset, setAsset] = useState(initialAsset);
   const [isEditingInfo, setIsEditingInfo] = useState(false);
+  const [isEditingStorage, setIsEditingStorage] = useState(false);
+  const [isEditingCondition, setIsEditingCondition] = useState(false);
+  const [editCondition, setEditCondition] = useState(initialAsset.condition);
+  const [editNextMaintenance, setEditNextMaintenance] = useState(initialAsset.nextMaintenance || '');
+  const [editLastMaintenance, setEditLastMaintenance] = useState(initialAsset.lastMaintenance || '');
+
+  // Bookings state (local copy so check-out/check-in can mutate)
+  const [bookings, setBookings] = useState(MOCK_ASSET_BOOKINGS);
+  const assetBookings = bookings.filter(b => b.assetId === id);
+  const conflicts = detectConflicts(id, bookings);
+
+  // Find actionable bookings
+  const confirmedBooking = assetBookings.find(b => b.status === 'confirmed');
+  const checkedOutBooking = assetBookings.find(b => b.status === 'checked-out');
+
+  // Check-Out form state
+  const [checkOutPerson, setCheckOutPerson] = useState('');
+  const [checkOutCondition, setCheckOutCondition] = useState('Excellent');
+  const [checkOutNotes, setCheckOutNotes] = useState('');
+
+  // Check-In form state
+  const [checkInCondition, setCheckInCondition] = useState('Excellent');
+  const [checkInNotes, setCheckInNotes] = useState('');
+  const [checkInDamageReported, setCheckInDamageReported] = useState(false);
+  const [checkInDamageDescription, setCheckInDamageDescription] = useState('');
 
   // Notes State
   const [newNote, setNewNote] = useState('');
@@ -44,6 +70,14 @@ export const AssetProfile: React.FC = () => {
     if (condition === 'Requires Maintenance') return 'error';
     if (condition === 'Retired') return 'default';
     if (condition === 'Pending') return 'default';
+    return 'default';
+  };
+
+  const getBookingStatusColor = (status: string) => {
+    if (status === 'confirmed') return 'blue';
+    if (status === 'checked-out') return 'processing';
+    if (status === 'returned') return 'success';
+    if (status === 'pending') return 'default';
     return 'default';
   };
 
@@ -112,25 +146,8 @@ export const AssetProfile: React.FC = () => {
     return zoneMap[asset.location] || { zone: asset.location, shelf: 'N/A' };
   };
 
-  // Mock booking history
-  const bookingHistory = [
-    { id: 'bk1', project: 'Tech Summit 2026', startDate: '2026-03-10', endDate: '2026-03-12', checkedOutBy: 'Rajan Pillai', conditionOnReturn: 'Excellent' },
-    { id: 'bk2', project: 'Summer Roadshow', startDate: '2026-02-15', endDate: '2026-02-20', checkedOutBy: 'Ahmad Razak', conditionOnReturn: 'Good' },
-    { id: 'bk3', project: 'Holiday Gala 2025', startDate: '2025-12-18', endDate: '2025-12-21', checkedOutBy: 'Rajan Pillai', conditionOnReturn: 'Excellent' },
-    { id: 'bk4', project: 'Esports Tournament Finals', startDate: '2026-03-14', endDate: '2026-03-16', checkedOutBy: 'Marcus Lee', conditionOnReturn: 'Pending' },
-    { id: 'bk5', project: 'Spring Fashion Show', startDate: '2026-03-20', endDate: '2026-03-26', checkedOutBy: 'Wei Ming Chen', conditionOnReturn: 'Pending' },
-  ];
-
-  const bookingColumns = [
-    { title: 'Project', dataIndex: 'project', key: 'project', render: (text: string) => <Text strong>{text}</Text> },
-    { title: 'Start Date', dataIndex: 'startDate', key: 'startDate' },
-    { title: 'End Date', dataIndex: 'endDate', key: 'endDate' },
-    { title: 'Checked Out By', dataIndex: 'checkedOutBy', key: 'checkedOutBy' },
-    {
-      title: 'Condition on Return', dataIndex: 'conditionOnReturn', key: 'conditionOnReturn',
-      render: (val: string) => <Tag color={getConditionColor(val)}>{val}</Tag>
-    },
-  ];
+  const [storageZone, setStorageZone] = useState(getStorageDetails(initialAsset).zone);
+  const [storageShelf, setStorageShelf] = useState(getStorageDetails(initialAsset).shelf);
 
   // Mock service history
   const serviceHistory = [
@@ -162,6 +179,22 @@ export const AssetProfile: React.FC = () => {
     { title: 'Technician', dataIndex: 'technician', key: 'technician' },
   ];
 
+  // Bookings tab columns
+  const bookingTabColumns = [
+    { title: 'Project', dataIndex: 'projectName', key: 'projectName', render: (text: string) => <Text strong>{text}</Text> },
+    { title: 'Start Date', dataIndex: 'startDate', key: 'startDate' },
+    { title: 'End Date', dataIndex: 'endDate', key: 'endDate' },
+    {
+      title: 'Status', dataIndex: 'status', key: 'status',
+      render: (val: string) => <Tag color={getBookingStatusColor(val)}>{val}</Tag>
+    },
+    { title: 'Checked Out By', dataIndex: 'checkedOutBy', key: 'checkedOutBy', render: (val: string) => val || '—' },
+    {
+      title: 'Condition on Return', dataIndex: 'checkInCondition', key: 'checkInCondition',
+      render: (val: string) => val ? <Tag color={getConditionColor(val)}>{val}</Tag> : '—'
+    },
+  ];
+
   // Mock documents list
   const documentsList = [
     { id: 'd1', name: `${asset.name} — User Manual.pdf`, type: 'Manual', size: '4.2 MB' },
@@ -172,12 +205,45 @@ export const AssetProfile: React.FC = () => {
   const physicalSpecs = getPhysicalSpecs(asset);
   const storageDetails = getStorageDetails(asset);
 
+  // Check-Out handler
+  const handleCheckOut = () => {
+    if (!confirmedBooking || !checkOutPerson.trim()) return;
+    const today = new Date().toISOString().split('T')[0];
+    setBookings(prev => prev.map(b =>
+      b.id === confirmedBooking.id
+        ? { ...b, status: 'checked-out', checkedOutBy: checkOutPerson, checkOutDate: today, checkOutCondition: checkOutCondition, checkOutNotes: checkOutNotes }
+        : b
+    ));
+    message.success(`Asset checked out to ${checkOutPerson} for ${confirmedBooking.projectName}`);
+    setCheckOutPerson('');
+    setCheckOutCondition('Excellent');
+    setCheckOutNotes('');
+    setActiveDrawer(null);
+  };
+
+  // Check-In handler
+  const handleCheckIn = () => {
+    if (!checkedOutBooking) return;
+    const today = new Date().toISOString().split('T')[0];
+    setBookings(prev => prev.map(b =>
+      b.id === checkedOutBooking.id
+        ? { ...b, status: 'returned', checkInDate: today, checkInCondition: checkInCondition, checkInNotes: checkInDamageReported ? `${checkInNotes} | Damage: ${checkInDamageDescription}` : checkInNotes, checkInDamageReported: checkInDamageReported }
+        : b
+    ));
+    message.success(`Asset checked in from ${checkedOutBooking.projectName}`);
+    setCheckInCondition('Excellent');
+    setCheckInNotes('');
+    setCheckInDamageReported(false);
+    setCheckInDamageDescription('');
+    setActiveDrawer(null);
+  };
+
   return (
     <div>
       {/* Header */}
       <div style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 16 }}>
         <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(-1)} />
-        <div>
+        <div style={{ flex: 1 }}>
           <Title level={3} style={{ margin: 0, display: 'flex', alignItems: 'center', gap: 12 }}>
             {asset.name}
             <Tag color={getCategoryColor(asset.category)}>{asset.category}</Tag>
@@ -185,6 +251,18 @@ export const AssetProfile: React.FC = () => {
           </Title>
           <Text type="secondary">{asset.id} — {asset.location}{asset.assignedProject ? ` — Currently on: ${asset.assignedProject}` : ''}</Text>
         </div>
+        <Space>
+          {confirmedBooking && (
+            <Button type="primary" icon={<ExportOutlined />} onClick={() => setActiveDrawer('checkout')}>
+              Check Out
+            </Button>
+          )}
+          {checkedOutBooking && (
+            <Button style={{ backgroundColor: token.colorSuccess, borderColor: token.colorSuccess, color: '#fff' }} icon={<ImportOutlined />} onClick={() => setActiveDrawer('checkin')}>
+              Check In
+            </Button>
+          )}
+        </Space>
       </div>
 
       {/* Stat Cards Row */}
@@ -206,7 +284,7 @@ export const AssetProfile: React.FC = () => {
         </Col>
         <Col span={6}>
           <Card styles={{ body: { padding: '20px' } }}>
-            <Statistic title="Total Bookings" value={bookingHistory.length} prefix={<CheckCircleOutlined />} />
+            <Statistic title="Total Bookings" value={assetBookings.length} prefix={<CheckCircleOutlined />} />
           </Card>
         </Col>
       </Row>
@@ -287,17 +365,12 @@ export const AssetProfile: React.FC = () => {
                 </Card>
 
                 {/* Physical Specifications Card */}
-                <Card title="Physical Specifications" style={{ marginBottom: 24 }}>
+                <Card title="Physical Specifications">
                   <Descriptions column={2} labelStyle={{ color: token.colorTextSecondary }}>
                     <Descriptions.Item label="Dimensions">{physicalSpecs.dimensions}</Descriptions.Item>
                     <Descriptions.Item label="Weight">{physicalSpecs.weight}</Descriptions.Item>
                     <Descriptions.Item label="Power Requirements" span={2}>{physicalSpecs.power}</Descriptions.Item>
                   </Descriptions>
-                </Card>
-
-                {/* Booking History Card */}
-                <Card title="Booking History">
-                  <Table columns={bookingColumns} dataSource={bookingHistory} pagination={false} rowKey="id" size="small" />
                 </Card>
               </Col>
 
@@ -307,64 +380,99 @@ export const AssetProfile: React.FC = () => {
                 <Card
                   title={<Space size={8}><EnvironmentOutlined style={{ color: token.colorPrimary }} />Storage & Location</Space>}
                   style={{ marginBottom: 24 }}
+                  extra={
+                    isEditingStorage ? (
+                      <Space>
+                        <Button size="small" onClick={() => { setStorageZone(getStorageDetails(initialAsset).zone); setStorageShelf(getStorageDetails(initialAsset).shelf); setIsEditingStorage(false); }}>Cancel</Button>
+                        <Button size="small" type="primary" onClick={() => setIsEditingStorage(false)}>Save</Button>
+                      </Space>
+                    ) : (
+                      <Button type="text" icon={<EditOutlined />} onClick={() => setIsEditingStorage(true)} />
+                    )
+                  }
                 >
-                  <div style={{ marginBottom: 16 }}>
-                    <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Warehouse Zone</Text>
-                    <Text strong style={{ fontSize: 14 }}>{storageDetails.zone}</Text>
-                  </div>
-                  <div>
-                    <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Shelf Reference</Text>
-                    <Text strong style={{ fontSize: 14 }}>{storageDetails.shelf}</Text>
-                  </div>
+                  {isEditingStorage ? (
+                    <Form layout="vertical">
+                      <Form.Item label="Warehouse Zone">
+                        <Input value={storageZone} onChange={e => setStorageZone(e.target.value)} />
+                      </Form.Item>
+                      <Form.Item label="Shelf Reference">
+                        <Input value={storageShelf} onChange={e => setStorageShelf(e.target.value)} />
+                      </Form.Item>
+                    </Form>
+                  ) : (
+                    <>
+                      <div style={{ marginBottom: 16 }}>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Warehouse Zone</Text>
+                        <Text strong style={{ fontSize: 14 }}>{storageZone}</Text>
+                      </div>
+                      <div>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Shelf Reference</Text>
+                        <Text strong style={{ fontSize: 14 }}>{storageShelf}</Text>
+                      </div>
+                    </>
+                  )}
                 </Card>
 
                 {/* Condition & Maintenance Card */}
                 <Card
                   title={<Space size={8}><ToolOutlined style={{ color: token.colorPrimary }} />Condition & Maintenance</Space>}
                   style={{ marginBottom: 24 }}
+                  extra={
+                    isEditingCondition ? (
+                      <Space>
+                        <Button size="small" onClick={() => { setEditCondition(initialAsset.condition); setEditNextMaintenance(initialAsset.nextMaintenance || ''); setEditLastMaintenance(initialAsset.lastMaintenance || ''); setIsEditingCondition(false); }}>Cancel</Button>
+                        <Button size="small" type="primary" onClick={() => { setAsset({ ...asset, condition: editCondition, nextMaintenance: editNextMaintenance, lastMaintenance: editLastMaintenance }); setIsEditingCondition(false); }}>Save</Button>
+                      </Space>
+                    ) : (
+                      <Button type="text" icon={<EditOutlined />} onClick={() => setIsEditingCondition(true)} />
+                    )
+                  }
                 >
-                  <div style={{ marginBottom: 16 }}>
-                    <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Current Condition</Text>
-                    <Tag color={getConditionColor(asset.condition)} style={{ fontSize: 13 }}>{asset.condition}</Tag>
-                  </div>
-                  <div style={{ marginBottom: 16 }}>
-                    <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Next Maintenance Date</Text>
-                    <Text strong style={{ fontSize: 14 }}>
-                      {asset.nextMaintenance ? (
-                        <Space size={4}>
-                          <CalendarOutlined />
-                          {asset.nextMaintenance}
-                          {new Date(asset.nextMaintenance) <= new Date() && <Tag color="error" style={{ marginLeft: 8 }}>Overdue</Tag>}
-                        </Space>
-                      ) : 'N/A'}
-                    </Text>
-                  </div>
-                  <div>
-                    <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Last Maintenance Date</Text>
-                    <Text strong style={{ fontSize: 14 }}>{asset.lastMaintenance || 'N/A'}</Text>
-                  </div>
+                  {isEditingCondition ? (
+                    <Form layout="vertical">
+                      <Form.Item label="Current Condition">
+                        <Select value={editCondition} onChange={val => setEditCondition(val)}>
+                          <Option value="Excellent">Excellent</Option>
+                          <Option value="Good">Good</Option>
+                          <Option value="Fair">Fair</Option>
+                          <Option value="Requires Maintenance">Requires Maintenance</Option>
+                          <Option value="Retired">Retired</Option>
+                        </Select>
+                      </Form.Item>
+                      <Form.Item label="Next Maintenance Date">
+                        <Input type="date" value={editNextMaintenance} onChange={e => setEditNextMaintenance(e.target.value)} />
+                      </Form.Item>
+                      <Form.Item label="Last Maintenance Date">
+                        <Input type="date" value={editLastMaintenance} onChange={e => setEditLastMaintenance(e.target.value)} />
+                      </Form.Item>
+                    </Form>
+                  ) : (
+                    <>
+                      <div style={{ marginBottom: 16 }}>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Current Condition</Text>
+                        <Tag color={getConditionColor(asset.condition)} style={{ fontSize: 13 }}>{asset.condition}</Tag>
+                      </div>
+                      <div style={{ marginBottom: 16 }}>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Next Maintenance Date</Text>
+                        <Text strong style={{ fontSize: 14 }}>
+                          {asset.nextMaintenance ? (
+                            <Space size={4}>
+                              <CalendarOutlined />
+                              {asset.nextMaintenance}
+                              {new Date(asset.nextMaintenance) <= new Date() && <Tag color="error" style={{ marginLeft: 8 }}>Overdue</Tag>}
+                            </Space>
+                          ) : 'N/A'}
+                        </Text>
+                      </div>
+                      <div>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Last Maintenance Date</Text>
+                        <Text strong style={{ fontSize: 14 }}>{asset.lastMaintenance || 'N/A'}</Text>
+                      </div>
+                    </>
+                  )}
                 </Card>
 
-                {/* Documents Card */}
-                <Card
-                  title={<Space size={8}><FolderOpenOutlined style={{ color: token.colorPrimary }} />Documents</Space>}
-                >
-                  <List
-                    itemLayout="horizontal"
-                    dataSource={documentsList}
-                    renderItem={item => (
-                      <List.Item
-                        style={{ padding: '10px 0', borderBottom: `1px solid ${token.colorBorderSecondary}` }}
-                      >
-                        <List.Item.Meta
-                          avatar={<FilePdfOutlined style={{ fontSize: 22, color: token.colorError }} />}
-                          title={<a href="#">{item.name}</a>}
-                          description={<Text type="secondary" style={{ fontSize: 11 }}>{item.type} — {item.size}</Text>}
-                        />
-                      </List.Item>
-                    )}
-                  />
-                </Card>
               </Col>
             </Row>
           )
@@ -395,6 +503,35 @@ export const AssetProfile: React.FC = () => {
                 </Card>
               </Col>
             </Row>
+          )
+        },
+        {
+          key: 'bookings',
+          label: 'Bookings',
+          children: (
+            <div>
+              {conflicts.length > 0 && (
+                <Alert
+                  type="warning"
+                  showIcon
+                  style={{ marginBottom: 16 }}
+                  message="Booking Conflicts Detected"
+                  description={
+                    <ul style={{ margin: 0, paddingLeft: 20 }}>
+                      {conflicts.map((c, idx) => (
+                        <li key={idx}>
+                          <Text strong>{c.booking1.projectName}</Text> ({c.booking1.startDate} to {c.booking1.endDate}) overlaps with{' '}
+                          <Text strong>{c.booking2.projectName}</Text> ({c.booking2.startDate} to {c.booking2.endDate})
+                        </li>
+                      ))}
+                    </ul>
+                  }
+                />
+              )}
+              <Card title="Booking History">
+                <Table columns={bookingTabColumns} dataSource={assetBookings} pagination={false} rowKey="id" size="small" />
+              </Card>
+            </div>
           )
         }
       ]} />
@@ -480,6 +617,96 @@ export const AssetProfile: React.FC = () => {
             </List.Item>
           )}
         />
+      </Drawer>
+
+      {/* Check-Out Drawer */}
+      <Drawer
+        title="Check Out Asset"
+        placement="right"
+        onClose={() => setActiveDrawer(null)}
+        open={activeDrawer === 'checkout'}
+        width={420}
+        footer={
+          <div style={{ textAlign: 'right' }}>
+            <Space>
+              <Button onClick={() => setActiveDrawer(null)}>Cancel</Button>
+              <Button type="primary" onClick={handleCheckOut} disabled={!checkOutPerson.trim()}>Confirm Check Out</Button>
+            </Space>
+          </div>
+        }
+      >
+        {confirmedBooking && (
+          <Form layout="vertical">
+            <Form.Item label="Project">
+              <Input value={confirmedBooking.projectName} disabled />
+            </Form.Item>
+            <Form.Item label="Booking Period">
+              <Input value={`${confirmedBooking.startDate} to ${confirmedBooking.endDate}`} disabled />
+            </Form.Item>
+            <Form.Item label="Checked Out By" required>
+              <Input placeholder="Enter name" value={checkOutPerson} onChange={e => setCheckOutPerson(e.target.value)} />
+            </Form.Item>
+            <Form.Item label="Condition at Check-Out">
+              <Select value={checkOutCondition} onChange={val => setCheckOutCondition(val)}>
+                <Option value="Excellent">Excellent</Option>
+                <Option value="Good">Good</Option>
+                <Option value="Fair">Fair</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item label="Notes">
+              <TextArea rows={3} placeholder="Any notes about the check-out..." value={checkOutNotes} onChange={e => setCheckOutNotes(e.target.value)} />
+            </Form.Item>
+          </Form>
+        )}
+      </Drawer>
+
+      {/* Check-In Drawer */}
+      <Drawer
+        title="Check In Asset"
+        placement="right"
+        onClose={() => setActiveDrawer(null)}
+        open={activeDrawer === 'checkin'}
+        width={420}
+        footer={
+          <div style={{ textAlign: 'right' }}>
+            <Space>
+              <Button onClick={() => setActiveDrawer(null)}>Cancel</Button>
+              <Button type="primary" onClick={handleCheckIn}>Confirm Check In</Button>
+            </Space>
+          </div>
+        }
+      >
+        {checkedOutBooking && (
+          <Form layout="vertical">
+            <Form.Item label="Project">
+              <Input value={checkedOutBooking.projectName} disabled />
+            </Form.Item>
+            <Form.Item label="Checked Out By">
+              <Input value={checkedOutBooking.checkedOutBy} disabled />
+            </Form.Item>
+            <Form.Item label="Condition at Return">
+              <Select value={checkInCondition} onChange={val => setCheckInCondition(val)}>
+                <Option value="Excellent">Excellent</Option>
+                <Option value="Good">Good</Option>
+                <Option value="Fair">Fair</Option>
+                <Option value="Requires Maintenance">Requires Maintenance</Option>
+              </Select>
+            </Form.Item>
+            <Form.Item label="Notes">
+              <TextArea rows={3} placeholder="Any notes about the return condition..." value={checkInNotes} onChange={e => setCheckInNotes(e.target.value)} />
+            </Form.Item>
+            <Form.Item>
+              <Checkbox checked={checkInDamageReported} onChange={e => setCheckInDamageReported(e.target.checked)}>
+                Damage Reported
+              </Checkbox>
+            </Form.Item>
+            {checkInDamageReported && (
+              <Form.Item label="Damage Description">
+                <TextArea rows={3} placeholder="Describe the damage..." value={checkInDamageDescription} onChange={e => setCheckInDamageDescription(e.target.value)} />
+              </Form.Item>
+            )}
+          </Form>
+        )}
       </Drawer>
     </div>
   );

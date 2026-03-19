@@ -1110,70 +1110,87 @@ export const MOCK_ASSETS = [
 // ── Consumables ────────────────────────────────────────────────────────────────
 
 export const MOCK_CONSUMABLES = [
-  {
-    id: 'C-1001',
-    name: 'Gaffer Tape (Black, 50m rolls)',
-    category: 'Tapes & Adhesives',
-    unit: 'roll',
-    currentStock: 42,
-    minimumThreshold: 20,
-    lastPurchasePrice: 18.50,
-    supplier: 'Stage Supply Singapore',
-    lastPurchaseDate: '2026-02-15',
-  },
-  {
-    id: 'C-1002',
-    name: 'Cable Ties (300mm, Black, Pack of 100)',
-    category: 'Fasteners',
-    unit: 'pack',
-    currentStock: 35,
-    minimumThreshold: 15,
-    lastPurchasePrice: 8.90,
-    supplier: 'RS Components Singapore',
-    lastPurchaseDate: '2026-01-20',
-  },
-  {
-    id: 'C-1003',
-    name: 'Haze Fluid (5L)',
-    category: 'Effects Consumables',
-    unit: 'bottle',
-    currentStock: 8,
-    minimumThreshold: 10,
-    lastPurchasePrice: 65.00,
-    supplier: 'Showtech Asia Pte Ltd',
-    lastPurchaseDate: '2026-02-28',
-  },
-  {
-    id: 'C-1004',
-    name: 'DMX Cable (5-Pin, 10m)',
-    category: 'Cables',
-    unit: 'piece',
-    currentStock: 24,
-    minimumThreshold: 12,
-    lastPurchasePrice: 32.00,
-    supplier: 'Showtech Asia Pte Ltd',
-    lastPurchaseDate: '2026-01-10',
-  },
-  {
-    id: 'C-1005',
-    name: 'AA Batteries (Pack of 48)',
-    category: 'Power & Batteries',
-    unit: 'pack',
-    currentStock: 6,
-    minimumThreshold: 5,
-    lastPurchasePrice: 28.90,
-    supplier: 'Stage Supply Singapore',
-    lastPurchaseDate: '2026-03-01',
-  },
-  {
-    id: 'C-1006',
-    name: 'Thermal Printer Labels (500 pcs/roll)',
-    category: 'Registration & Badging',
-    unit: 'roll',
-    currentStock: 14,
-    minimumThreshold: 8,
-    lastPurchasePrice: 22.50,
-    supplier: 'RS Components Singapore',
-    lastPurchaseDate: '2026-02-05',
-  },
+  // Electrical Cable
+  { id: 'C-1001', name: '16A Powerlock Cable (25m)', category: 'Electrical Cable', unit: 'piece', currentStock: 8, minimumThreshold: 12, lastPurchasePrice: 185, supplier: 'Showtech Asia Pte Ltd', lastPurchaseDate: '2026-02-10', supplierContact: 'David Ong', supplierEmail: 'david@showtech.sg', supplierPhone: '+65 9800 1234' },
+  { id: 'C-1002', name: 'CEE 32A Extension (10m)', category: 'Electrical Cable', unit: 'piece', currentStock: 22, minimumThreshold: 15, lastPurchasePrice: 78, supplier: 'Showtech Asia Pte Ltd', lastPurchaseDate: '2026-01-20', supplierContact: 'David Ong', supplierEmail: 'david@showtech.sg', supplierPhone: '+65 9800 1234' },
+  { id: 'C-1003', name: 'DMX Cable 5-Pin (10m)', category: 'Electrical Cable', unit: 'piece', currentStock: 24, minimumThreshold: 20, lastPurchasePrice: 32, supplier: 'Showtech Asia Pte Ltd', lastPurchaseDate: '2026-01-10', supplierContact: 'David Ong', supplierEmail: 'david@showtech.sg', supplierPhone: '+65 9800 1234' },
+  { id: 'C-1004', name: 'CAT6 Ethernet Cable (30m)', category: 'Electrical Cable', unit: 'piece', currentStock: 18, minimumThreshold: 10, lastPurchasePrice: 42, supplier: 'RS Components Singapore', lastPurchaseDate: '2026-02-15', supplierContact: 'Linda Tay', supplierEmail: 'linda@rscomponents.sg', supplierPhone: '+65 9800 5678' },
+  // Rigging Hardware
+  { id: 'C-1005', name: 'Shackle Bow 2-Ton (WLL)', category: 'Rigging Hardware', unit: 'piece', currentStock: 30, minimumThreshold: 20, lastPurchasePrice: 28, supplier: 'Rigtech Solutions SG', lastPurchaseDate: '2026-01-25', supplierContact: 'Ah Kow', supplierEmail: 'kow@rigtech.sg', supplierPhone: '+65 9801 1234' },
+  { id: 'C-1006', name: 'Steel Wire Rope Sling 1-Ton (2m)', category: 'Rigging Hardware', unit: 'piece', currentStock: 14, minimumThreshold: 15, lastPurchasePrice: 55, supplier: 'Rigtech Solutions SG', lastPurchaseDate: '2026-02-05', supplierContact: 'Ah Kow', supplierEmail: 'kow@rigtech.sg', supplierPhone: '+65 9801 1234' },
+  { id: 'C-1007', name: 'Truss Half-Coupler (48-51mm)', category: 'Rigging Hardware', unit: 'piece', currentStock: 60, minimumThreshold: 40, lastPurchasePrice: 12, supplier: 'Rigtech Solutions SG', lastPurchaseDate: '2026-03-01', supplierContact: 'Ah Kow', supplierEmail: 'kow@rigtech.sg', supplierPhone: '+65 9801 1234' },
+  { id: 'C-1008', name: 'Safety Wire (2mm, 100m roll)', category: 'Rigging Hardware', unit: 'roll', currentStock: 5, minimumThreshold: 8, lastPurchasePrice: 35, supplier: 'Rigtech Solutions SG', lastPurchaseDate: '2026-01-15', supplierContact: 'Ah Kow', supplierEmail: 'kow@rigtech.sg', supplierPhone: '+65 9801 1234' },
+  // Staging Surfaces
+  { id: 'C-1009', name: 'Stage Carpet (Black, 2m wide, per metre)', category: 'Staging Surfaces', unit: 'metre', currentStock: 45, minimumThreshold: 50, lastPurchasePrice: 22, supplier: 'Stage Supply Singapore', lastPurchaseDate: '2026-02-20', supplierContact: 'Jenny Ng', supplierEmail: 'jenny@stagesupply.sg', supplierPhone: '+65 9802 1234' },
+  { id: 'C-1010', name: 'Non-Slip Stage Tape (50mm x 18m)', category: 'Staging Surfaces', unit: 'roll', currentStock: 16, minimumThreshold: 10, lastPurchasePrice: 24, supplier: 'Stage Supply Singapore', lastPurchaseDate: '2026-02-20', supplierContact: 'Jenny Ng', supplierEmail: 'jenny@stagesupply.sg', supplierPhone: '+65 9802 1234' },
+  { id: 'C-1011', name: 'Plywood Sheet 18mm (1220 x 2440mm)', category: 'Staging Surfaces', unit: 'sheet', currentStock: 12, minimumThreshold: 20, lastPurchasePrice: 68, supplier: 'Stage Supply Singapore', lastPurchaseDate: '2026-01-08', supplierContact: 'Jenny Ng', supplierEmail: 'jenny@stagesupply.sg', supplierPhone: '+65 9802 1234' },
+  // Décor Materials
+  { id: 'C-1012', name: 'Pipe & Drape Set (3m x 3m, Black)', category: 'Décor Materials', unit: 'set', currentStock: 20, minimumThreshold: 10, lastPurchasePrice: 145, supplier: 'Décor World Pte Ltd', lastPurchaseDate: '2026-03-05', supplierContact: 'Michelle Koh', supplierEmail: 'michelle@decorworld.sg', supplierPhone: '+65 9803 1234' },
+  { id: 'C-1013', name: 'Lycra Stretch Fabric (White, per metre)', category: 'Décor Materials', unit: 'metre', currentStock: 35, minimumThreshold: 25, lastPurchasePrice: 18, supplier: 'Décor World Pte Ltd', lastPurchaseDate: '2026-02-28', supplierContact: 'Michelle Koh', supplierEmail: 'michelle@decorworld.sg', supplierPhone: '+65 9803 1234' },
+  { id: 'C-1014', name: 'LED Fairy String Lights (10m, Warm White)', category: 'Décor Materials', unit: 'piece', currentStock: 28, minimumThreshold: 15, lastPurchasePrice: 15, supplier: 'Décor World Pte Ltd', lastPurchaseDate: '2026-02-12', supplierContact: 'Michelle Koh', supplierEmail: 'michelle@decorworld.sg', supplierPhone: '+65 9803 1234' },
+  { id: 'C-1015', name: 'Cable Ramp (2-Channel, 1m)', category: 'Electrical Cable', unit: 'piece', currentStock: 10, minimumThreshold: 12, lastPurchasePrice: 95, supplier: 'Showtech Asia Pte Ltd', lastPurchaseDate: '2026-01-30', supplierContact: 'David Ong', supplierEmail: 'david@showtech.sg', supplierPhone: '+65 9800 1234' },
+  { id: 'C-1016', name: 'Gaffer Tape (Black, 50m rolls)', category: 'Staging Surfaces', unit: 'roll', currentStock: 42, minimumThreshold: 20, lastPurchasePrice: 18.50, supplier: 'Stage Supply Singapore', lastPurchaseDate: '2026-02-15', supplierContact: 'Jenny Ng', supplierEmail: 'jenny@stagesupply.sg', supplierPhone: '+65 9802 1234' },
+];
+
+export const MOCK_CONSUMPTION_LOG = [
+  { id: 'CL-001', consumableId: 'C-1001', consumableName: '16A Powerlock Cable (25m)', project: 'Tech Summit 2026', projectId: 'D-1001', quantity: 4, date: '2026-03-10', issuedTo: 'Rajan Pillai', unitCost: 185, totalCost: 740, notes: 'Main stage power distribution' },
+  { id: 'CL-002', consumableId: 'C-1003', consumableName: 'DMX Cable 5-Pin (10m)', project: 'Tech Summit 2026', projectId: 'D-1001', quantity: 6, date: '2026-03-10', issuedTo: 'Marcus Lee', unitCost: 32, totalCost: 192, notes: 'Lighting rig control' },
+  { id: 'CL-003', consumableId: 'C-1007', consumableName: 'Truss Half-Coupler (48-51mm)', project: 'Tech Summit 2026', projectId: 'D-1001', quantity: 24, date: '2026-03-09', issuedTo: 'Ahmad Razak', unitCost: 12, totalCost: 288, notes: 'Truss rigging for main stage' },
+  { id: 'CL-004', consumableId: 'C-1009', consumableName: 'Stage Carpet (Black, 2m wide, per metre)', project: 'Tech Summit 2026', projectId: 'D-1001', quantity: 30, date: '2026-03-09', issuedTo: 'Ahmad Razak', unitCost: 22, totalCost: 660, notes: 'Main stage and breakout area carpeting' },
+  { id: 'CL-005', consumableId: 'C-1012', consumableName: 'Pipe & Drape Set (3m x 3m, Black)', project: 'Tech Summit 2026', projectId: 'D-1001', quantity: 8, date: '2026-03-09', issuedTo: 'Wei Ming Chen', unitCost: 145, totalCost: 1160, notes: 'VIP lounge and backstage masking' },
+  { id: 'CL-006', consumableId: 'C-1005', consumableName: 'Shackle Bow 2-Ton (WLL)', project: 'Summer Roadshow', projectId: 'D-1002', quantity: 12, date: '2026-02-14', issuedTo: 'Rajan Pillai', unitCost: 28, totalCost: 336, notes: 'Truss and lighting rig shackles' },
+  { id: 'CL-007', consumableId: 'C-1006', consumableName: 'Steel Wire Rope Sling 1-Ton (2m)', project: 'Summer Roadshow', projectId: 'D-1002', quantity: 6, date: '2026-02-14', issuedTo: 'Rajan Pillai', unitCost: 55, totalCost: 330, notes: 'Outdoor stage rigging' },
+  { id: 'CL-008', consumableId: 'C-1013', consumableName: 'Lycra Stretch Fabric (White, per metre)', project: 'Summer Roadshow', projectId: 'D-1002', quantity: 20, date: '2026-02-13', issuedTo: 'Diana Lim', unitCost: 18, totalCost: 360, notes: 'Stage backdrop draping' },
+  { id: 'CL-009', consumableId: 'C-1014', consumableName: 'LED Fairy String Lights (10m, Warm White)', project: 'Holiday Gala 2025', projectId: 'D-1003', quantity: 15, date: '2025-12-17', issuedTo: 'Wei Ming Chen', unitCost: 15, totalCost: 225, notes: 'Ballroom ambient lighting' },
+  { id: 'CL-010', consumableId: 'C-1002', consumableName: 'CEE 32A Extension (10m)', project: 'Holiday Gala 2025', projectId: 'D-1003', quantity: 8, date: '2025-12-17', issuedTo: 'Marcus Lee', unitCost: 78, totalCost: 624, notes: 'Power distribution for AV and lighting' },
+  { id: 'CL-011', consumableId: 'C-1011', consumableName: 'Plywood Sheet 18mm (1220 x 2440mm)', project: 'Spring Fashion Show', projectId: 'D-1005', quantity: 10, date: '2026-03-18', issuedTo: 'Ahmad Razak', unitCost: 68, totalCost: 680, notes: 'Runway extension build' },
+  { id: 'CL-012', consumableId: 'C-1008', consumableName: 'Safety Wire (2mm, 100m roll)', project: 'DBS Annual Gala 2026', projectId: 'D-1004', quantity: 3, date: '2026-03-01', issuedTo: 'Rajan Pillai', unitCost: 35, totalCost: 105, notes: 'Lighting fixture safety bonds' },
+];
+
+// ── Asset Bookings (check-in / check-out tracking) ──────────────────────────────
+
+export const MOCK_ASSET_BOOKINGS = [
+  // A-1001 Martin MAC Aura XB — 3 bookings, BK-001 & BK-002 overlap deliberately
+  { id: 'BK-001', assetId: 'A-1001', assetName: 'Martin MAC Aura XB (Set of 8)', projectName: 'Holiday Gala 2025', projectId: 'D-1003', startDate: '2025-12-18', endDate: '2025-12-22', status: 'returned' as const, checkedOutBy: 'Marcus Lee', checkOutDate: '2025-12-17', checkOutCondition: 'Excellent', checkOutNotes: 'All 8 units tested before dispatch', checkInDate: '2025-12-23', checkInCondition: 'Good', checkInNotes: 'Minor scuff on unit #3 flight case', checkInDamageReported: false },
+  { id: 'BK-002', assetId: 'A-1001', assetName: 'Martin MAC Aura XB (Set of 8)', projectName: 'DBS Annual Gala 2026', projectId: 'D-1004', startDate: '2025-12-20', endDate: '2025-12-28', status: 'returned' as const, checkedOutBy: 'Rajan Pillai', checkOutDate: '2025-12-20', checkOutCondition: 'Good', checkOutNotes: 'Collected from warehouse', checkInDate: '2025-12-29', checkInCondition: 'Good', checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-003', assetId: 'A-1001', assetName: 'Martin MAC Aura XB (Set of 8)', projectName: 'Tech Summit 2026', projectId: 'D-1001', startDate: '2026-03-10', endDate: '2026-03-14', status: 'checked-out' as const, checkedOutBy: 'Marcus Lee', checkOutDate: '2026-03-09', checkOutCondition: 'Excellent', checkOutNotes: 'Pre-event setup day', checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+
+  // A-1002 QSC KLA12 Line Array — 2 bookings
+  { id: 'BK-004', assetId: 'A-1002', assetName: 'QSC KLA12 Line Array System', projectName: 'Holiday Gala 2025', projectId: 'D-1003', startDate: '2025-12-17', endDate: '2025-12-22', status: 'returned' as const, checkedOutBy: 'Rajan Pillai', checkOutDate: '2025-12-16', checkOutCondition: 'Good', checkOutNotes: 'All 12 modules loaded', checkInDate: '2025-12-23', checkInCondition: 'Good', checkInNotes: 'Module #4 loose connector flagged for maintenance', checkInDamageReported: true },
+  { id: 'BK-005', assetId: 'A-1002', assetName: 'QSC KLA12 Line Array System', projectName: 'DBS Annual Gala 2026', projectId: 'D-1004', startDate: '2026-03-05', endDate: '2026-03-09', status: 'returned' as const, checkedOutBy: 'Rajan Pillai', checkOutDate: '2026-03-04', checkOutCondition: 'Good', checkOutNotes: null, checkInDate: '2026-03-10', checkInCondition: 'Good', checkInNotes: null, checkInDamageReported: false },
+
+  // A-1003 Prolyte Truss — 3 bookings
+  { id: 'BK-006', assetId: 'A-1003', assetName: 'Prolyte H30V Truss Set (60m)', projectName: 'Holiday Gala 2025', projectId: 'D-1003', startDate: '2025-12-15', endDate: '2025-12-23', status: 'returned' as const, checkedOutBy: 'Ahmad Razak', checkOutDate: '2025-12-14', checkOutCondition: 'Good', checkOutNotes: '40m allocated for gala', checkInDate: '2025-12-24', checkInCondition: 'Good', checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-007', assetId: 'A-1003', assetName: 'Prolyte H30V Truss Set (60m)', projectName: 'Summer Roadshow', projectId: 'D-1002', startDate: '2026-02-10', endDate: '2026-02-18', status: 'returned' as const, checkedOutBy: 'Ahmad Razak', checkOutDate: '2026-02-09', checkOutCondition: 'Good', checkOutNotes: 'Outdoor rig — full 60m', checkInDate: '2026-02-19', checkInCondition: 'Fair', checkInNotes: 'Surface oxidation on 2 sections from rain exposure', checkInDamageReported: true },
+  { id: 'BK-008', assetId: 'A-1003', assetName: 'Prolyte H30V Truss Set (60m)', projectName: 'Spring Fashion Show', projectId: 'D-1005', startDate: '2026-04-01', endDate: '2026-04-05', status: 'confirmed' as const, checkedOutBy: 'Ahmad Razak', checkOutDate: null, checkOutCondition: null, checkOutNotes: null, checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+
+  // A-1004 ROE LED Wall — 3 bookings, BK-009 & BK-010 overlap deliberately
+  { id: 'BK-009', assetId: 'A-1004', assetName: 'ROE Visual Carbon CB5 LED Wall (48 panels)', projectName: 'Singapore Fintech Festival 2026', projectId: 'D-1007', startDate: '2026-03-15', endDate: '2026-03-20', status: 'checked-out' as const, checkedOutBy: 'Marcus Lee', checkOutDate: '2026-03-14', checkOutCondition: 'Excellent', checkOutNotes: 'Full 48-panel wall for main stage', checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-010', assetId: 'A-1004', assetName: 'ROE Visual Carbon CB5 LED Wall (48 panels)', projectName: 'Esports Tournament Finals', projectId: 'D-1006', startDate: '2026-03-18', endDate: '2026-03-23', status: 'confirmed' as const, checkedOutBy: 'Wei Ming Chen', checkOutDate: null, checkOutCondition: null, checkOutNotes: null, checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-011', assetId: 'A-1004', assetName: 'ROE Visual Carbon CB5 LED Wall (48 panels)', projectName: 'DBS Annual Gala 2026', projectId: 'D-1004', startDate: '2026-01-10', endDate: '2026-01-15', status: 'returned' as const, checkedOutBy: 'Marcus Lee', checkOutDate: '2026-01-09', checkOutCondition: 'Excellent', checkOutNotes: null, checkInDate: '2026-01-16', checkInCondition: 'Excellent', checkInNotes: 'All panels pixel-tested on return', checkInDamageReported: false },
+
+  // A-1005 Staging Deck — 2 bookings
+  { id: 'BK-012', assetId: 'A-1005', assetName: 'Staging Deck System (80 pcs, 1.2m × 2.4m)', projectName: 'Tech Summit 2026', projectId: 'D-1001', startDate: '2026-03-08', endDate: '2026-03-14', status: 'checked-out' as const, checkedOutBy: 'Ahmad Razak', checkOutDate: '2026-03-07', checkOutCondition: 'Good', checkOutNotes: '60 decks allocated for main stage and breakout areas', checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-013', assetId: 'A-1005', assetName: 'Staging Deck System (80 pcs, 1.2m × 2.4m)', projectName: 'Spring Fashion Show', projectId: 'D-1005', startDate: '2026-04-01', endDate: '2026-04-06', status: 'pending' as const, checkedOutBy: 'Ahmad Razak', checkOutDate: null, checkOutCondition: null, checkOutNotes: null, checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+
+  // A-1006 Chain Hoists — 2 bookings
+  { id: 'BK-014', assetId: 'A-1006', assetName: 'CM Lodestar 1-Ton Chain Hoist (Set of 12)', projectName: 'DBS Annual Gala 2026', projectId: 'D-1004', startDate: '2026-03-03', endDate: '2026-03-09', status: 'returned' as const, checkedOutBy: 'Rajan Pillai', checkOutDate: '2026-03-02', checkOutCondition: 'Excellent', checkOutNotes: 'Full set of 12 for truss rigging', checkInDate: '2026-03-10', checkInCondition: 'Excellent', checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-015', assetId: 'A-1006', assetName: 'CM Lodestar 1-Ton Chain Hoist (Set of 12)', projectName: 'Esports Tournament Finals', projectId: 'D-1006', startDate: '2026-03-18', endDate: '2026-03-23', status: 'confirmed' as const, checkedOutBy: 'Rajan Pillai', checkOutDate: null, checkOutCondition: null, checkOutNotes: null, checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+
+  // A-1007 GrandMA3 Console — 3 bookings, BK-016 & BK-017 overlap deliberately
+  { id: 'BK-016', assetId: 'A-1007', assetName: 'GrandMA3 Light Console', projectName: 'Singapore Fintech Festival 2026', projectId: 'D-1007', startDate: '2026-03-14', endDate: '2026-03-20', status: 'checked-out' as const, checkedOutBy: 'Marcus Lee', checkOutDate: '2026-03-13', checkOutCondition: 'Excellent', checkOutNotes: 'Pre-programmed show file loaded', checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-017', assetId: 'A-1007', assetName: 'GrandMA3 Light Console', projectName: 'Tech Summit 2026', projectId: 'D-1001', startDate: '2026-03-10', endDate: '2026-03-14', status: 'confirmed' as const, checkedOutBy: 'Marcus Lee', checkOutDate: null, checkOutCondition: null, checkOutNotes: null, checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-018', assetId: 'A-1007', assetName: 'GrandMA3 Light Console', projectName: 'Holiday Gala 2025', projectId: 'D-1003', startDate: '2025-12-17', endDate: '2025-12-22', status: 'returned' as const, checkedOutBy: 'Marcus Lee', checkOutDate: '2025-12-16', checkOutCondition: 'Excellent', checkOutNotes: null, checkInDate: '2025-12-23', checkInCondition: 'Excellent', checkInNotes: null, checkInDamageReported: false },
+
+  // A-1008 Banquet Tables — 2 bookings
+  { id: 'BK-019', assetId: 'A-1008', assetName: 'Banquet Round Tables (Set of 40, 1.8m dia.)', projectName: 'Holiday Gala 2025', projectId: 'D-1003', startDate: '2025-12-18', endDate: '2025-12-22', status: 'returned' as const, checkedOutBy: 'Wei Ming Chen', checkOutDate: '2025-12-17', checkOutCondition: 'Fair', checkOutNotes: 'Pre-existing scratches on 3 tables noted', checkInDate: '2025-12-23', checkInCondition: 'Fair', checkInNotes: 'No new damage', checkInDamageReported: false },
+  { id: 'BK-020', assetId: 'A-1008', assetName: 'Banquet Round Tables (Set of 40, 1.8m dia.)', projectName: 'DBS Annual Gala 2026', projectId: 'D-1004', startDate: '2026-03-05', endDate: '2026-03-09', status: 'returned' as const, checkedOutBy: 'Diana Lim', checkOutDate: '2026-03-04', checkOutCondition: 'Fair', checkOutNotes: null, checkInDate: '2026-03-10', checkInCondition: 'Fair', checkInNotes: 'Table #18 wobbly leg reported', checkInDamageReported: true },
+
+  // A-1009 Floral Arch Frame — 2 bookings
+  { id: 'BK-021', assetId: 'A-1009', assetName: 'Custom Floral Arch Frame (3m × 4m)', projectName: 'Spring Fashion Show', projectId: 'D-1005', startDate: '2026-04-02', endDate: '2026-04-05', status: 'pending' as const, checkedOutBy: 'Diana Lim', checkOutDate: null, checkOutCondition: null, checkOutNotes: null, checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
+  { id: 'BK-022', assetId: 'A-1009', assetName: 'Custom Floral Arch Frame (3m × 4m)', projectName: 'Holiday Gala 2025', projectId: 'D-1003', startDate: '2025-12-18', endDate: '2025-12-22', status: 'returned' as const, checkedOutBy: 'Diana Lim', checkOutDate: '2025-12-17', checkOutCondition: 'Good', checkOutNotes: 'Fresh paint applied before dispatch', checkInDate: '2025-12-23', checkInCondition: 'Good', checkInNotes: 'Floral residue cleaned on return', checkInDamageReported: false },
+
+  // A-1010 Yamaha RIVAGE PM5 — 2 bookings
+  { id: 'BK-023', assetId: 'A-1010', assetName: 'Yamaha RIVAGE PM5 Digital Mixer', projectName: 'Summer Roadshow', projectId: 'D-1002', startDate: '2026-02-12', endDate: '2026-02-18', status: 'returned' as const, checkedOutBy: 'Rajan Pillai', checkOutDate: '2026-02-11', checkOutCondition: 'Good', checkOutNotes: 'Dante network pre-configured', checkInDate: '2026-02-19', checkInCondition: 'Good', checkInNotes: 'Fader issue on ch 17-24 resurfaced intermittently — flagged for maintenance', checkInDamageReported: true },
+  { id: 'BK-024', assetId: 'A-1010', assetName: 'Yamaha RIVAGE PM5 Digital Mixer', projectName: 'Esports Tournament Finals', projectId: 'D-1006', startDate: '2026-03-18', endDate: '2026-03-23', status: 'pending' as const, checkedOutBy: 'Rajan Pillai', checkOutDate: null, checkOutCondition: null, checkOutNotes: null, checkInDate: null, checkInCondition: null, checkInNotes: null, checkInDamageReported: false },
 ];
