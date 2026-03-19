@@ -1,10 +1,29 @@
 import React, { useState } from 'react';
-import { Typography, Card as AntCard, Button, Table, Space, Tag, Row, Col, Descriptions, theme, Tabs, Input, InputNumber, Modal, Tooltip, List, Progress, Select, Badge, Avatar, Popconfirm, message, Dropdown, Divider, Drawer } from 'antd';
-import { ArrowLeftOutlined, SendOutlined, EditOutlined, DownloadOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, RobotOutlined, ExclamationCircleOutlined, CopyOutlined, MessageOutlined, EyeOutlined, MailOutlined, FilePdfOutlined, MoreOutlined } from '@ant-design/icons';
+import { Typography, Card as AntCard, Button, Table, Space, Tag, Row, Col, Descriptions, theme, Tabs, Input, InputNumber, Modal, Tooltip, List, Progress, Select, Badge, Avatar, Popconfirm, message, Dropdown, Divider, Drawer, Rate, Slider, Collapse } from 'antd';
+import { ArrowLeftOutlined, SendOutlined, EditOutlined, DownloadOutlined, SaveOutlined, PlusOutlined, DeleteOutlined, RobotOutlined, ExclamationCircleOutlined, CopyOutlined, MessageOutlined, EyeOutlined, MailOutlined, FilePdfOutlined, MoreOutlined, ShopOutlined, CheckCircleOutlined, ClockCircleOutlined, WarningOutlined, LinkOutlined, SwapOutlined, StarFilled, CloseOutlined, ThunderboltOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
+
+// AI-recommended partners for each outsourceable service
+const AI_PARTNER_RECOMMENDATIONS: Record<string, any[]> = {
+  '3': [ // Line Array Audio System
+    { id: 'P-1001', name: 'SoundWave Audio Pte Ltd', rate: 4500, rating: 4.7, onTimeRate: 96, engagements: 24, contactName: 'Kevin Ong', phone: '+65 9100 1234', availability: 'Available', specialisation: 'Concert Sound, Corporate AV', reason: 'Best match — top-rated AV partner with 24 past engagements. Specialises in concert sound systems. Competitive rate with consistent on-time delivery.' },
+    { id: 'P-1007', name: 'Vertex Visuals', rate: 5200, rating: 4.6, onTimeRate: 92, engagements: 9, contactName: 'Darren Yeo', phone: '+65 9700 1234', availability: 'Available', specialisation: 'Live Visuals, Media Servers', reason: 'Can bundle AV with video production. Slightly higher rate but includes technical operator.' },
+    { id: 'P-1006', name: 'PowerGen Rentals', rate: 3800, rating: 4.0, onTimeRate: 85, engagements: 12, contactName: 'Tommy Chua', phone: '+65 9600 1234', availability: 'Limited', specialisation: 'Electrical Distribution, Outdoor Events', reason: 'Lowest cost option. Adequate for basic audio but lower reliability rating. Consider for budget-conscious projects.' },
+  ],
+  '6': [ // Stage Design & Fabrication
+    { id: 'P-1005', name: 'QuickBuild Structures', rate: 12500, rating: 4.8, onTimeRate: 95, engagements: 22, contactName: 'James Wee', phone: '+65 9500 1234', availability: 'Available', specialisation: 'Custom Set Design, Exhibition Booths', reason: 'Top scenic fabrication partner with 22 engagements. Highest quality rating for custom sets. Has CNC router and steel fabrication in-house.' },
+    { id: 'P-1002', name: 'BrightLights Staging Co', rate: 14200, rating: 4.9, onTimeRate: 98, engagements: 31, contactName: 'Daniel Koh', phone: '+65 9200 1234', availability: 'Available', specialisation: 'Stage Construction, LED Wall Installation', reason: 'Premium option with best reliability. Can combine staging + lighting for integrated delivery, but higher rate.' },
+    { id: 'P-1003', name: 'MoveIt Logistics SG', rate: 9800, rating: 4.2, onTimeRate: 88, engagements: 18, contactName: 'Andy Lim', phone: '+65 9300 1234', availability: 'Available', specialisation: 'Equipment Delivery, Event Bump-In/Out', reason: 'Can handle fabrication logistics and on-site assembly. Lower rate but limited design capability — best paired with in-house design team.' },
+  ],
+  '7': [ // VIP Lounge Furniture Package
+    { id: 'P-1004', name: 'GreenLeaf Catering', rate: 7800, rating: 4.5, onTimeRate: 93, engagements: 15, contactName: 'Michelle Tan', phone: '+65 9400 1234', availability: 'Available', specialisation: 'Gala Dinners, Cocktail Receptions', reason: 'Can supply furniture + F&B as a bundled VIP package. Preferred partner with halal certification for diverse guest lists.' },
+    { id: 'P-1005', name: 'QuickBuild Structures', rate: 8500, rating: 4.8, onTimeRate: 95, engagements: 22, contactName: 'James Wee', phone: '+65 9500 1234', availability: 'Limited', specialisation: 'Pop-Up Structures, Scenic Fabrication', reason: 'Can build custom VIP lounge structures with integrated furniture. Higher quality finish but limited availability for this period.' },
+    { id: 'P-1003', name: 'MoveIt Logistics SG', rate: 6200, rating: 4.2, onTimeRate: 88, engagements: 18, contactName: 'Andy Lim', phone: '+65 9300 1234', availability: 'Available', specialisation: 'Equipment Delivery, Warehousing', reason: 'Lowest cost — sources furniture from warehouse inventory. Basic but functional. Best for events where VIP furniture is not a focal point.' },
+  ],
+};
 
 export const QuoteDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,14 +46,64 @@ export const QuoteDetail: React.FC = () => {
   };
 
   const [items, setItems] = useState([
-    { key: '1', item: 'Main Stage LED Wall (10m x 4m)', category: 'AV Equipment', qty: 1, cost: 9500, unitPrice: 15000, discount: 1000, aiRecommendedPrice: 15800, aiReasoning: 'Client historical spend on AV is 15% above average. Recommending higher price to maximize margin; win probability remains 85%.', comments: [{ id: 'c1', author: 'Client', text: 'Can we upgrade to 12m x 4m?', date: '2026-03-16 10:00 AM' }] },
-    { key: '2', item: 'Breakout Room Projectors (8000 lumens)', category: 'AV Equipment', qty: 4, cost: 800, unitPrice: 1200, discount: 0, aiRecommendedPrice: 1200, aiReasoning: 'Current price aligns with market standard and client budget.', comments: [] },
-    { key: '3', item: 'Line Array Audio System', category: 'Audio', qty: 1, cost: 5000, unitPrice: 8500, discount: 500, aiRecommendedPrice: 8900, aiReasoning: 'High demand item for this season. AI suggests a 5% increase based on internal cost structure and low availability.', comments: [] },
-    { key: '4', item: 'Lighting Rig (Moving heads, washes)', category: 'Lighting', qty: 1, cost: 7500, unitPrice: 12000, discount: 0, aiRecommendedPrice: 12500, aiReasoning: 'Client budget allows for premium lighting. Recommended price increases margin by 4%.', comments: [] },
-    { key: '5', item: 'Technical Crew (3 days)', category: 'Labor', qty: 5, cost: 1000, unitPrice: 1500, discount: 0, aiRecommendedPrice: 1600, aiReasoning: 'Labor costs have increased. Adjusting price to maintain target margin.', comments: [] },
-    { key: '6', item: 'Stage Design & Fabrication', category: 'Scenic', qty: 1, cost: 14000, unitPrice: 22000, discount: 2000, aiRecommendedPrice: 22000, aiReasoning: 'Optimal price point based on historical win rates for custom scenic fabrication.', comments: [] },
-    { key: '7', item: 'VIP Lounge Furniture Package', category: 'Furniture', qty: 1, cost: 9000, unitPrice: 15200, discount: 1500, aiRecommendedPrice: 16000, aiReasoning: 'Premium furniture packages have a high elasticity. Recommending a slight increase.', comments: [] },
+    { key: '1', item: 'Main Stage LED Wall (10m x 4m)', category: 'AV Equipment', qty: 1, cost: 9500, unitPrice: 15000, discount: 1000, aiRecommendedPrice: 15800, aiReasoning: 'Client historical spend on AV is 15% above average. Recommending higher price to maximize margin; win probability remains 85%.', comments: [{ id: 'c1', author: 'Client', text: 'Can we upgrade to 12m x 4m?', date: '2026-03-16 10:00 AM' }], partner: null, outsourceable: false },
+    { key: '2', item: 'Breakout Room Projectors (8000 lumens)', category: 'AV Equipment', qty: 4, cost: 800, unitPrice: 1200, discount: 0, aiRecommendedPrice: 1200, aiReasoning: 'Current price aligns with market standard and client budget.', comments: [], partner: null, outsourceable: false },
+    { key: '3', item: 'Line Array Audio System', category: 'Audio', qty: 1, cost: 5000, unitPrice: 8500, discount: 500, aiRecommendedPrice: 8900, aiReasoning: 'High demand item for this season. AI suggests a 5% increase based on internal cost structure and low availability.', comments: [], partner: null, outsourceable: true, markup: 40 },
+    { key: '4', item: 'Lighting Rig (Moving heads, washes)', category: 'Lighting', qty: 1, cost: 7500, unitPrice: 12000, discount: 0, aiRecommendedPrice: 12500, aiReasoning: 'Client budget allows for premium lighting. Recommended price increases margin by 4%.', comments: [], partner: null, outsourceable: false },
+    { key: '5', item: 'Technical Crew (3 days)', category: 'Labor', qty: 5, cost: 1000, unitPrice: 1500, discount: 0, aiRecommendedPrice: 1600, aiReasoning: 'Labor costs have increased. Adjusting price to maintain target margin.', comments: [], partner: null, outsourceable: false },
+    { key: '6', item: 'Stage Design & Fabrication', category: 'Scenic', qty: 1, cost: 14000, unitPrice: 22000, discount: 2000, aiRecommendedPrice: 22000, aiReasoning: 'Optimal price point based on historical win rates for custom scenic fabrication.', comments: [], partner: null, outsourceable: true, markup: 35 },
+    { key: '7', item: 'VIP Lounge Furniture Package', category: 'Furniture', qty: 1, cost: 9000, unitPrice: 15200, discount: 1500, aiRecommendedPrice: 16000, aiReasoning: 'Premium furniture packages have a high elasticity. Recommending a slight increase.', comments: [], partner: null, outsourceable: true, markup: 40 },
   ]);
+
+  // Partner assignment drawer state
+  const [partnerDrawerOpen, setPartnerDrawerOpen] = useState(false);
+  const [activePartnerItem, setActivePartnerItem] = useState<string | null>(null);
+  const [selectedRecommendation, setSelectedRecommendation] = useState<string | null>(null);
+  const [customMarkup, setCustomMarkup] = useState<number>(35);
+
+  const openPartnerDrawer = (key: string) => {
+    const item = items.find(i => i.key === key);
+    setActivePartnerItem(key);
+    setCustomMarkup(item?.markup || 35);
+    setSelectedRecommendation(item?.partner?.id || null);
+    setPartnerDrawerOpen(true);
+  };
+
+  const assignPartner = () => {
+    if (!activePartnerItem || !selectedRecommendation) return;
+    const recommendations = AI_PARTNER_RECOMMENDATIONS[activePartnerItem] || [];
+    const chosen = recommendations.find((r: any) => r.id === selectedRecommendation);
+    if (!chosen) return;
+
+    const partnerRate = chosen.rate;
+    const clientPrice = Math.round(partnerRate / (1 - customMarkup / 100));
+
+    setItems(items.map(item => {
+      if (item.key === activePartnerItem) {
+        return {
+          ...item,
+          partner: { ...chosen, status: 'Pending' },
+          unitPrice: clientPrice,
+          cost: partnerRate,
+          markup: customMarkup,
+        };
+      }
+      return item;
+    }));
+    setPartnerDrawerOpen(false);
+    setSelectedRecommendation(null);
+    message.success(`${chosen.name} assigned with ${customMarkup}% markup`);
+  };
+
+  const removePartner = (key: string) => {
+    setItems(items.map(item => {
+      if (item.key === key) {
+        return { ...item, partner: null };
+      }
+      return item;
+    }));
+    message.info('Partner removed');
+  };
 
   const subtotal = items.reduce((acc, item) => acc + (item.unitPrice * item.qty), 0);
   const totalDiscount = items.reduce((acc, item) => acc + item.discount, 0);
@@ -79,6 +148,26 @@ export const QuoteDetail: React.FC = () => {
     setNewComment('');
   };
 
+  // Partner cost calculations
+  const partnerItems = items.filter(i => i.partner);
+  const totalPartnerCost = partnerItems.reduce((acc, item) => acc + (item.partner?.rate || 0), 0);
+  const totalPartnerRevenue = partnerItems.reduce((acc, item) => acc + (item.unitPrice * item.qty - item.discount), 0);
+  const partnerMargin = totalPartnerRevenue > 0 ? ((totalPartnerRevenue - totalPartnerCost) / totalPartnerRevenue) * 100 : 0;
+
+  // Group partner assignments
+  const partnerSummary = items.reduce((acc: any[], item) => {
+    if (!item.partner) return acc;
+    const existing = acc.find(p => p.id === item.partner!.id);
+    if (existing) {
+      existing.items.push({ name: item.item, partnerRate: item.partner!.rate, clientPrice: item.unitPrice * item.qty - item.discount, markup: item.markup });
+      existing.totalRate += item.partner!.rate;
+      existing.totalClient += item.unitPrice * item.qty - item.discount;
+    } else {
+      acc.push({ id: item.partner!.id, name: item.partner!.name, status: item.partner!.status, rating: item.partner!.rating, onTimeRate: item.partner!.onTimeRate, contactName: item.partner!.contactName, items: [{ name: item.item, partnerRate: item.partner!.rate, clientPrice: item.unitPrice * item.qty - item.discount, markup: item.markup }], totalRate: item.partner!.rate, totalClient: item.unitPrice * item.qty - item.discount });
+    }
+    return acc;
+  }, []);
+
   const columns = [
     { title: 'Item Description', dataIndex: 'item', key: 'item', render: (text: string, record: any) => (
       <div>
@@ -87,6 +176,59 @@ export const QuoteDetail: React.FC = () => {
         <Text type="secondary" style={{ fontSize: 12 }}>{record.category}</Text>
       </div>
     )},
+    { title: 'Partner / Vendor', key: 'partner', width: 200, render: (_: any, record: any) => {
+      // Not outsourceable — in-house only
+      if (!record.outsourceable) return <Text type="secondary" style={{ fontSize: 12 }}>In-house</Text>;
+
+      // Outsourceable but no partner assigned yet
+      if (!record.partner) {
+        return (
+          <Button
+            type="dashed"
+            size="small"
+            icon={<ShopOutlined />}
+            onClick={() => openPartnerDrawer(record.key)}
+            style={{ fontSize: 12 }}
+          >
+            Assign Partner
+          </Button>
+        );
+      }
+
+      // Partner assigned
+      const p = record.partner;
+      const itemMargin = record.unitPrice * record.qty - record.discount > 0
+        ? (((record.unitPrice * record.qty - record.discount - p.rate) / (record.unitPrice * record.qty - record.discount)) * 100).toFixed(0)
+        : '0';
+      return (
+        <Tooltip
+          placement="topLeft"
+          overlayStyle={{ maxWidth: 320 }}
+          title={
+            <div style={{ fontSize: 12 }}>
+              <div style={{ fontWeight: 600, marginBottom: 6 }}>{p.name}</div>
+              <div style={{ marginBottom: 4 }}>Contact: {p.contactName}</div>
+              <div style={{ marginBottom: 4 }}>Partner Rate: {formatCurrency(p.rate)}</div>
+              <div style={{ marginBottom: 4 }}>Your Price: {formatCurrency(record.unitPrice * record.qty - record.discount)}</div>
+              <div style={{ marginBottom: 4 }}>Markup: {record.markup}% | Margin: {itemMargin}%</div>
+              <Divider style={{ margin: '6px 0', borderColor: 'rgba(255,255,255,0.2)' }} />
+              <div>Rating: {p.rating}/5 | On-time: {p.onTimeRate}%</div>
+            </div>
+          }
+        >
+          <div style={{ cursor: 'help' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
+              <ShopOutlined style={{ color: token.colorPrimary, fontSize: 12 }} />
+              <Text style={{ fontSize: 12, fontWeight: 500 }}>{p.name.length > 18 ? p.name.substring(0, 18) + '...' : p.name}</Text>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+              <Tag color="blue" style={{ fontSize: 10, lineHeight: '16px', padding: '0 4px', margin: 0 }}>{record.markup}% markup</Tag>
+              <Button type="link" size="small" style={{ fontSize: 11, padding: 0, height: 'auto' }} icon={<SwapOutlined style={{ fontSize: 10 }} />} onClick={() => openPartnerDrawer(record.key)}>Change</Button>
+            </div>
+          </div>
+        </Tooltip>
+      );
+    }},
     { title: 'Qty', dataIndex: 'qty', key: 'qty', align: 'center' as const, render: (val: number, record: any) => (
       <InputNumber min={1} value={val} onChange={(v) => handleItemChange(record.key, 'qty', v)} size="small" style={{ width: 60 }} />
     )},
@@ -143,37 +285,37 @@ export const QuoteDetail: React.FC = () => {
   };
 
   const milestoneColumns = [
-    { 
-      title: 'Milestone', 
-      dataIndex: 'name', 
-      key: 'name', 
-      render: (text: string, record: any, index: number) => isEditingMilestones ? 
-        <Input value={text} onChange={e => handleMilestoneChange(index, 'name', e.target.value)} size="small" /> : 
-        <Text strong>{text}</Text> 
+    {
+      title: 'Milestone',
+      dataIndex: 'name',
+      key: 'name',
+      render: (text: string, record: any, index: number) => isEditingMilestones ?
+        <Input value={text} onChange={e => handleMilestoneChange(index, 'name', e.target.value)} size="small" /> :
+        <Text strong>{text}</Text>
     },
-    { 
-      title: 'Percentage', 
-      dataIndex: 'percentage', 
-      key: 'percentage', 
+    {
+      title: 'Percentage',
+      dataIndex: 'percentage',
+      key: 'percentage',
       align: 'center' as const,
-      render: (text: number, record: any, index: number) => isEditingMilestones ? 
-        <InputNumber value={text} onChange={val => handleMilestoneChange(index, 'percentage', val)} size="small" min={0} max={100} addonAfter="%" /> : 
-        `${text}%` 
+      render: (text: number, record: any, index: number) => isEditingMilestones ?
+        <InputNumber value={text} onChange={val => handleMilestoneChange(index, 'percentage', val)} size="small" min={0} max={100} addonAfter="%" /> :
+        `${text}%`
     },
-    { 
-      title: 'Amount', 
-      dataIndex: 'amount', 
-      key: 'amount', 
+    {
+      title: 'Amount',
+      dataIndex: 'amount',
+      key: 'amount',
       align: 'right' as const,
-      render: (text: number) => formatCurrency(text) 
+      render: (text: number) => formatCurrency(text)
     },
-    { 
-      title: 'Due Date', 
-      dataIndex: 'dueDate', 
-      key: 'dueDate', 
-      render: (text: string, record: any, index: number) => isEditingMilestones ? 
-        <Input value={text} onChange={e => handleMilestoneChange(index, 'dueDate', e.target.value)} size="small" /> : 
-        text 
+    {
+      title: 'Due Date',
+      dataIndex: 'dueDate',
+      key: 'dueDate',
+      render: (text: string, record: any, index: number) => isEditingMilestones ?
+        <Input value={text} onChange={e => handleMilestoneChange(index, 'dueDate', e.target.value)} size="small" /> :
+        text
     },
     ...(isEditingMilestones ? [{
       title: '',
@@ -234,7 +376,6 @@ export const QuoteDetail: React.FC = () => {
     }
     setIsSendModalVisible(false);
     message.success(`Quote sent to ${selectedRecipients.length} recipient(s)!`);
-    // Add to tracking
     const newTracking = selectedRecipients.map(email => ({
       email,
       status: 'Sent',
@@ -248,6 +389,13 @@ export const QuoteDetail: React.FC = () => {
   const handleDuplicateQuote = () => {
     message.success('Quote duplicated successfully as QT-2026-0002');
   };
+
+  // Get active item for partner drawer
+  const activeItem = items.find(i => i.key === activePartnerItem);
+  const recommendations = activePartnerItem ? (AI_PARTNER_RECOMMENDATIONS[activePartnerItem] || []) : [];
+  const selectedPartnerData = recommendations.find((r: any) => r.id === selectedRecommendation);
+  const previewPrice = selectedPartnerData ? Math.round(selectedPartnerData.rate / (1 - customMarkup / 100)) : 0;
+  const previewProfit = selectedPartnerData ? previewPrice - selectedPartnerData.rate : 0;
 
   return (
     <div style={{ paddingBottom: 40 }}>
@@ -284,9 +432,9 @@ export const QuoteDetail: React.FC = () => {
       </div>
 
       <Row gutter={[24, 24]}>
-        <Col span={16}>
-          <Tabs 
-            type="card" 
+        <Col span={18}>
+          <Tabs
+            type="card"
             size="small"
             items={[
               {
@@ -294,27 +442,27 @@ export const QuoteDetail: React.FC = () => {
                 label: 'Line Items',
                 children: (
                   <div style={{ borderTopLeftRadius: 0, padding: 12, background: token.colorBgContainer, border: `1px solid ${token.colorBorderSecondary}` }}>
-                    <Table 
-                      columns={columns} 
-                      dataSource={items} 
-                      pagination={false} 
+                    <Table
+                      columns={columns}
+                      dataSource={items}
+                      pagination={false}
                       size="small"
                       summary={() => (
                         <>
                           <Table.Summary.Row>
-                            <Table.Summary.Cell index={0} colSpan={5} align="right"><Text strong>Subtotal</Text></Table.Summary.Cell>
+                            <Table.Summary.Cell index={0} colSpan={6} align="right"><Text strong>Subtotal</Text></Table.Summary.Cell>
                             <Table.Summary.Cell index={1} align="right"><Text strong>{formatCurrency(subtotal)}</Text></Table.Summary.Cell>
                           </Table.Summary.Row>
                           <Table.Summary.Row>
-                            <Table.Summary.Cell index={0} colSpan={5} align="right"><Text type="danger">Total Discount</Text></Table.Summary.Cell>
+                            <Table.Summary.Cell index={0} colSpan={6} align="right"><Text type="danger">Total Discount</Text></Table.Summary.Cell>
                             <Table.Summary.Cell index={1} align="right"><Text type="danger">-{formatCurrency(totalDiscount)}</Text></Table.Summary.Cell>
                           </Table.Summary.Row>
                           <Table.Summary.Row>
-                            <Table.Summary.Cell index={0} colSpan={5} align="right"><Text type="secondary">Tax (GST)</Text></Table.Summary.Cell>
+                            <Table.Summary.Cell index={0} colSpan={6} align="right"><Text type="secondary">Tax (GST)</Text></Table.Summary.Cell>
                             <Table.Summary.Cell index={1} align="right"><Text type="secondary">{formatCurrency(tax)}</Text></Table.Summary.Cell>
                           </Table.Summary.Row>
                           <Table.Summary.Row>
-                            <Table.Summary.Cell index={0} colSpan={5} align="right"><Title level={5} style={{ margin: 0 }}>Total</Title></Table.Summary.Cell>
+                            <Table.Summary.Cell index={0} colSpan={6} align="right"><Title level={5} style={{ margin: 0 }}>Total</Title></Table.Summary.Cell>
                             <Table.Summary.Cell index={1} align="right"><Title level={5} style={{ margin: 0, color: token.colorPrimary }}>{formatCurrency(total)}</Title></Table.Summary.Cell>
                           </Table.Summary.Row>
                         </>
@@ -327,23 +475,23 @@ export const QuoteDetail: React.FC = () => {
                 key: '2',
                 label: 'Payment Milestones',
                 children: (
-                  <div 
+                  <div
                     style={{ borderTopLeftRadius: 0, padding: 12, background: token.colorBgContainer, border: `1px solid ${token.colorBorderSecondary}` }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-                      {isEditingMilestones ? 
+                      {isEditingMilestones ?
                         <Space>
                           <Button size="small" icon={<PlusOutlined />} onClick={addMilestone}>Add Milestone</Button>
                           <Button size="small" type="primary" icon={<SaveOutlined />} onClick={() => setIsEditingMilestones(false)}>Save</Button>
                         </Space>
-                      : 
+                      :
                         <Button size="small" icon={<EditOutlined />} onClick={() => setIsEditingMilestones(true)}>Edit Milestones</Button>
                       }
                     </div>
-                    <Table 
-                      columns={milestoneColumns} 
-                      dataSource={milestones} 
-                      pagination={false} 
+                    <Table
+                      columns={milestoneColumns}
+                      dataSource={milestones}
+                      pagination={false}
                       size="small"
                       rowKey="id"
                     />
@@ -354,21 +502,21 @@ export const QuoteDetail: React.FC = () => {
                 key: '3',
                 label: 'Terms & Conditions',
                 children: (
-                  <div 
+                  <div
                     style={{ borderTopLeftRadius: 0, padding: 12, background: token.colorBgContainer, border: `1px solid ${token.colorBorderSecondary}` }}
                   >
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
-                      {isEditingTerms ? 
+                      {isEditingTerms ?
                         <Button size="small" type="primary" icon={<SaveOutlined />} onClick={() => setIsEditingTerms(false)}>Save</Button>
-                      : 
+                      :
                         <Button size="small" icon={<EditOutlined />} onClick={() => setIsEditingTerms(true)}>Edit Terms</Button>
                       }
                     </div>
                     {isEditingTerms ? (
-                      <TextArea 
-                        value={terms} 
-                        onChange={e => setTerms(e.target.value)} 
-                        rows={12} 
+                      <TextArea
+                        value={terms}
+                        onChange={e => setTerms(e.target.value)}
+                        rows={12}
                         style={{ fontSize: 13 }}
                       />
                     ) : (
@@ -383,91 +531,293 @@ export const QuoteDetail: React.FC = () => {
           />
         </Col>
 
-        <Col span={8}>
-          <div style={{ marginBottom: 24, padding: 12, background: token.colorBgContainer, border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadiusLG }}>
-            <div style={{ marginBottom: 16, fontWeight: 600, fontSize: 14 }}>Margin Analysis</div>
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                <Text type="secondary" style={{ fontSize: 13 }}>Current Margin</Text>
-                <Text strong style={{ fontSize: 13, color: currentMargin < quote.floorMargin ? token.colorError : currentMargin >= quote.targetMargin ? token.colorSuccess : token.colorWarning }}>
-                  {currentMargin.toFixed(1)}%
-                </Text>
-              </div>
-              <Progress 
-                percent={currentMargin} 
-                success={{ percent: quote.floorMargin, strokeColor: token.colorError }} 
-                strokeColor={currentMargin >= quote.targetMargin ? token.colorSuccess : token.colorWarning}
-                showInfo={false}
-                size="small"
-              />
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
-                <Text type="secondary" style={{ fontSize: 11 }}>Floor: {quote.floorMargin}%</Text>
-                <Text type="secondary" style={{ fontSize: 11 }}>Target: {quote.targetMargin}%</Text>
-              </div>
-            </div>
-            <Descriptions column={1} size="small" labelStyle={{ color: token.colorTextSecondary, fontSize: 12 }} contentStyle={{ fontSize: 12 }}>
-              <Descriptions.Item label="Total Revenue">{formatCurrency(subtotal - totalDiscount)}</Descriptions.Item>
-              <Descriptions.Item label="Total Cost">{formatCurrency(totalCost)}</Descriptions.Item>
-              <Descriptions.Item label="Gross Profit">{formatCurrency(subtotal - totalDiscount - totalCost)}</Descriptions.Item>
-            </Descriptions>
-          </div>
-
-          <div style={{ marginBottom: 24, padding: 12, background: token.colorBgContainer, border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadiusLG }}>
-            <div style={{ marginBottom: 16, fontWeight: 600, fontSize: 14 }}>Quote Details</div>
-            <Descriptions column={1} labelStyle={{ color: token.colorTextSecondary, fontSize: 13 }} contentStyle={{ fontSize: 13 }}>
+        <Col span={6}>
+          {/* Quote Details — always visible */}
+          <div style={{ marginBottom: 16, padding: 12, background: token.colorBgContainer, border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadiusLG }}>
+            <Descriptions column={1} size="small" labelStyle={{ color: token.colorTextSecondary, fontSize: 11 }} contentStyle={{ fontSize: 11 }}>
               <Descriptions.Item label="Quote ID">QT-2026-{quote.id.padStart(4, '0')}</Descriptions.Item>
               <Descriptions.Item label="Client">{quote.client}</Descriptions.Item>
-              <Descriptions.Item label="Date Created">{quote.date}</Descriptions.Item>
+              <Descriptions.Item label="Created">{quote.date}</Descriptions.Item>
               <Descriptions.Item label="Valid Until">{quote.validUntil}</Descriptions.Item>
               <Descriptions.Item label="Prepared By">{quote.preparedBy}</Descriptions.Item>
             </Descriptions>
           </div>
 
-          <div style={{ padding: 12, background: token.colorBgContainer, border: `1px solid ${token.colorBorderSecondary}`, borderRadius: token.borderRadiusLG }}>
-            <div style={{ marginBottom: 16, fontWeight: 600, fontSize: 14 }}>Internal Notes</div>
-            <List
-              dataSource={internalNotes}
-              renderItem={(item: any) => (
-                <List.Item style={{ padding: '8px 0', borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
-                  <div style={{ width: '100%' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                      <Text strong style={{ fontSize: 12 }}>{item.author}</Text>
-                      <Space size="small">
-                        <Text type="secondary" style={{ fontSize: 11 }}>{item.date}</Text>
-                        <Button type="text" size="small" icon={<EditOutlined />} onClick={() => { setEditingNoteId(item.id); setEditNoteText(item.text); }} />
-                        <Popconfirm title="Delete note?" onConfirm={() => handleDeleteNote(item.id)}>
-                          <Button type="text" size="small" danger icon={<DeleteOutlined />} />
-                        </Popconfirm>
-                      </Space>
-                    </div>
-                    {editingNoteId === item.id ? (
-                      <div style={{ marginTop: 8 }}>
-                        <TextArea value={editNoteText} onChange={e => setEditNoteText(e.target.value)} autoSize={{ minRows: 2 }} style={{ fontSize: 13, marginBottom: 8 }} />
-                        <Space>
-                          <Button type="primary" size="small" onClick={() => handleSaveEditNote(item.id)}>Save</Button>
-                          <Button size="small" onClick={() => setEditingNoteId(null)}>Cancel</Button>
-                        </Space>
+          <Collapse
+            defaultActiveKey={['margin']}
+            size="small"
+            style={{ background: token.colorBgContainer }}
+            items={[
+              {
+                key: 'margin',
+                label: <Text strong style={{ fontSize: 13 }}>Margin Analysis</Text>,
+                children: (
+                  <div>
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+                        <Text type="secondary" style={{ fontSize: 12 }}>Current Margin</Text>
+                        <Text strong style={{ fontSize: 12, color: currentMargin < quote.floorMargin ? token.colorError : currentMargin >= quote.targetMargin ? token.colorSuccess : token.colorWarning }}>
+                          {currentMargin.toFixed(1)}%
+                        </Text>
                       </div>
-                    ) : (
-                      <Text style={{ fontSize: 13 }}>{item.text}</Text>
-                    )}
+                      <Progress
+                        percent={currentMargin}
+                        success={{ percent: quote.floorMargin, strokeColor: token.colorError }}
+                        strokeColor={currentMargin >= quote.targetMargin ? token.colorSuccess : token.colorWarning}
+                        showInfo={false}
+                        size="small"
+                      />
+                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4 }}>
+                        <Text type="secondary" style={{ fontSize: 10 }}>Floor: {quote.floorMargin}%</Text>
+                        <Text type="secondary" style={{ fontSize: 10 }}>Target: {quote.targetMargin}%</Text>
+                      </div>
+                    </div>
+                    <Descriptions column={1} size="small" labelStyle={{ color: token.colorTextSecondary, fontSize: 11 }} contentStyle={{ fontSize: 11 }}>
+                      <Descriptions.Item label="Revenue">{formatCurrency(subtotal - totalDiscount)}</Descriptions.Item>
+                      <Descriptions.Item label="Cost">{formatCurrency(totalCost)}</Descriptions.Item>
+                      <Descriptions.Item label="Profit">{formatCurrency(subtotal - totalDiscount - totalCost)}</Descriptions.Item>
+                    </Descriptions>
                   </div>
-                </List.Item>
-              )}
-            />
-            <div style={{ marginTop: 16 }}>
-              <TextArea 
-                value={newNote} 
-                onChange={e => setNewNote(e.target.value)} 
-                placeholder="Add an internal note..." 
-                autoSize={{ minRows: 2, maxRows: 4 }}
-                style={{ marginBottom: 8, fontSize: 13 }}
-              />
-              <Button type="primary" size="small" onClick={handleAddNote} block>Add Note</Button>
-            </div>
-          </div>
+                ),
+              },
+              ...(partnerSummary.length > 0 ? [{
+                key: 'partners',
+                label: <Text strong style={{ fontSize: 13 }}>Partner Services</Text>,
+                children: (
+                  <div>
+                    {partnerSummary.map((p: any) => (
+                      <div key={p.id} style={{ marginBottom: 10, padding: '8px 10px', background: token.colorBgLayout, borderRadius: 6, border: `1px solid ${token.colorBorderSecondary}` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
+                          <Text strong style={{ fontSize: 11 }}>{p.name}</Text>
+                          <Tag color={p.status === 'Confirmed' ? 'success' : p.status === 'Pending' ? 'warning' : 'default'} style={{ fontSize: 9, margin: 0 }}>{p.status}</Tag>
+                        </div>
+                        {p.items.map((item: any, i: number) => (
+                          <div key={i} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                            <Text type="secondary" style={{ fontSize: 10 }}>• {item.name.length > 22 ? item.name.substring(0, 22) + '...' : item.name}</Text>
+                            <Tag color="blue" style={{ fontSize: 9, margin: 0, lineHeight: '14px', padding: '0 3px' }}>{item.markup}%</Tag>
+                          </div>
+                        ))}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 4, paddingTop: 4, borderTop: `1px solid ${token.colorBorderSecondary}` }}>
+                          <Text type="secondary" style={{ fontSize: 10 }}>Cost / Price</Text>
+                          <Text strong style={{ fontSize: 10 }}>{formatCurrency(p.totalRate)} / {formatCurrency(p.totalClient)}</Text>
+                        </div>
+                      </div>
+                    ))}
+                    <Divider style={{ margin: '8px 0' }} />
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 3 }}>
+                      <Text type="secondary" style={{ fontSize: 11 }}>Partner Cost</Text>
+                      <Text strong style={{ fontSize: 11 }}>{formatCurrency(totalPartnerCost)}</Text>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <Text type="secondary" style={{ fontSize: 11 }}>Margin</Text>
+                      <Text strong style={{ fontSize: 11, color: partnerMargin >= 30 ? token.colorSuccess : partnerMargin >= 20 ? token.colorWarning : token.colorError }}>{partnerMargin.toFixed(1)}%</Text>
+                    </div>
+                  </div>
+                ),
+              }] : []),
+              {
+                key: 'notes',
+                label: <Text strong style={{ fontSize: 13 }}>Internal Notes</Text>,
+                extra: <Badge count={internalNotes.length} size="small" style={{ backgroundColor: token.colorTextSecondary }} />,
+                children: (
+                  <div>
+                    <List
+                      dataSource={internalNotes}
+                      size="small"
+                      renderItem={(item: any) => (
+                        <List.Item style={{ padding: '6px 0', borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+                          <div style={{ width: '100%' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                              <Text strong style={{ fontSize: 11 }}>{item.author}</Text>
+                              <Space size={2}>
+                                <Button type="text" size="small" icon={<EditOutlined style={{ fontSize: 11 }} />} onClick={() => { setEditingNoteId(item.id); setEditNoteText(item.text); }} style={{ width: 22, height: 22 }} />
+                                <Popconfirm title="Delete?" onConfirm={() => handleDeleteNote(item.id)}>
+                                  <Button type="text" size="small" danger icon={<DeleteOutlined style={{ fontSize: 11 }} />} style={{ width: 22, height: 22 }} />
+                                </Popconfirm>
+                              </Space>
+                            </div>
+                            {editingNoteId === item.id ? (
+                              <div style={{ marginTop: 4 }}>
+                                <TextArea value={editNoteText} onChange={e => setEditNoteText(e.target.value)} autoSize={{ minRows: 2 }} style={{ fontSize: 12, marginBottom: 6 }} />
+                                <Space size={4}>
+                                  <Button type="primary" size="small" onClick={() => handleSaveEditNote(item.id)} style={{ fontSize: 11, height: 24 }}>Save</Button>
+                                  <Button size="small" onClick={() => setEditingNoteId(null)} style={{ fontSize: 11, height: 24 }}>Cancel</Button>
+                                </Space>
+                              </div>
+                            ) : (
+                              <Text style={{ fontSize: 12 }}>{item.text}</Text>
+                            )}
+                          </div>
+                        </List.Item>
+                      )}
+                    />
+                    <div style={{ marginTop: 10 }}>
+                      <TextArea
+                        value={newNote}
+                        onChange={e => setNewNote(e.target.value)}
+                        placeholder="Add a note..."
+                        autoSize={{ minRows: 2, maxRows: 3 }}
+                        style={{ marginBottom: 6, fontSize: 12 }}
+                      />
+                      <Button type="primary" size="small" onClick={handleAddNote} block style={{ fontSize: 12 }}>Add Note</Button>
+                    </div>
+                  </div>
+                ),
+              },
+            ]}
+          />
         </Col>
       </Row>
+
+      {/* Partner Assignment Drawer */}
+      <Drawer
+        title={
+          <div>
+            <div style={{ fontSize: 15, fontWeight: 600 }}>Assign Partner</div>
+            {activeItem && <Text type="secondary" style={{ fontSize: 12 }}>{activeItem.item}</Text>}
+          </div>
+        }
+        placement="right"
+        open={partnerDrawerOpen}
+        onClose={() => { setPartnerDrawerOpen(false); setSelectedRecommendation(null); }}
+        width={520}
+        footer={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              {activeItem?.partner && (
+                <Popconfirm title="Remove partner from this item?" onConfirm={() => { removePartner(activePartnerItem!); setPartnerDrawerOpen(false); }}>
+                  <Button danger size="small">Remove Partner</Button>
+                </Popconfirm>
+              )}
+            </div>
+            <Space>
+              <Button onClick={() => { setPartnerDrawerOpen(false); setSelectedRecommendation(null); }}>Cancel</Button>
+              <Button type="primary" disabled={!selectedRecommendation} onClick={assignPartner} icon={<CheckCircleOutlined />}>
+                Assign Partner
+              </Button>
+            </Space>
+          </div>
+        }
+      >
+        {/* AI Recommendation Banner */}
+        <div style={{ padding: '10px 14px', background: `linear-gradient(135deg, ${token.colorPrimaryBg}, ${token.colorInfoBg})`, borderRadius: 8, marginBottom: 20, display: 'flex', alignItems: 'center', gap: 10 }}>
+          <RobotOutlined style={{ fontSize: 18, color: token.colorPrimary }} />
+          <div>
+            <Text strong style={{ fontSize: 13 }}>AI Recommendations</Text>
+            <br />
+            <Text type="secondary" style={{ fontSize: 11 }}>Based on service match, past performance, availability, and cost efficiency</Text>
+          </div>
+        </div>
+
+        {/* Partner Options */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginBottom: 24 }}>
+          {recommendations.map((partner: any, idx: number) => {
+            const isSelected = selectedRecommendation === partner.id;
+            const isTopPick = idx === 0;
+            return (
+              <div
+                key={partner.id}
+                onClick={() => setSelectedRecommendation(partner.id)}
+                style={{
+                  padding: '14px 16px',
+                  borderRadius: 10,
+                  border: `2px solid ${isSelected ? token.colorPrimary : token.colorBorderSecondary}`,
+                  background: isSelected ? token.colorPrimaryBg : token.colorBgContainer,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  position: 'relative',
+                }}
+              >
+                {isTopPick && (
+                  <Tag color="gold" style={{ position: 'absolute', top: -10, right: 12, fontSize: 10 }} icon={<ThunderboltOutlined />}>Top Pick</Tag>
+                )}
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                  <div>
+                    <Text strong style={{ fontSize: 14 }}>{partner.name}</Text>
+                    <br />
+                    <Text type="secondary" style={{ fontSize: 11 }}>{partner.specialisation}</Text>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <Text strong style={{ fontSize: 16, color: token.colorPrimary }}>{formatCurrency(partner.rate)}</Text>
+                    <br />
+                    <Text type="secondary" style={{ fontSize: 11 }}>Partner rate</Text>
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', gap: 16, marginBottom: 8 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <StarFilled style={{ color: '#faad14', fontSize: 12 }} />
+                    <Text style={{ fontSize: 12 }}>{partner.rating}/5</Text>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <ClockCircleOutlined style={{ fontSize: 12, color: token.colorTextSecondary }} />
+                    <Text style={{ fontSize: 12 }}>{partner.onTimeRate}% on-time</Text>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                    <CheckCircleOutlined style={{ fontSize: 12, color: token.colorTextSecondary }} />
+                    <Text style={{ fontSize: 12 }}>{partner.engagements} projects</Text>
+                  </div>
+                  <Tag color={partner.availability === 'Available' ? 'success' : 'warning'} style={{ fontSize: 10, margin: 0 }}>{partner.availability}</Tag>
+                </div>
+
+                <div style={{ padding: '8px 10px', background: isSelected ? 'rgba(255,255,255,0.6)' : token.colorBgLayout, borderRadius: 6, fontSize: 12, color: token.colorTextSecondary, lineHeight: 1.6 }}>
+                  <RobotOutlined style={{ marginRight: 4, color: token.colorPrimary }} />
+                  {partner.reason}
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 8, paddingTop: 8, borderTop: `1px solid ${isSelected ? 'rgba(22,119,255,0.2)' : token.colorBorderSecondary}` }}>
+                  <Text type="secondary" style={{ fontSize: 11 }}>Contact: {partner.contactName} | {partner.phone}</Text>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Markup Configuration — only visible when a partner is selected */}
+        {selectedRecommendation && selectedPartnerData && (
+          <div style={{ padding: '16px 18px', background: token.colorBgLayout, borderRadius: 10, border: `1px solid ${token.colorBorderSecondary}` }}>
+            <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>Set Your Markup</Text>
+
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                <Text type="secondary" style={{ fontSize: 12 }}>Markup Percentage</Text>
+                <Text strong style={{ fontSize: 14, color: token.colorPrimary }}>{customMarkup}%</Text>
+              </div>
+              <Slider
+                min={5}
+                max={80}
+                value={customMarkup}
+                onChange={(val) => setCustomMarkup(val)}
+                marks={{ 5: '5%', 20: '20%', 35: '35%', 50: '50%', 80: '80%' }}
+                tooltip={{ formatter: (val) => `${val}% markup` }}
+              />
+            </div>
+
+            <Divider style={{ margin: '16px 0' }} />
+
+            <Row gutter={16}>
+              <Col span={8}>
+                <div style={{ textAlign: 'center' }}>
+                  <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>Partner Cost</Text>
+                  <Text style={{ fontSize: 15, fontWeight: 600 }}>{formatCurrency(selectedPartnerData.rate)}</Text>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div style={{ textAlign: 'center' }}>
+                  <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>Client Price</Text>
+                  <Text style={{ fontSize: 15, fontWeight: 600, color: token.colorPrimary }}>{formatCurrency(previewPrice)}</Text>
+                </div>
+              </Col>
+              <Col span={8}>
+                <div style={{ textAlign: 'center' }}>
+                  <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>Your Profit</Text>
+                  <Text style={{ fontSize: 15, fontWeight: 600, color: token.colorSuccess }}>{formatCurrency(previewProfit)}</Text>
+                </div>
+              </Col>
+            </Row>
+          </div>
+        )}
+      </Drawer>
 
       {/* Send Quote Modal */}
       <Modal
@@ -600,7 +950,7 @@ export const QuoteDetail: React.FC = () => {
                   <td style={{ padding: '10px 8px', fontSize: 12, color: '#888' }}>{idx + 1}</td>
                   <td style={{ padding: '10px 8px' }}>
                     <div style={{ fontSize: 13, fontWeight: 500, color: '#1a1a1a' }}>{item.item}</div>
-                    <div style={{ fontSize: 11, color: '#888' }}>{item.category}</div>
+                    <div style={{ fontSize: 11, color: '#888' }}>{item.category}{item.partner ? ` • via ${item.partner.name}` : ''}</div>
                   </td>
                   <td style={{ padding: '10px 8px', textAlign: 'center', fontSize: 13 }}>{item.qty}</td>
                   <td style={{ padding: '10px 8px', textAlign: 'right', fontSize: 13 }}>{formatCurrency(item.unitPrice)}</td>
