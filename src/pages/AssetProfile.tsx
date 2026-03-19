@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { Typography, Card, Tabs, Button, Descriptions, Tag, Row, Col, Table, Space, theme, Statistic, Input, Select, Tooltip, Drawer, Form, List, Timeline, Alert, Checkbox, message } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, ToolOutlined, CalendarOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined, EnvironmentOutlined, InboxOutlined, BarChartOutlined, CheckCircleOutlined, ExportOutlined, ImportOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, ToolOutlined, CalendarOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined, EnvironmentOutlined, InboxOutlined, BarChartOutlined, CheckCircleOutlined, ExportOutlined, ImportOutlined, RobotOutlined, BulbOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_ASSETS, MOCK_ASSET_BOOKINGS } from '../data/mockData';
 import { formatCurrency } from '../utils';
@@ -473,6 +473,145 @@ export const AssetProfile: React.FC = () => {
                   )}
                 </Card>
 
+                {/* AI Maintenance Recommendation Card */}
+                {(() => {
+                  // Compute days since last maintenance
+                  const lastMaintDate = asset.lastMaintenance || asset.lastMaintenanceDate;
+                  const daysSinceMaintenance = lastMaintDate
+                    ? Math.floor((new Date().getTime() - new Date(lastMaintDate).getTime()) / (1000 * 60 * 60 * 24))
+                    : null;
+
+                  const utilisation = asset.utilisationRate || 0;
+                  const condition = asset.condition || 'Unknown';
+
+                  // Upcoming bookings for this asset (future or current)
+                  const today = new Date();
+                  const upcomingBookings = assetBookings
+                    .filter(b => new Date(b.endDate) >= today && b.status !== 'returned')
+                    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+
+                  // Determine urgency
+                  let urgency: 'Critical' | 'High' | 'Medium' | 'Low' = 'Low';
+                  let urgencyColor = 'green';
+                  if (condition === 'Requires Maintenance' || (daysSinceMaintenance !== null && daysSinceMaintenance > 120)) {
+                    urgency = 'Critical';
+                    urgencyColor = 'red';
+                  } else if ((daysSinceMaintenance !== null && daysSinceMaintenance > 90) || utilisation > 85) {
+                    urgency = 'High';
+                    urgencyColor = 'orange';
+                  } else if ((daysSinceMaintenance !== null && daysSinceMaintenance > 60) || utilisation > 70) {
+                    urgency = 'Medium';
+                    urgencyColor = 'gold';
+                  }
+
+                  // Build AI reasoning text
+                  let reasoningText = '';
+                  if (urgency === 'Critical' || urgency === 'High') {
+                    reasoningText = `This asset has been in continuous use with ${utilisation}% utilisation and was last serviced ${daysSinceMaintenance ?? 'N/A'} days ago. `;
+                    if (upcomingBookings.length > 0) {
+                      reasoningText += `With ${upcomingBookings.length} upcoming deployment${upcomingBookings.length > 1 ? 's' : ''}, recommend servicing during the next available gap. `;
+                    } else {
+                      reasoningText += `No upcoming deployments — schedule maintenance at the earliest opportunity. `;
+                    }
+                    if (condition === 'Requires Maintenance') {
+                      reasoningText += `Asset is flagged as requiring maintenance and should be serviced before next deployment.`;
+                    } else {
+                      reasoningText += `Proactive servicing will prevent potential failures during high-profile events.`;
+                    }
+                  } else if (urgency === 'Medium') {
+                    reasoningText = `Asset is in ${condition.toLowerCase()} condition with ${utilisation}% utilisation. Last serviced ${daysSinceMaintenance ?? 'N/A'} days ago. `;
+                    reasoningText += `Maintenance is not urgent but should be planned within the next 30 days to maintain reliability. `;
+                    reasoningText += upcomingBookings.length > 0
+                      ? `Consider scheduling around the ${upcomingBookings.length} upcoming booking${upcomingBookings.length > 1 ? 's' : ''}.`
+                      : `No upcoming bookings — good window for preventive maintenance.`;
+                  } else {
+                    reasoningText = `Asset is in ${condition.toLowerCase()} condition with recent maintenance ${daysSinceMaintenance ?? 'N/A'} days ago. No immediate service required. `;
+                    const nextServiceDate = new Date();
+                    nextServiceDate.setDate(nextServiceDate.getDate() + (180 - (daysSinceMaintenance || 0)));
+                    const nextServiceStr = nextServiceDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+                    reasoningText += `Next recommended service: ${nextServiceStr}.`;
+                  }
+
+                  // Find suggested maintenance window — next gap of 3+ days between bookings
+                  let suggestedWindow = 'No bookings — available immediately';
+                  const allFutureBookings = assetBookings
+                    .filter(b => new Date(b.endDate) >= today)
+                    .sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
+
+                  if (allFutureBookings.length > 0) {
+                    // Check gap from today to first booking
+                    const firstStart = new Date(allFutureBookings[0].startDate);
+                    const gapFromToday = Math.floor((firstStart.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                    if (gapFromToday >= 3) {
+                      const windowStart = new Date(today);
+                      windowStart.setDate(windowStart.getDate() + 1);
+                      const windowEnd = new Date(firstStart);
+                      windowEnd.setDate(windowEnd.getDate() - 1);
+                      suggestedWindow = `${windowStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${windowEnd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} (${gapFromToday} days)`;
+                    } else {
+                      // Check gaps between consecutive bookings
+                      let found = false;
+                      for (let i = 0; i < allFutureBookings.length - 1; i++) {
+                        const endCurrent = new Date(allFutureBookings[i].endDate);
+                        const startNext = new Date(allFutureBookings[i + 1].startDate);
+                        const gap = Math.floor((startNext.getTime() - endCurrent.getTime()) / (1000 * 60 * 60 * 24));
+                        if (gap >= 3) {
+                          const wStart = new Date(endCurrent);
+                          wStart.setDate(wStart.getDate() + 1);
+                          const wEnd = new Date(startNext);
+                          wEnd.setDate(wEnd.getDate() - 1);
+                          suggestedWindow = `${wStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${wEnd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} (${gap} days)`;
+                          found = true;
+                          break;
+                        }
+                      }
+                      if (!found) {
+                        const lastEnd = new Date(allFutureBookings[allFutureBookings.length - 1].endDate);
+                        const wStart = new Date(lastEnd);
+                        wStart.setDate(wStart.getDate() + 1);
+                        const wEnd = new Date(lastEnd);
+                        wEnd.setDate(wEnd.getDate() + 4);
+                        suggestedWindow = `${wStart.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })} – ${wEnd.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })} (after all current bookings)`;
+                      }
+                    }
+                  }
+
+                  return (
+                    <Card
+                      title={<Space size={8}><RobotOutlined style={{ color: token.colorPrimary }} />AI Maintenance Insight</Space>}
+                    >
+                      <div style={{ marginBottom: 16 }}>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 8 }}>Urgency</Text>
+                        <Tag color={urgencyColor} style={{ fontSize: 13, padding: '2px 12px' }}>{urgency}</Tag>
+                      </div>
+
+                      <div style={{ marginBottom: 16, padding: 12, background: token.colorFillAlter, borderRadius: 8 }}>
+                        <Space align="start" size={8}>
+                          <BulbOutlined style={{ color: token.colorWarning, fontSize: 16, marginTop: 2 }} />
+                          <Text style={{ fontSize: 13, lineHeight: '1.6' }}>{reasoningText}</Text>
+                        </Space>
+                      </div>
+
+                      <div style={{ marginBottom: 16 }}>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 4 }}>Suggested Maintenance Window</Text>
+                        <Space size={4}>
+                          <CalendarOutlined />
+                          <Text strong style={{ fontSize: 13 }}>{suggestedWindow}</Text>
+                        </Space>
+                      </div>
+
+                      <Button
+                        type="primary"
+                        icon={<ToolOutlined />}
+                        block
+                        onClick={() => message.success('Maintenance scheduled successfully. Calendar invite sent to the service team.')}
+                      >
+                        Schedule Maintenance
+                      </Button>
+                    </Card>
+                  );
+                })()}
+
               </Col>
             </Row>
           )
@@ -510,24 +649,6 @@ export const AssetProfile: React.FC = () => {
           label: 'Bookings',
           children: (
             <div>
-              {conflicts.length > 0 && (
-                <Alert
-                  type="warning"
-                  showIcon
-                  style={{ marginBottom: 16 }}
-                  message="Booking Conflicts Detected"
-                  description={
-                    <ul style={{ margin: 0, paddingLeft: 20 }}>
-                      {conflicts.map((c, idx) => (
-                        <li key={idx}>
-                          <Text strong>{c.booking1.projectName}</Text> ({c.booking1.startDate} to {c.booking1.endDate}) overlaps with{' '}
-                          <Text strong>{c.booking2.projectName}</Text> ({c.booking2.startDate} to {c.booking2.endDate})
-                        </li>
-                      ))}
-                    </ul>
-                  }
-                />
-              )}
               <Card title="Booking History">
                 <Table columns={bookingTabColumns} dataSource={assetBookings} pagination={false} rowKey="id" size="small" />
               </Card>

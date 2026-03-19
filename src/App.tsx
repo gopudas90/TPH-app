@@ -24,6 +24,7 @@ import { PartnerProfile } from './pages/PartnerProfile';
 import { AssetDashboard } from './pages/AssetDashboard';
 import { AssetList } from './pages/AssetList';
 import { AssetProfile } from './pages/AssetProfile';
+import { AssetCalendar } from './pages/AssetCalendar';
 import { InventoryList } from './pages/InventoryList';
 
 export default function App() {
@@ -52,6 +53,7 @@ export default function App() {
             <Route path="partner/:id" element={<PartnerProfile />} />
             <Route path="assets/dashboard" element={<AssetDashboard />} />
             <Route path="assets" element={<AssetList />} />
+            <Route path="assets/calendar" element={<AssetCalendar />} />
             <Route path="assets/inventory" element={<InventoryList />} />
             <Route path="asset/:id" element={<AssetProfile />} />
             <Route path="*" element={<div style={{ padding: 24 }}>Page Not Found</div>} />

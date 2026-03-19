@@ -1,8 +1,8 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { Typography, Card, Table, Tag, Input, Button, Space, theme, Popconfirm, message, Progress } from 'antd';
-import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { MOCK_ASSETS } from '../data/mockData';
+import { Typography, Card, Table, Tag, Input, Button, Space, theme, Popconfirm, message, Progress, Tooltip } from 'antd';
+import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined, RobotOutlined, ToolOutlined } from '@ant-design/icons';
+import { MOCK_ASSETS, MOCK_ASSET_BOOKINGS } from '../data/mockData';
 import { formatCurrency } from '../utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -111,6 +111,48 @@ export const AssetList: React.FC = () => {
           ? <Tag color="processing">{record.assignedProject}</Tag>
           : <Tag color="success">Available</Tag>
       ),
+    },
+    {
+      title: 'AI Maintenance',
+      key: 'aiMaintenance',
+      width: 150,
+      render: (_: any, record: any) => {
+        const today = new Date();
+        const lastMaint = record.lastMaintenanceDate ? new Date(record.lastMaintenanceDate) : null;
+        const daysSinceMaint = lastMaint ? Math.floor((today.getTime() - lastMaint.getTime()) / (1000 * 60 * 60 * 24)) : 999;
+
+        const futureDate = new Date(today);
+        futureDate.setDate(futureDate.getDate() + 30);
+        const upcomingBookings = MOCK_ASSET_BOOKINGS.filter(
+          b => b.assetId === record.id &&
+            new Date(b.startDate) >= today &&
+            new Date(b.startDate) <= futureDate
+        ).length;
+
+        const conditionRisk = record.condition === 'Requires Maintenance' || record.condition === 'Fair';
+
+        let urgency = 'ok';
+        if (daysSinceMaint > 120 || (daysSinceMaint > 90 && conditionRisk)) {
+          urgency = 'critical';
+        } else if (daysSinceMaint > 60 || (conditionRisk && upcomingBookings > 0) || (daysSinceMaint > 45 && upcomingBookings >= 2)) {
+          urgency = 'high';
+        }
+
+        const tagColor = urgency === 'critical' ? 'red' : urgency === 'high' ? 'orange' : 'green';
+        const tagText = urgency === 'critical' ? 'Overdue' : urgency === 'high' ? 'Service Soon' : 'OK';
+
+        const reasoning = `Last serviced ${daysSinceMaint} days ago. ${upcomingBookings} upcoming booking${upcomingBookings !== 1 ? 's' : ''} in next 30 days.${
+          urgency === 'critical' ? ' Maintenance overdue — schedule immediately.' :
+          urgency === 'high' ? ' Recommend servicing before next deployment.' :
+          ' Asset in good standing.'
+        }`;
+
+        return (
+          <Tooltip title={<span><RobotOutlined /> {reasoning}</span>}>
+            <Tag color={tagColor} icon={<RobotOutlined />}>{tagText}</Tag>
+          </Tooltip>
+        );
+      },
     },
     {
       title: 'Action',

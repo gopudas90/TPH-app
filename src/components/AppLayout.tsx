@@ -13,7 +13,8 @@ import {
   TeamOutlined,
   ShopOutlined,
   InboxOutlined,
-  DatabaseOutlined
+  DatabaseOutlined,
+  CalendarOutlined
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 
@@ -108,6 +109,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
       key: '/assets',
       icon: <InboxOutlined />,
       label: 'Assets',
+    },
+    {
+      key: '/assets/calendar',
+      icon: <CalendarOutlined />,
+      label: 'Calendar',
     },
     {
       key: '/assets/inventory',
