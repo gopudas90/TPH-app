@@ -26,6 +26,9 @@ import { AssetList } from './pages/assets/AssetList';
 import { AssetProfile } from './pages/assets/AssetProfile';
 import { AssetCalendar } from './pages/assets/AssetCalendar';
 import { InventoryList } from './pages/assets/InventoryList';
+import { ProjectDashboard } from './pages/projects/ProjectDashboard';
+import { ProjectList } from './pages/projects/ProjectList';
+import { ProjectProfile } from './pages/projects/ProjectProfile';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -56,6 +59,9 @@ export default function App() {
             <Route path="assets/calendar" element={<AssetCalendar />} />
             <Route path="assets/inventory" element={<InventoryList />} />
             <Route path="asset/:id" element={<AssetProfile />} />
+            <Route path="projects" element={<ProjectDashboard />} />
+            <Route path="projects/list" element={<ProjectList />} />
+            <Route path="project/:id" element={<ProjectProfile />} />
             <Route path="*" element={<div style={{ padding: 24 }}>Page Not Found</div>} />
           </Route>
         </Routes>
