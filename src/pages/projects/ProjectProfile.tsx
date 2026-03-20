@@ -20,11 +20,12 @@ import dayjs from 'dayjs';
 import { getProjectById } from '../../data/projectMockData';
 import { GanttChart } from '../../components/projects/GanttChart';
 import { TaskDrawer } from '../../components/projects/TaskDrawer';
+import { SubTaskDrawer } from '../../components/projects/SubTaskDrawer';
 import { NotesDrawer } from '../../components/shared/NotesDrawer';
 import { DocumentsDrawer } from '../../components/shared/DocumentsDrawer';
 import { SideTriggerPane } from '../../components/shared/SideTriggerPane';
 import { AIChatDrawer } from '../../components/AIChatDrawer';
-import type { Task, SubTask } from '../../data/projectMockData';
+import type { Task, SubTask, Milestone } from '../../data/projectMockData';
 
 const { Title, Text } = Typography;
 
@@ -79,7 +80,7 @@ export const ProjectProfile: React.FC = () => {
   const [docsOpen, setDocsOpen] = useState(false);
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const [activityDrawerOpen, setActivityDrawerOpen] = useState(false);
-  const [selectedSubtask, setSelectedSubtask] = useState<any>(null);
+  const [selectedSubtask, setSelectedSubtask] = useState<(SubTask & { parentTaskName?: string; milestoneName?: string; milestoneColor?: string }) | null>(null);
   const [subtaskDrawerOpen, setSubtaskDrawerOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
   const [milestoneDrawerOpen, setMilestoneDrawerOpen] = useState(false);
@@ -728,7 +729,7 @@ export const ProjectProfile: React.FC = () => {
                               {task.subtasks.map(st => (
                                 <div
                                   key={st.id}
-                                  onClick={() => { setSelectedSubtask({ ...st, parentTask: task.name }); setSubtaskDrawerOpen(true); }}
+                                  onClick={() => { setSelectedSubtask({ ...st, parentTaskName: task.name, milestoneName: milestone.name, milestoneColor: milestone.color }); setSubtaskDrawerOpen(true); }}
                                   style={{
                                     display: 'flex', alignItems: 'center', gap: 8,
                                     padding: '3px 8px', borderRadius: 4, cursor: 'pointer',
@@ -1776,7 +1777,13 @@ export const ProjectProfile: React.FC = () => {
         onClose={() => setDrawerOpen(false)}
         allTasks={allTasks}
         onSubtaskClick={st => {
-          setSelectedSubtask({ ...st, parentTask: drawerTask?.name });
+          const parentMilestone = project.milestones.find(m => m.tasks.some(t => t.id === drawerTask?.id));
+          setSelectedSubtask({
+            ...st,
+            parentTaskName: drawerTask?.name,
+            milestoneName: parentMilestone?.name,
+            milestoneColor: parentMilestone?.color,
+          });
           setSubtaskDrawerOpen(true);
         }}
       />
@@ -1813,81 +1820,13 @@ export const ProjectProfile: React.FC = () => {
       />
 
       {/* Subtask Detail Drawer */}
-      <Drawer
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <CheckCircleOutlined style={{ color: selectedSubtask?.status === 'Completed' ? token.colorSuccess : token.colorTextDisabled }} />
-            <span style={{ fontSize: 15 }}>{selectedSubtask?.name}</span>
-          </div>
-        }
-        width={480}
+      <SubTaskDrawer
+        subtask={selectedSubtask}
         open={subtaskDrawerOpen}
         onClose={() => setSubtaskDrawerOpen(false)}
-        styles={{ body: { padding: '20px 24px' } }}
-      >
-        {selectedSubtask && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div style={{
-              padding: '10px 14px',
-              background: token.colorBgLayout,
-              borderRadius: token.borderRadius,
-              border: `1px solid ${token.colorBorderSecondary}`,
-            }}>
-              <Text type="secondary" style={{ fontSize: 11 }}>PARENT TASK</Text>
-              <div style={{ marginTop: 4 }}>
-                <Text strong style={{ fontSize: 13 }}>{selectedSubtask.parentTask}</Text>
-              </div>
-            </div>
-
-            {[
-              {
-                label: 'STATUS',
-                value: <Badge status={statusColors[selectedSubtask.status] as any} text={<Text style={{ fontSize: 13 }}>{selectedSubtask.status}</Text>} />,
-              },
-              {
-                label: 'PRIORITY',
-                value: <Tag color={priorityColors[selectedSubtask.priority]} style={{ fontSize: 12 }}>{selectedSubtask.priority}</Tag>,
-              },
-              {
-                label: 'OWNER',
-                value: (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Avatar size={22} style={{ background: token.colorPrimary, fontSize: 10 }}>
-                      {selectedSubtask.owner?.split(' ').map((n: string) => n[0]).join('')}
-                    </Avatar>
-                    <Text style={{ fontSize: 13 }}>{selectedSubtask.owner}</Text>
-                  </div>
-                ),
-              },
-              {
-                label: 'DUE DATE',
-                value: (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <CalendarOutlined style={{ color: token.colorTextSecondary, fontSize: 12 }} />
-                    <Text style={{ fontSize: 13 }}>{selectedSubtask.dueDate}</Text>
-                  </div>
-                ),
-              },
-            ].map((row, idx) => (
-              <div key={idx} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <Text type="secondary" style={{ fontSize: 11 }}>{row.label}</Text>
-                <div style={{ paddingLeft: 2 }}>{row.value}</div>
-                {idx < 3 && <Divider style={{ margin: '4px 0' }} />}
-              </div>
-            ))}
-
-            {selectedSubtask.description && (
-              <>
-                <Divider style={{ margin: '4px 0' }} />
-                <div>
-                  <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 6 }}>DESCRIPTION</Text>
-                  <Text style={{ fontSize: 13 }}>{selectedSubtask.description}</Text>
-                </div>
-              </>
-            )}
-          </div>
-        )}
-      </Drawer>
+        allMilestones={project.milestones}
+        allTasks={allTasks}
+      />
 
       {/* Milestone Detail Drawer */}
       <Drawer

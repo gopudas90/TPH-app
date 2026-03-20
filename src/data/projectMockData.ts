@@ -7,6 +7,18 @@ export interface SubTask {
   status: 'Not Started' | 'In Progress' | 'Completed' | 'Blocked';
   priority: 'Low' | 'Medium' | 'High' | 'Critical';
   dueDate: string;
+  // New optional fields (matching Task's data points)
+  description?: string;
+  milestoneId?: string;
+  startDate?: string;
+  clientVisible?: boolean;
+  estimatedHours?: number;
+  actualHours?: number;
+  assignedEmployees?: string[];
+  assignedPartners?: string[];
+  dependencies?: string[];
+  comments?: TaskComment[];
+  isCriticalPath?: boolean;
 }
 
 export interface TaskComment {
