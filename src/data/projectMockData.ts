@@ -1,5 +1,11 @@
 // @ts-nocheck
 // Types
+export interface ChecklistItem {
+  id: string;
+  text: string;
+  checked: boolean;
+}
+
 export interface SubTask {
   id: string;
   name: string;
@@ -19,6 +25,7 @@ export interface SubTask {
   dependencies?: string[];
   comments?: TaskComment[];
   isCriticalPath?: boolean;
+  checklist?: ChecklistItem[];
 }
 
 export interface TaskComment {

@@ -2,14 +2,14 @@
 import React, { useState } from 'react';
 import {
   Drawer, Tabs, Typography, Tag, Select, Switch, Progress, Avatar, Space,
-  Timeline, Input, Button, Divider, Upload, Empty, theme, Badge,
+  Timeline, Input, Button, Divider, Upload, Empty, theme, Badge, Checkbox, Tooltip,
 } from 'antd';
 import {
   UserOutlined, CalendarOutlined, EyeOutlined, EyeInvisibleOutlined,
   PaperClipOutlined, SendOutlined, UploadOutlined, FireOutlined,
-  LinkOutlined, ArrowRightOutlined, CloseOutlined,
+  LinkOutlined, ArrowRightOutlined, CloseOutlined, CheckSquareOutlined, PlusOutlined,
 } from '@ant-design/icons';
-import type { SubTask, Task, Milestone, TaskComment } from '../../data/projectMockData';
+import type { SubTask, Task, Milestone, TaskComment, ChecklistItem } from '../../data/projectMockData';
 
 const { Text, Paragraph } = Typography;
 const { TextArea } = Input;
@@ -50,6 +50,8 @@ export const SubTaskDrawer: React.FC<SubTaskDrawerProps> = ({
   const [localDeps, setLocalDeps] = useState<string[]>(subtask?.dependencies || []);
   const [comments, setComments] = useState<TaskComment[]>(subtask?.comments || []);
   const [newComment, setNewComment] = useState('');
+  const [checklist, setChecklist] = useState<ChecklistItem[]>(subtask?.checklist || []);
+  const [newChecklistItem, setNewChecklistItem] = useState('');
 
   React.useEffect(() => {
     if (subtask) {
@@ -58,6 +60,7 @@ export const SubTaskDrawer: React.FC<SubTaskDrawerProps> = ({
       setLocalClientVisible(subtask.clientVisible || false);
       setLocalDeps([...(subtask.dependencies || [])]);
       setComments([...(subtask.comments || [])]);
+      setChecklist([...(subtask.checklist || [])]);
     }
   }, [subtask]);
 
@@ -222,14 +225,115 @@ export const SubTaskDrawer: React.FC<SubTaskDrawerProps> = ({
       </div>
 
       {/* Progress */}
+      {(() => {
+        const checklistPct = checklist.length > 0
+          ? Math.round((checklist.filter(i => i.checked).length / checklist.length) * 100)
+          : null;
+        const pct = checklistPct != null ? checklistPct : (statusProgress[localStatus] ?? 0);
+        const color = localStatus === 'Blocked' ? token.colorError : pct === 100 ? token.colorSuccess : token.colorPrimary;
+        return (
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>PROGRESS</Text>
+              {checklistPct != null && (
+                <Text style={{ fontSize: 11, color: token.colorTextSecondary }}>
+                  {checklist.filter(i => i.checked).length}/{checklist.length} items
+                </Text>
+              )}
+            </div>
+            <Progress
+              percent={pct}
+              size="small"
+              strokeColor={color}
+              status={localStatus === 'Blocked' ? 'exception' : undefined}
+            />
+          </div>
+        );
+      })()}
+
+      {/* Checklist */}
       <div>
-        <Text type="secondary" style={{ fontSize: 12, display: 'block', marginBottom: 6 }}>PROGRESS</Text>
-        <Progress
-          percent={statusProgress[localStatus] ?? 0}
-          size="small"
-          strokeColor={localStatus === 'Blocked' ? token.colorError : localStatus === 'Completed' ? token.colorSuccess : token.colorPrimary}
-          status={localStatus === 'Blocked' ? 'exception' : undefined}
-        />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <CheckSquareOutlined style={{ color: token.colorPrimary, fontSize: 13 }} />
+          <Text type="secondary" style={{ fontSize: 12 }}>CHECKLIST</Text>
+          {checklist.length > 0 && (
+            <Tag style={{ fontSize: 10, margin: 0 }}>
+              {checklist.filter(i => i.checked).length}/{checklist.length}
+            </Tag>
+          )}
+        </div>
+
+        {checklist.length === 0 && (
+          <Text type="secondary" style={{ fontSize: 12 }}>No checklist items yet</Text>
+        )}
+
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: checklist.length > 0 ? 10 : 0 }}>
+          {checklist.map(item => (
+            <div
+              key={item.id}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '6px 10px', borderRadius: 6,
+                border: `1px solid ${token.colorBorderSecondary}`,
+                background: item.checked ? token.colorBgLayout : token.colorBgContainer,
+              }}
+            >
+              <Checkbox
+                checked={item.checked}
+                onChange={e => setChecklist(prev =>
+                  prev.map(i => i.id === item.id ? { ...i, checked: e.target.checked } : i)
+                )}
+              />
+              <Text
+                style={{
+                  fontSize: 13, flex: 1,
+                  textDecoration: item.checked ? 'line-through' : 'none',
+                  color: item.checked ? token.colorTextTertiary : token.colorText,
+                }}
+              >
+                {item.text}
+              </Text>
+              <Tooltip title="Remove">
+                <Button
+                  type="text"
+                  size="small"
+                  icon={<CloseOutlined />}
+                  onClick={() => setChecklist(prev => prev.filter(i => i.id !== item.id))}
+                  style={{ padding: '0 4px', height: 20, color: token.colorTextTertiary }}
+                />
+              </Tooltip>
+            </div>
+          ))}
+        </div>
+
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Input
+            size="small"
+            placeholder="Add checklist item…"
+            value={newChecklistItem}
+            onChange={e => setNewChecklistItem(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && newChecklistItem.trim()) {
+                setChecklist(prev => [...prev, { id: `CL_${Date.now()}`, text: newChecklistItem.trim(), checked: false }]);
+                setNewChecklistItem('');
+              }
+            }}
+            style={{ flex: 1 }}
+          />
+          <Button
+            size="small"
+            type="dashed"
+            icon={<PlusOutlined />}
+            disabled={!newChecklistItem.trim()}
+            onClick={() => {
+              if (!newChecklistItem.trim()) return;
+              setChecklist(prev => [...prev, { id: `CL_${Date.now()}`, text: newChecklistItem.trim(), checked: false }]);
+              setNewChecklistItem('');
+            }}
+          >
+            Add
+          </Button>
+        </div>
       </div>
 
       {/* Critical Path */}
@@ -477,7 +581,9 @@ export const SubTaskDrawer: React.FC<SubTaskDrawerProps> = ({
         items={[
           {
             key: 'details',
-            label: 'Details',
+            label: checklist.length > 0
+              ? `Details · ${checklist.filter(i => i.checked).length}/${checklist.length}`
+              : 'Details',
             children: detailsTab,
           },
           {
