@@ -27,9 +27,10 @@ const { Text } = Typography;
 interface AppLayoutProps {
   isDarkMode: boolean;
   toggleTheme: () => void;
+  onLogout?: () => void;
 }
 
-export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme }) => {
+export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, onLogout }) => {
   const [collapsed, setCollapsed] = useState(false);
   const [currentModule, setCurrentModule] = useState<'sales' | 'customers' | 'employees' | 'partners' | 'assets' | 'projects'>('sales');
   const navigate = useNavigate();
@@ -266,7 +267,16 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme })
               onClick={toggleTheme}
             />
             <Button type="text" icon={<BellOutlined />} />
-            <Dropdown menu={{ items: [{ key: '1', label: 'Profile' }, { key: '2', label: 'Logout' }] }} placement="bottomRight">
+            <Dropdown
+              menu={{
+                items: [
+                  { key: 'profile', label: 'Profile', icon: <UserOutlined /> },
+                  { type: 'divider' },
+                  { key: 'logout', label: 'Sign Out', danger: true, onClick: onLogout },
+                ],
+              }}
+              placement="bottomRight"
+            >
               <Avatar style={{ backgroundColor: token.colorPrimary, cursor: 'pointer' }} icon={<UserOutlined />} />
             </Dropdown>
           </Space>
