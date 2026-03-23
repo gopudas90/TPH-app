@@ -10,6 +10,7 @@ import { ConfigProvider } from 'antd';
 import { getThemeConfig } from './theme';
 import { AppLayout } from './components/AppLayout';
 import { LoginPage } from './pages/auth/LoginPage';
+import { ClientPortal } from './pages/auth/ClientPortal';
 import { Dashboard } from './pages/sales/Dashboard';
 import { Pipeline } from './pages/sales/Pipeline';
 import { DealProfile } from './pages/sales/DealProfile';
@@ -45,6 +46,8 @@ export default function App() {
       <BrowserRouter>
         {!user ? (
           <LoginPage onLogin={handleLogin} />
+        ) : user.role === 'client' ? (
+          <ClientPortal onLogout={handleLogout} />
         ) : (
           <Routes>
             <Route path="/" element={<AppLayout isDarkMode={isDarkMode} toggleTheme={toggleTheme} onLogout={handleLogout} />}>

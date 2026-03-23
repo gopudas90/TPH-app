@@ -1,147 +1,86 @@
 // @ts-nocheck
-import React from 'react';
-import { Button, Typography, theme, Tag } from 'antd';
+import React, { useState } from 'react';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, theme } from 'antd';
 import {
-  CalendarOutlined, FileTextOutlined, CheckSquareOutlined,
-  MessageOutlined, LogoutOutlined, BellOutlined,
+  AppstoreOutlined, UserOutlined, BellOutlined,
+  CalendarOutlined, FileTextOutlined, CheckSquareOutlined, MessageOutlined,
 } from '@ant-design/icons';
 
-const { Title, Text } = Typography;
+const { Header, Sider, Content } = Layout;
+const { Text } = Typography;
 
 interface ClientPortalProps {
   onLogout: () => void;
 }
 
-const sections = [
-  {
-    icon: <CalendarOutlined style={{ fontSize: 28 }} />,
-    label: 'My Events',
-    description: 'View upcoming and past events',
-    color: '#0f3460',
-  },
-  {
-    icon: <FileTextOutlined style={{ fontSize: 28 }} />,
-    label: 'Quotes & Invoices',
-    description: 'Review proposals and payment history',
-    color: '#e63946',
-  },
-  {
-    icon: <CheckSquareOutlined style={{ fontSize: 28 }} />,
-    label: 'Project Tracker',
-    description: 'Track milestones and task progress',
-    color: '#2a9d8f',
-  },
-  {
-    icon: <MessageOutlined style={{ fontSize: 28 }} />,
-    label: 'Messages',
-    description: 'Communicate with your event team',
-    color: '#e9c46a',
-  },
+const menuItems = [
+  { key: '1', icon: <AppstoreOutlined />, label: 'Dashboard' },
+  { key: '2', icon: <CalendarOutlined />, label: 'My Events' },
+  { key: '3', icon: <FileTextOutlined />, label: 'Quotes & Invoices' },
+  { key: '4', icon: <CheckSquareOutlined />, label: 'Project Tracker' },
+  { key: '5', icon: <MessageOutlined />, label: 'Messages' },
 ];
 
 export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout }) => {
   const { token } = theme.useToken();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div style={{ minHeight: '100vh', background: token.colorBgLayout, display: 'flex', flexDirection: 'column' }}>
-      {/* Top nav */}
-      <div style={{
-        height: 60, background: token.colorBgContainer,
-        borderBottom: `1px solid ${token.colorBorderSecondary}`,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-        padding: '0 32px',
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+    <Layout style={{ minHeight: '100vh' }}>
+      <Sider
+        collapsible
+        collapsed={collapsed}
+        onCollapse={setCollapsed}
+        style={{ borderRight: `1px solid ${token.colorBorderSecondary}` }}
+      >
+        <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
           <div style={{
-            width: 34, height: 34, borderRadius: 8,
-            background: 'linear-gradient(135deg, #e63946, #c1121f)',
+            width: 32, height: 32, background: token.colorPrimary, borderRadius: 8,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
+            color: '#fff', fontWeight: 'bold', fontSize: 16,
           }}>
-            <span style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>T</span>
+            T
           </div>
-          <div>
-            <Text strong style={{ fontSize: 14 }}>The Production House</Text>
-            <Tag color="blue" style={{ fontSize: 10, marginLeft: 8 }}>Client Portal</Tag>
-          </div>
+          {!collapsed && (
+            <span style={{ marginLeft: 12, fontWeight: 600, fontSize: 16, color: token.colorText }}>
+              TPH Client
+            </span>
+          )}
         </div>
+        <Menu
+          mode="inline"
+          selectedKeys={[]}
+          items={menuItems}
+          style={{ borderRight: 0 }}
+        />
+      </Sider>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <Button type="text" icon={<BellOutlined />} />
-          <Button
-            type="text"
-            icon={<LogoutOutlined />}
-            onClick={onLogout}
-            style={{ color: token.colorTextSecondary }}
-          >
-            Sign Out
-          </Button>
-        </div>
-      </div>
-
-      {/* Body */}
-      <div style={{
-        flex: 1, display: 'flex', flexDirection: 'column',
-        alignItems: 'center', justifyContent: 'center',
-        padding: 48,
-      }}>
-        <div style={{ maxWidth: 680, width: '100%', textAlign: 'center' }}>
-          {/* Welcome */}
-          <div style={{
-            width: 72, height: 72, borderRadius: '50%',
-            background: 'linear-gradient(135deg, #0f3460, #1a6bb5)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            margin: '0 auto 24px',
-          }}>
-            <span style={{ fontSize: 28, fontWeight: 700, color: '#fff' }}>C</span>
-          </div>
-
-          <Title level={3} style={{ marginBottom: 8 }}>Welcome, Client User</Title>
-          <Text type="secondary" style={{ fontSize: 15 }}>
-            Your personalised event portal is being set up.
-          </Text>
-
-          <div style={{
-            margin: '40px 0',
-            padding: '16px 24px',
-            background: token.colorInfoBg,
-            border: `1px solid ${token.colorInfoBorder}`,
-            borderRadius: 12,
-            display: 'inline-block',
-          }}>
-            <Text style={{ fontSize: 13, color: token.colorInfo }}>
-              No data available yet. Your project team will share event details here once your project is underway.
-            </Text>
-          </div>
-
-          {/* Placeholder section cards */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            gap: 16,
-            marginTop: 8,
-          }}>
-            {sections.map(sec => (
-              <div
-                key={sec.label}
-                style={{
-                  padding: '28px 24px',
-                  background: token.colorBgContainer,
-                  border: `1px solid ${token.colorBorderSecondary}`,
-                  borderRadius: 12,
-                  display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12,
-                  opacity: 0.5,
-                  cursor: 'not-allowed',
-                }}
-              >
-                <div style={{ color: sec.color }}>{sec.icon}</div>
-                <Text strong style={{ fontSize: 14 }}>{sec.label}</Text>
-                <Text type="secondary" style={{ fontSize: 12 }}>{sec.description}</Text>
-                <Tag style={{ fontSize: 10 }}>Coming Soon</Tag>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
+      <Layout>
+        <Header style={{
+          padding: '0 24px',
+          background: token.colorBgContainer,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          borderBottom: `1px solid ${token.colorBorderSecondary}`,
+        }}>
+          <Text strong style={{ fontSize: 16 }}>Client Portal</Text>
+          <Space size="middle">
+            <Button type="text" icon={<BellOutlined />} />
+            <Dropdown
+              menu={{
+                items: [
+                  { key: 'profile', label: 'Profile', icon: <UserOutlined /> },
+                  { type: 'divider' },
+                  { key: 'logout', label: 'Sign Out', danger: true, onClick: onLogout },
+                ],
+              }}
+              placement="bottomRight"
+            >
+              <Avatar style={{ backgroundColor: token.colorPrimary, cursor: 'pointer' }} icon={<UserOutlined />} />
+            </Dropdown>
+          </Space>
+        </Header>
+        <Content style={{ margin: '24px 16px', minHeight: 280, background: token.colorBgContainer, borderRadius: token.borderRadiusLG }} />
+      </Layout>
+    </Layout>
   );
 };
