@@ -32,6 +32,7 @@ import { InventoryList } from './pages/assets/InventoryList';
 import { ProjectDashboard } from './pages/projects/ProjectDashboard';
 import { ProjectList } from './pages/projects/ProjectList';
 import { ProjectProfile } from './pages/projects/ProjectProfile';
+import { MasterData } from './pages/masterdata/MasterData';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -50,7 +51,7 @@ export default function App() {
           <ClientPortal onLogout={handleLogout} />
         ) : (
           <Routes>
-            <Route path="/" element={<AppLayout isDarkMode={isDarkMode} toggleTheme={toggleTheme} onLogout={handleLogout} />}>
+            <Route path="/" element={<AppLayout isDarkMode={isDarkMode} toggleTheme={toggleTheme} onLogout={handleLogout} userRole={user.role} />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="pipeline" element={<Pipeline />} />
@@ -73,6 +74,7 @@ export default function App() {
               <Route path="projects" element={<ProjectDashboard />} />
               <Route path="projects/list" element={<ProjectList />} />
               <Route path="project/:id" element={<ProjectProfile />} />
+              {user.role === 'admin' && <Route path="master-data" element={<MasterData />} />}
               <Route path="*" element={<div style={{ padding: 24 }}>Page Not Found</div>} />
             </Route>
           </Routes>
