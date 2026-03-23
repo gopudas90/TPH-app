@@ -145,11 +145,26 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
   ];
 
   const masterDataMenuItems = [
-    { key: '/master-data/asset-categories', icon: <AppstoreOutlined />, label: 'Asset Categories' },
-    { key: '/master-data/asset-conditions', icon: <InboxOutlined />, label: 'Asset Conditions' },
-    { key: '/master-data/customer-tiers', icon: <UserOutlined />, label: 'Customer Tiers' },
-    { key: '/master-data/customer-industries', icon: <ShopOutlined />, label: 'Customer Industries' },
-    { key: '/master-data/departments', icon: <TeamOutlined />, label: 'Departments' },
+    {
+      type: 'group', label: 'Assets',
+      children: [
+        { key: '/master-data/asset-categories', icon: <AppstoreOutlined />, label: 'Categories' },
+        { key: '/master-data/asset-conditions', icon: <InboxOutlined />, label: 'Conditions' },
+      ],
+    },
+    {
+      type: 'group', label: 'Customers',
+      children: [
+        { key: '/master-data/customer-tiers', icon: <UserOutlined />, label: 'Tiers' },
+        { key: '/master-data/customer-industries', icon: <ShopOutlined />, label: 'Industries' },
+      ],
+    },
+    {
+      type: 'group', label: 'Employees',
+      children: [
+        { key: '/master-data/departments', icon: <TeamOutlined />, label: 'Departments' },
+      ],
+    },
   ];
 
   const menuItemsMap = { sales: salesMenuItems, customers: customerMenuItems, employees: employeeMenuItems, partners: partnerMenuItems, assets: assetMenuItems, projects: projectMenuItems, masterdata: masterDataMenuItems };
