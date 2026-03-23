@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, theme } from 'antd';
 import {
-  AppstoreOutlined, UserOutlined, BellOutlined,
+  AppstoreOutlined, UserOutlined, BellOutlined, MoonOutlined, SunOutlined,
   CalendarOutlined, FileTextOutlined, CheckSquareOutlined, MessageOutlined,
 } from '@ant-design/icons';
 
@@ -11,6 +11,8 @@ const { Text } = Typography;
 
 interface ClientPortalProps {
   onLogout: () => void;
+  isDarkMode: boolean;
+  toggleTheme: () => void;
 }
 
 const menuItems = [
@@ -21,7 +23,7 @@ const menuItems = [
   { key: '5', icon: <MessageOutlined />, label: 'Messages' },
 ];
 
-export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout }) => {
+export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout, isDarkMode, toggleTheme }) => {
   const { token } = theme.useToken();
   const [collapsed, setCollapsed] = useState(false);
 
@@ -31,6 +33,7 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout }) => {
         collapsible
         collapsed={collapsed}
         onCollapse={setCollapsed}
+        theme={isDarkMode ? 'dark' : 'light'}
         style={{ borderRight: `1px solid ${token.colorBorderSecondary}` }}
       >
         <div style={{ height: 64, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 16px' }}>
@@ -48,6 +51,7 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout }) => {
           )}
         </div>
         <Menu
+          theme={isDarkMode ? 'dark' : 'light'}
           mode="inline"
           selectedKeys={[]}
           items={menuItems}
@@ -64,6 +68,7 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout }) => {
         }}>
           <Text strong style={{ fontSize: 16 }}>Client Portal</Text>
           <Space size="middle">
+            <Button type="text" icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />} onClick={toggleTheme} />
             <Button type="text" icon={<BellOutlined />} />
             <Dropdown
               menu={{

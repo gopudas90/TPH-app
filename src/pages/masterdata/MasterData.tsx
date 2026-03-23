@@ -1,12 +1,11 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import {
-  Tabs, Table, Button, Modal, Form, Input, Tag, Popconfirm,
-  Typography, Space, message, Divider, theme, Tooltip,
+  Table, Button, Modal, Form, Input, Tag, Popconfirm,
+  Typography, Space, message, theme, Tooltip,
 } from 'antd';
 import {
-  PlusOutlined, EditOutlined, DeleteOutlined, AppstoreOutlined,
-  TagOutlined, UserOutlined, GlobalOutlined, TeamOutlined,
+  PlusOutlined, EditOutlined, DeleteOutlined,
 } from '@ant-design/icons';
 import {
   defaultAssetCategories, defaultAssetConditions, defaultCustomerTiers,
@@ -15,15 +14,14 @@ import {
 } from '../../data/masterData';
 import { ColorSwatchPicker } from '../../components/masterdata/ColorSwatchPicker';
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 
 // ─── Shared header row ───────────────────────────────────────
-const SectionHeader = ({ title, subtitle, onAdd, addLabel }) => (
-  <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 16 }}>
-    <div>
-      <Text strong style={{ fontSize: 15 }}>{title}</Text>
-      {subtitle && <Text type="secondary" style={{ fontSize: 12, display: 'block', marginTop: 2 }}>{subtitle}</Text>}
-    </div>
+const SectionHeader = ({ subtitle, onAdd, addLabel }) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+    {subtitle
+      ? <Text type="secondary" style={{ fontSize: 13 }}>{subtitle}</Text>
+      : <span />}
     <Button type="primary" icon={<PlusOutlined />} size="small" onClick={onAdd}>{addLabel}</Button>
   </div>
 );
@@ -146,7 +144,6 @@ const AssetCategoriesTab = () => {
   return (
     <>
       <SectionHeader
-        title="Asset Categories"
         subtitle="Organise assets by category and sub-category"
         onAdd={() => openCatModal()}
         addLabel="Add Category"
@@ -238,7 +235,7 @@ const AssetConditionsTab = () => {
 
   return (
     <>
-      <SectionHeader title="Asset Conditions" subtitle="Define conditions used to classify asset state" onAdd={() => openModal()} addLabel="Add Condition" />
+      <SectionHeader subtitle="Define conditions used to classify asset state" onAdd={() => openModal()} addLabel="Add Condition" />
       <Table dataSource={conditions} columns={columns} rowKey="id" pagination={false} size="middle" />
       <Modal
         title={editing ? 'Edit Condition' : 'Add Condition'}
@@ -306,7 +303,7 @@ const CustomerTiersTab = () => {
 
   return (
     <>
-      <SectionHeader title="Customer Tiers" subtitle="Classify customers by engagement and value level" onAdd={() => openModal()} addLabel="Add Tier" />
+      <SectionHeader subtitle="Classify customers by engagement and value level" onAdd={() => openModal()} addLabel="Add Tier" />
       <Table dataSource={tiers} columns={columns} rowKey="id" pagination={false} size="middle" />
       <Modal
         title={editing ? 'Edit Tier' : 'Add Tier'}
@@ -375,7 +372,7 @@ const CustomerIndustriesTab = () => {
 
   return (
     <>
-      <SectionHeader title="Customer Industries" subtitle="Industry verticals for customer segmentation" onAdd={() => openModal()} addLabel="Add Industry" />
+      <SectionHeader subtitle="Industry verticals for customer segmentation" onAdd={() => openModal()} addLabel="Add Industry" />
       <Table dataSource={industries} columns={columns} rowKey="id" pagination={false} size="middle" />
       <Modal
         title={editing ? 'Edit Industry' : 'Add Industry'}
@@ -506,7 +503,6 @@ const DepartmentsTab = () => {
   return (
     <>
       <SectionHeader
-        title="Departments & Designations"
         subtitle="Organise your workforce by department and job designation"
         onAdd={() => openDeptModal()}
         addLabel="Add Department"
@@ -553,52 +549,8 @@ const DepartmentsTab = () => {
   );
 };
 
-// ─── Main Page ────────────────────────────────────────────────
-const tabItems = [
-  {
-    key: 'asset-categories',
-    label: <span><AppstoreOutlined style={{ marginRight: 6 }} />Asset Categories</span>,
-    children: <AssetCategoriesTab />,
-  },
-  {
-    key: 'asset-conditions',
-    label: <span><TagOutlined style={{ marginRight: 6 }} />Asset Conditions</span>,
-    children: <AssetConditionsTab />,
-  },
-  {
-    key: 'customer-tiers',
-    label: <span><UserOutlined style={{ marginRight: 6 }} />Customer Tiers</span>,
-    children: <CustomerTiersTab />,
-  },
-  {
-    key: 'customer-industries',
-    label: <span><GlobalOutlined style={{ marginRight: 6 }} />Customer Industries</span>,
-    children: <CustomerIndustriesTab />,
-  },
-  {
-    key: 'departments',
-    label: <span><TeamOutlined style={{ marginRight: 6 }} />Departments & Designations</span>,
-    children: <DepartmentsTab />,
-  },
-];
-
-export const MasterData: React.FC = () => {
-  const { token } = theme.useToken();
-
-  return (
-    <div>
-      <div style={{ marginBottom: 24 }}>
-        <Title level={4} style={{ marginBottom: 4 }}>Master Data</Title>
-        <Text type="secondary" style={{ fontSize: 13 }}>
-          Configure reference data used across the application.
-        </Text>
-      </div>
-      <Divider style={{ margin: '0 0 24px' }} />
-      <Tabs
-        items={tabItems}
-        size="small"
-        tabBarStyle={{ marginBottom: 24 }}
-      />
-    </div>
-  );
-};
+export const MasterAssetCategories: React.FC = () => <AssetCategoriesTab />;
+export const MasterAssetConditions: React.FC = () => <AssetConditionsTab />;
+export const MasterCustomerTiers: React.FC = () => <CustomerTiersTab />;
+export const MasterCustomerIndustries: React.FC = () => <CustomerIndustriesTab />;
+export const MasterDepartments: React.FC = () => <DepartmentsTab />;

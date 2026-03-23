@@ -32,7 +32,10 @@ import { InventoryList } from './pages/assets/InventoryList';
 import { ProjectDashboard } from './pages/projects/ProjectDashboard';
 import { ProjectList } from './pages/projects/ProjectList';
 import { ProjectProfile } from './pages/projects/ProjectProfile';
-import { MasterData } from './pages/masterdata/MasterData';
+import {
+  MasterAssetCategories, MasterAssetConditions,
+  MasterCustomerTiers, MasterCustomerIndustries, MasterDepartments,
+} from './pages/masterdata/MasterData';
 
 export default function App() {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -48,7 +51,7 @@ export default function App() {
         {!user ? (
           <LoginPage onLogin={handleLogin} />
         ) : user.role === 'client' ? (
-          <ClientPortal onLogout={handleLogout} />
+          <ClientPortal onLogout={handleLogout} isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
         ) : (
           <Routes>
             <Route path="/" element={<AppLayout isDarkMode={isDarkMode} toggleTheme={toggleTheme} onLogout={handleLogout} userRole={user.role} />}>
@@ -74,7 +77,13 @@ export default function App() {
               <Route path="projects" element={<ProjectDashboard />} />
               <Route path="projects/list" element={<ProjectList />} />
               <Route path="project/:id" element={<ProjectProfile />} />
-              {user.role === 'admin' && <Route path="master-data" element={<MasterData />} />}
+              {user.role === 'admin' && <>
+                <Route path="master-data/asset-categories" element={<MasterAssetCategories />} />
+                <Route path="master-data/asset-conditions" element={<MasterAssetConditions />} />
+                <Route path="master-data/customer-tiers" element={<MasterCustomerTiers />} />
+                <Route path="master-data/customer-industries" element={<MasterCustomerIndustries />} />
+                <Route path="master-data/departments" element={<MasterDepartments />} />
+              </>}
               <Route path="*" element={<div style={{ padding: 24 }}>Page Not Found</div>} />
             </Route>
           </Routes>
