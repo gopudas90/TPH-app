@@ -5,6 +5,7 @@ import {
   Table, Alert, Button, Space, Tooltip, Badge, Tabs, Steps,
   Avatar, Collapse, Select, Input, Switch, Timeline, Divider,
   notification, Empty, Calendar, Segmented, Drawer, Descriptions,
+  Modal, Form, DatePicker, message, ColorPicker,
 } from 'antd';
 import {
   CalendarOutlined, EyeOutlined, FireOutlined,
@@ -13,7 +14,7 @@ import {
   SearchOutlined, DownloadOutlined, EditOutlined, EnvironmentOutlined, LinkOutlined,
   ArrowLeftOutlined, ThunderboltOutlined, FileTextOutlined, FolderOutlined,
   BarsOutlined, TableOutlined, LeftOutlined, RightOutlined, MessageOutlined,
-  AppstoreOutlined, HistoryOutlined, ClockCircleOutlined,
+  AppstoreOutlined, HistoryOutlined, ClockCircleOutlined, PlusOutlined, DeleteOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 import dayjs from 'dayjs';
@@ -66,7 +67,7 @@ export const ProjectProfile: React.FC = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const { id } = useParams();
-  const project = getProjectById(id || '');
+  const [project, setProject] = useState(() => getProjectById(id || ''));
 
   const [activeTab, setActiveTab] = useState('overview');
   const [taskStatusFilter, setTaskStatusFilter] = useState('All');
@@ -98,6 +99,97 @@ export const ProjectProfile: React.FC = () => {
   const [taskView, setTaskView] = useState<'list' | 'gantt' | 'calendar'>('list');
   const [calendarMode, setCalendarMode] = useState<'month' | 'week' | 'day'>('month');
   const [calendarDate, setCalendarDate] = useState(dayjs());
+
+  // ── Add Milestone / Task / Subtask modals ──
+  const [milestoneModalOpen, setMilestoneModalOpen] = useState(false);
+  const [taskModalOpen, setTaskModalOpen] = useState<{ open: boolean; milestoneId: string | null }>({ open: false, milestoneId: null });
+  const [subtaskModalOpen, setSubtaskModalOpen] = useState<{ open: boolean; milestoneId: string | null; taskId: string | null }>({ open: false, milestoneId: null, taskId: null });
+  const [milestoneForm] = Form.useForm();
+  const [taskForm] = Form.useForm();
+  const [subtaskForm] = Form.useForm();
+
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+  const addMilestone = (vals: any) => {
+    if (!project) return;
+    const newMilestone: Milestone = {
+      id: `M-${uid()}`,
+      projectId: project.id,
+      name: vals.name,
+      startDate: vals.dates[0].format('YYYY-MM-DD'),
+      endDate: vals.dates[1].format('YYYY-MM-DD'),
+      status: 'Not Started',
+      color: typeof vals.color === 'string' ? vals.color : vals.color?.toHexString?.() || '#1677ff',
+      tasks: [],
+    };
+    setProject({ ...project, milestones: [...project.milestones, newMilestone] });
+    setMilestoneModalOpen(false);
+    milestoneForm.resetFields();
+    message.success('Milestone added');
+  };
+
+  const addTask = (vals: any) => {
+    if (!project || !taskModalOpen.milestoneId) return;
+    const newTask: Task = {
+      id: `T-${uid()}`,
+      milestoneId: taskModalOpen.milestoneId,
+      name: vals.name,
+      owner: vals.owner || '',
+      startDate: vals.dates?.[0]?.format('YYYY-MM-DD') || '',
+      endDate: vals.dates?.[1]?.format('YYYY-MM-DD') || '',
+      status: 'Not Started',
+      priority: vals.priority || 'Medium',
+      isCriticalPath: false,
+      dependencies: [],
+      clientVisible: false,
+      assignedEmployees: [],
+      assignedAssets: [],
+      assignedPartners: [],
+      estimatedHours: vals.estimatedHours || 0,
+      actualHours: 0,
+      description: vals.description || '',
+      subtasks: [],
+      comments: [],
+    };
+    setProject({
+      ...project,
+      milestones: project.milestones.map(m =>
+        m.id === taskModalOpen.milestoneId ? { ...m, tasks: [...m.tasks, newTask] } : m
+      ),
+    });
+    setTaskModalOpen({ open: false, milestoneId: null });
+    taskForm.resetFields();
+    message.success('Task added');
+  };
+
+  const addSubtask = (vals: any) => {
+    if (!project || !subtaskModalOpen.milestoneId || !subtaskModalOpen.taskId) return;
+    const newSubtask: SubTask = {
+      id: `ST-${uid()}`,
+      name: vals.name,
+      owner: vals.owner || '',
+      status: 'Not Started',
+      priority: vals.priority || 'Medium',
+      dueDate: vals.dueDate?.format('YYYY-MM-DD') || '',
+      description: vals.description || '',
+    };
+    setProject({
+      ...project,
+      milestones: project.milestones.map(m =>
+        m.id === subtaskModalOpen.milestoneId
+          ? {
+              ...m,
+              tasks: m.tasks.map(t =>
+                t.id === subtaskModalOpen.taskId ? { ...t, subtasks: [...t.subtasks, newSubtask] } : t
+              ),
+            }
+          : m
+      ),
+    });
+    setSubtaskModalOpen({ open: false, milestoneId: null, taskId: null });
+    subtaskForm.resetFields();
+    message.success('Subtask added');
+  };
 
   if (!project) {
     return (
@@ -465,16 +557,19 @@ export const ProjectProfile: React.FC = () => {
     <div>
       {/* View Toggle Bar */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <Segmented
-          value={taskView}
-          onChange={v => setTaskView(v as any)}
-          options={[
-            { value: 'list', label: 'List', icon: <BarsOutlined /> },
-            { value: 'tile', label: 'Tile', icon: <AppstoreOutlined /> },
-            { value: 'gantt', label: 'Gantt', icon: <TableOutlined /> },
-            { value: 'calendar', label: 'Calendar', icon: <CalendarOutlined /> },
-          ]}
-        />
+        <Space>
+          <Segmented
+            value={taskView}
+            onChange={v => setTaskView(v as any)}
+            options={[
+              { value: 'list', label: 'List', icon: <BarsOutlined /> },
+              { value: 'tile', label: 'Tile', icon: <AppstoreOutlined /> },
+              { value: 'gantt', label: 'Gantt', icon: <TableOutlined /> },
+              { value: 'calendar', label: 'Calendar', icon: <CalendarOutlined /> },
+            ]}
+          />
+          <Button size="small" icon={<PlusOutlined />} onClick={() => setMilestoneModalOpen(true)}>Add Milestone</Button>
+        </Space>
         {taskView === 'calendar' && (
           <Segmented
             value={calendarMode}
@@ -708,6 +803,15 @@ export const ProjectProfile: React.FC = () => {
                       />
                       <Text style={{ fontSize: 11, color: milestone.color, fontWeight: 600 }}>{mPct}%</Text>
                     </div>
+                    <Button
+                      size="small"
+                      type="dashed"
+                      icon={<PlusOutlined />}
+                      onClick={e => { e.stopPropagation(); setTaskModalOpen({ open: true, milestoneId: milestone.id }); }}
+                      style={{ fontSize: 11 }}
+                    >
+                      Add Task
+                    </Button>
                   </div>
                 ),
                 children: filteredTasks.length === 0 ? (
@@ -722,10 +826,8 @@ export const ProjectProfile: React.FC = () => {
                     expandable={{
                       expandedRowRender: (task: Task) => (
                         <div style={{ paddingLeft: 24, paddingTop: 8 }}>
-                          {task.subtasks.length === 0 ? (
-                            <Text type="secondary" style={{ fontSize: 12 }}>No subtasks</Text>
-                          ) : (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                          {task.subtasks.length > 0 && (
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 8 }}>
                               {task.subtasks.map(st => (
                                 <div
                                   key={st.id}
@@ -762,9 +864,18 @@ export const ProjectProfile: React.FC = () => {
                               ))}
                             </div>
                           )}
+                          <Button
+                            type="dashed"
+                            size="small"
+                            icon={<PlusOutlined />}
+                            onClick={() => setSubtaskModalOpen({ open: true, milestoneId: milestone.id, taskId: task.id })}
+                            style={{ fontSize: 11 }}
+                          >
+                            Add Subtask
+                          </Button>
                         </div>
                       ),
-                      rowExpandable: (task: Task) => task.subtasks.length > 0,
+                      rowExpandable: () => true,
                     }}
                   />
                 ),
@@ -2000,6 +2111,97 @@ export const ProjectProfile: React.FC = () => {
           }}
         />
       </Tooltip>
+
+      {/* ── Add Milestone Modal ── */}
+      <Modal
+        title="Add Milestone"
+        open={milestoneModalOpen}
+        onCancel={() => { setMilestoneModalOpen(false); milestoneForm.resetFields(); }}
+        onOk={() => milestoneForm.submit()}
+        okText="Add"
+        destroyOnClose
+      >
+        <Form form={milestoneForm} layout="vertical" onFinish={addMilestone} style={{ marginTop: 16 }}>
+          <Form.Item name="name" label="Milestone Name" rules={[{ required: true, message: 'Required' }]}>
+            <Input placeholder="e.g. Design Phase" />
+          </Form.Item>
+          <Form.Item name="dates" label="Start / End Date" rules={[{ required: true, message: 'Required' }]}>
+            <DatePicker.RangePicker style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="color" label="Color" initialValue="#1677ff">
+            <ColorPicker />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* ── Add Task Modal ── */}
+      <Modal
+        title="Add Task"
+        open={taskModalOpen.open}
+        onCancel={() => { setTaskModalOpen({ open: false, milestoneId: null }); taskForm.resetFields(); }}
+        onOk={() => taskForm.submit()}
+        okText="Add"
+        destroyOnClose
+      >
+        <Form form={taskForm} layout="vertical" onFinish={addTask} style={{ marginTop: 16 }}>
+          <Form.Item name="name" label="Task Name" rules={[{ required: true, message: 'Required' }]}>
+            <Input placeholder="e.g. Stage Structure Fabrication" />
+          </Form.Item>
+          <Form.Item name="owner" label="Owner">
+            <Input placeholder="e.g. Sarah Chen" />
+          </Form.Item>
+          <Form.Item name="dates" label="Start / End Date">
+            <DatePicker.RangePicker style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="priority" label="Priority" initialValue="Medium">
+            <Select options={[
+              { value: 'Low', label: 'Low' },
+              { value: 'Medium', label: 'Medium' },
+              { value: 'High', label: 'High' },
+              { value: 'Critical', label: 'Critical' },
+            ]} />
+          </Form.Item>
+          <Form.Item name="estimatedHours" label="Estimated Hours">
+            <Input type="number" placeholder="e.g. 40" />
+          </Form.Item>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={3} placeholder="Task description..." />
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* ── Add Subtask Modal ── */}
+      <Modal
+        title="Add Subtask"
+        open={subtaskModalOpen.open}
+        onCancel={() => { setSubtaskModalOpen({ open: false, milestoneId: null, taskId: null }); subtaskForm.resetFields(); }}
+        onOk={() => subtaskForm.submit()}
+        okText="Add"
+        destroyOnClose
+      >
+        <Form form={subtaskForm} layout="vertical" onFinish={addSubtask} style={{ marginTop: 16 }}>
+          <Form.Item name="name" label="Subtask Name" rules={[{ required: true, message: 'Required' }]}>
+            <Input placeholder="e.g. Prepare mood board" />
+          </Form.Item>
+          <Form.Item name="owner" label="Owner">
+            <Input placeholder="e.g. Marcus Tan" />
+          </Form.Item>
+          <Form.Item name="dueDate" label="Due Date">
+            <DatePicker style={{ width: '100%' }} />
+          </Form.Item>
+          <Form.Item name="priority" label="Priority" initialValue="Medium">
+            <Select options={[
+              { value: 'Low', label: 'Low' },
+              { value: 'Medium', label: 'Medium' },
+              { value: 'High', label: 'High' },
+              { value: 'Critical', label: 'Critical' },
+            ]} />
+          </Form.Item>
+          <Form.Item name="description" label="Description">
+            <Input.TextArea rows={2} placeholder="Subtask description..." />
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
