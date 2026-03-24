@@ -1399,6 +1399,58 @@ export const ProjectProfile: React.FC = () => {
     { name: 'Final Payment', pct: 30, dueDate: project.eventDate },
   ].map(p => ({ ...p, amount: Math.round((p.pct / 100) * project.revenue) }));
 
+  // ── Chat Tab (in-app project chat) ──
+  const [chatMessages, setChatMessages] = useState([
+    { id: '1', author: 'Sarah Chen', initials: 'SC', text: 'Stage structure fabrication is complete. Moving to AV setup next.', time: '7 Jun, 2:30 PM' },
+    { id: '2', author: 'Wei Liang Koh', initials: 'WL', text: 'AV equipment has arrived at the warehouse. Will start load-in on the 8th.', time: '7 Jun, 3:15 PM' },
+    { id: '3', author: 'Marcus Tan', initials: 'MT', text: 'Lighting design is 90% done. Need confirmation on the gobo pattern for the main stage.', time: '7 Jun, 4:00 PM' },
+    { id: '4', author: 'Sarah Chen', initials: 'SC', text: 'Client confirmed the celestial gobo pattern. @Marcus please proceed.', time: '7 Jun, 4:30 PM' },
+    { id: '5', author: 'James Lee', initials: 'JL', text: 'MBS loading bay confirmed for 7am June 8. Crew of 12 ready.', time: '8 Jun, 8:00 AM' },
+  ]);
+  const [chatInput, setChatInput] = useState('');
+  const chatEndRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [chatMessages.length]);
+
+  const sendChatMessage = () => {
+    if (!chatInput.trim()) return;
+    setChatMessages(prev => [...prev, { id: Date.now().toString(), author: 'You', initials: 'YO', text: chatInput.trim(), time: 'Just now' }]);
+    setChatInput('');
+  };
+
+  const chatTab = (
+    <Card size="small" style={{ height: 500, display: 'flex', flexDirection: 'column' }} styles={{ body: { display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden', padding: 0 } }}>
+      <div style={{ flex: 1, overflowY: 'auto', padding: '16px 20px' }}>
+        {chatMessages.map(msg => (
+          <div key={msg.id} style={{ display: 'flex', gap: 10, marginBottom: 14 }}>
+            <Avatar size={30} style={{ background: msg.author === 'You' ? token.colorPrimary : token.colorFillSecondary, color: msg.author === 'You' ? '#fff' : token.colorText, flexShrink: 0, fontSize: 11 }}>
+              {msg.initials}
+            </Avatar>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 2 }}>
+                <Text strong style={{ fontSize: 12 }}>{msg.author}</Text>
+                <Text type="secondary" style={{ fontSize: 10 }}>{msg.time}</Text>
+              </div>
+              <Text style={{ fontSize: 12, lineHeight: 1.6 }}>{msg.text}</Text>
+            </div>
+          </div>
+        ))}
+        <div ref={chatEndRef} />
+      </div>
+      <div style={{ padding: '10px 16px', borderTop: `1px solid ${token.colorBorderSecondary}` }}>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <Input
+            value={chatInput}
+            onChange={e => setChatInput(e.target.value)}
+            onPressEnter={e => { if (!e.shiftKey) { e.preventDefault(); sendChatMessage(); } }}
+            placeholder="Type a message to the project team..."
+            style={{ fontSize: 12 }}
+          />
+          <Button type="primary" onClick={sendChatMessage} disabled={!chatInput.trim()}>Send</Button>
+        </div>
+      </div>
+    </Card>
+  );
+
   const quoteTab = (
     <div>
       {/* Toolbar */}
@@ -1878,6 +1930,7 @@ export const ProjectProfile: React.FC = () => {
           { key: 'financials', label: 'Financials', children: financialsTab },
           { key: 'event', label: 'Event Details', children: eventDetailsTab },
           { key: 'quote', label: 'Quote', children: quoteTab },
+          { key: 'chat', label: 'Chat', children: chatTab },
         ]}
       />
 

@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
   Typography, Card, Table, Tag, Space, Button, theme, Input, Select,
-  Modal, Form, Popconfirm, message, Tooltip, Badge, Checkbox, Avatar, Switch,
+  Modal, Form, Popconfirm, message, Tooltip, Badge, Checkbox, Avatar, Switch, Popover,
 } from 'antd';
 import {
   PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined,
@@ -117,10 +117,28 @@ export const UserManagement: React.FC = () => {
       render: (_, r) => <Text style={{ fontSize: 12 }}>{countPerms(r.crud)} / {MODULES.length * 4}</Text>,
     },
     {
-      title: 'Users', key: 'users', width: 80,
+      title: 'Users', key: 'users', width: 100,
       render: (_, r) => {
-        const count = getUserCount(r.id);
-        return <Badge count={count} showZero style={{ backgroundColor: count > 0 ? token.colorPrimary : token.colorTextQuaternary }} />;
+        const roleUsers = users.filter(u => u.roleId === r.id);
+        const count = roleUsers.length;
+        const content = count === 0 ? <Text type="secondary" style={{ fontSize: 12 }}>No users assigned</Text> : (
+          <div style={{ maxWidth: 240 }}>
+            {roleUsers.map(u => (
+              <div key={u.id} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 0' }}>
+                <Avatar size={22} style={{ background: token.colorPrimary, fontSize: 10 }}>{u.name.split(' ').map(n => n[0]).join('')}</Avatar>
+                <div>
+                  <Text style={{ fontSize: 12, display: 'block', lineHeight: 1.2 }}>{u.name}</Text>
+                  <Text type="secondary" style={{ fontSize: 10 }}>{u.email}</Text>
+                </div>
+              </div>
+            ))}
+          </div>
+        );
+        return (
+          <Popover content={content} title={<Text strong style={{ fontSize: 12 }}>{r.name} — {count} user(s)</Text>} placement="left" trigger="hover">
+            <Badge count={count} showZero style={{ backgroundColor: count > 0 ? token.colorPrimary : token.colorTextQuaternary, cursor: 'pointer' }} />
+          </Popover>
+        );
       },
     },
     {

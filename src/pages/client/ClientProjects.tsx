@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import {
   Typography, Card, Table, Tag, Progress, Space, Input, theme, Button, Collapse,
-  Steps, Tooltip, Avatar, Badge, Row, Col, Statistic, Descriptions, Empty,
+  Steps, Tooltip, Avatar, Badge, Row, Col, Statistic, Descriptions, Empty, Drawer, Divider,
 } from 'antd';
 import {
   SearchOutlined, ProjectOutlined, CheckCircleOutlined, ClockCircleOutlined,
@@ -111,6 +111,13 @@ export const ClientProjectDetail: React.FC = () => {
   const { id } = useParams();
   const project = MOCK_PROJECTS.find(p => p.id === id) || MOCK_PROJECTS[0];
   const [search, setSearch] = useState('');
+  const [selectedTask, setSelectedTask] = useState<any>(null);
+  const [taskDrawerOpen, setTaskDrawerOpen] = useState(false);
+  const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
+  const [milestoneDrawerOpen, setMilestoneDrawerOpen] = useState(false);
+
+  const openTaskDrawer = (task: any, milestone: any) => { setSelectedTask({ ...task, milestoneName: milestone.name, milestoneColor: milestone.color }); setTaskDrawerOpen(true); };
+  const openMilestoneDrawer = (milestone: any) => { setSelectedMilestone(milestone); setMilestoneDrawerOpen(true); };
 
   const allTasks = project.milestones.flatMap(m => m.tasks);
   const doneTasks = allTasks.filter(t => t.status === 'Completed').length;
@@ -183,7 +190,7 @@ export const ClientProjectDetail: React.FC = () => {
             label: (
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <div style={{ width: 10, height: 10, borderRadius: 2, background: milestone.color }} />
-                <Text strong style={{ fontSize: 13 }}>{milestone.name}</Text>
+                <Button type="link" style={{ padding: 0, fontWeight: 600, fontSize: 13, height: 'auto' }} onClick={e => { e.stopPropagation(); openMilestoneDrawer(milestone); }}>{milestone.name}</Button>
                 <Tag color={statusColors[milestone.status]} style={{ fontSize: 11 }}>{milestone.status}</Tag>
                 <Text type="secondary" style={{ fontSize: 11 }}>{milestone.startDate} → {milestone.endDate}</Text>
                 <Progress percent={mPct} size="small" strokeColor={milestone.color} showInfo={false} style={{ width: 80, margin: 0 }} />
@@ -202,7 +209,7 @@ export const ClientProjectDetail: React.FC = () => {
                   { title: 'Task', dataIndex: 'name', key: 'name', render: (v, r) => (
                     <Space size={4}>
                       {r.priority === 'Critical' && <FireOutlined style={{ color: '#ff4d4f', fontSize: 12 }} />}
-                      <Text style={{ fontSize: 12 }}>{v}</Text>
+                      <Button type="link" size="small" style={{ padding: 0, fontSize: 12, height: 'auto' }} onClick={() => openTaskDrawer(r, milestone)}>{v}</Button>
                     </Space>
                   ) },
                   { title: 'Priority', dataIndex: 'priority', key: 'priority', width: 90, render: v => <Tag color={priorityColors[v]} style={{ fontSize: 11 }}>{v}</Tag> },
@@ -215,6 +222,53 @@ export const ClientProjectDetail: React.FC = () => {
           };
         })}
       />
+
+      {/* Task Detail Drawer */}
+      <Drawer title={selectedTask?.name || 'Task Details'} open={taskDrawerOpen} onClose={() => setTaskDrawerOpen(false)} width={420}>
+        {selectedTask && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: selectedTask.milestoneColor }} />
+              <Text type="secondary" style={{ fontSize: 12 }}>{selectedTask.milestoneName}</Text>
+            </div>
+            <Descriptions column={1} size="small" labelStyle={{ fontSize: 12, color: token.colorTextSecondary }} contentStyle={{ fontSize: 12 }}>
+              <Descriptions.Item label="Status"><Tag color={statusColors[selectedTask.status]}>{selectedTask.status}</Tag></Descriptions.Item>
+              <Descriptions.Item label="Priority"><Tag color={priorityColors[selectedTask.priority]}>{selectedTask.priority}</Tag></Descriptions.Item>
+              <Descriptions.Item label="Owner">{selectedTask.owner}</Descriptions.Item>
+              <Descriptions.Item label="Due Date">{selectedTask.dueDate}</Descriptions.Item>
+            </Descriptions>
+          </div>
+        )}
+      </Drawer>
+
+      {/* Milestone Detail Drawer */}
+      <Drawer title={selectedMilestone?.name || 'Milestone Details'} open={milestoneDrawerOpen} onClose={() => setMilestoneDrawerOpen(false)} width={420}>
+        {selectedMilestone && (
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+              <div style={{ width: 12, height: 12, borderRadius: 3, background: selectedMilestone.color }} />
+              <Tag color={statusColors[selectedMilestone.status]}>{selectedMilestone.status}</Tag>
+            </div>
+            <Descriptions column={1} size="small" labelStyle={{ fontSize: 12, color: token.colorTextSecondary }} contentStyle={{ fontSize: 12 }}>
+              <Descriptions.Item label="Start Date">{selectedMilestone.startDate}</Descriptions.Item>
+              <Descriptions.Item label="End Date">{selectedMilestone.endDate}</Descriptions.Item>
+              <Descriptions.Item label="Tasks">{selectedMilestone.tasks.length}</Descriptions.Item>
+              <Descriptions.Item label="Completed">{selectedMilestone.tasks.filter(t => t.status === 'Completed').length}</Descriptions.Item>
+            </Descriptions>
+            <Divider style={{ margin: '12px 0' }} />
+            <Text strong style={{ fontSize: 13, marginBottom: 8, display: 'block' }}>Tasks</Text>
+            {selectedMilestone.tasks.map(t => (
+              <div key={t.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '6px 0', borderBottom: `1px solid ${token.colorBorderSecondary}` }}>
+                <div>
+                  <Text style={{ fontSize: 12 }}>{t.name}</Text>
+                  <Text type="secondary" style={{ fontSize: 11, display: 'block' }}>{t.owner} &middot; Due: {t.dueDate}</Text>
+                </div>
+                <Tag color={statusColors[t.status]} style={{ fontSize: 10 }}>{t.status}</Tag>
+              </div>
+            ))}
+          </div>
+        )}
+      </Drawer>
     </div>
   );
 };

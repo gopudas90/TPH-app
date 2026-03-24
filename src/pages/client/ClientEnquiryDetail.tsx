@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import {
   Typography, Card, Table, Tag, Space, Button, theme, Descriptions, Divider,
-  Input, Avatar, Tooltip, Modal, message, Row, Col, Steps, Badge,
+  Input, Avatar, Tooltip, Modal, message, Row, Col, Steps, Badge, List,
 } from 'antd';
 import {
   ArrowLeftOutlined, FileTextOutlined, CheckCircleOutlined, DownloadOutlined,
   SendOutlined, DollarOutlined, CalendarOutlined, UserOutlined, MessageOutlined,
+  CommentOutlined, FilePdfOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -57,9 +58,14 @@ export const ClientEnquiryDetail: React.FC = () => {
   const { token } = theme.useToken();
   const navigate = useNavigate();
   const { id } = useParams();
-  const [commentInputs, setCommentInputs] = useState<Record<string, string>>({});
   const [lineItems, setLineItems] = useState(MOCK_QUOTE.lineItems);
   const [acceptModalOpen, setAcceptModalOpen] = useState(false);
+  const [accepted, setAccepted] = useState(false);
+
+  // Comment modal (matches admin QuoteDetail style)
+  const [commentModalVisible, setCommentModalVisible] = useState(false);
+  const [activeCommentItem, setActiveCommentItem] = useState<string | null>(null);
+  const [newComment, setNewComment] = useState('');
 
   const fmt = (v: number) => new Intl.NumberFormat('en-SG', { style: 'currency', currency: 'SGD', maximumFractionDigits: 0 }).format(v);
 
@@ -67,19 +73,24 @@ export const ClientEnquiryDetail: React.FC = () => {
   const gst = Math.round(subtotal * 0.09);
   const total = subtotal + gst;
 
-  const currentStage = STAGES.indexOf(MOCK_ENQUIRY.status);
+  const currentStage = accepted ? STAGES.indexOf('Accepted') : STAGES.indexOf(MOCK_ENQUIRY.status);
 
-  const addComment = (key: string) => {
-    const text = commentInputs[key]?.trim();
-    if (!text) return;
+  const openComments = (key: string) => {
+    setActiveCommentItem(key);
+    setCommentModalVisible(true);
+  };
+
+  const handleAddComment = () => {
+    if (!newComment.trim() || !activeCommentItem) return;
     setLineItems(prev => prev.map(li =>
-      li.key === key ? { ...li, comments: [...li.comments, { id: Date.now().toString(), author: 'Jane Doe', role: 'Client', text, time: 'Just now' }] } : li
+      li.key === activeCommentItem ? { ...li, comments: [...li.comments, { id: Date.now().toString(), author: 'Jane Doe', role: 'Client', text: newComment, time: 'Just now' }] } : li
     ));
-    setCommentInputs(prev => ({ ...prev, [key]: '' }));
+    setNewComment('');
   };
 
   const handleAccept = () => {
     setAcceptModalOpen(false);
+    setAccepted(true);
     message.success('Quote accepted! TPH will be in touch to confirm next steps.');
   };
 
@@ -101,8 +112,12 @@ export const ClientEnquiryDetail: React.FC = () => {
           </Space>
         </div>
         <Space>
-          <Button icon={<DownloadOutlined />} onClick={handleExport}>Export PDF</Button>
-          <Button type="primary" icon={<CheckCircleOutlined />} onClick={() => setAcceptModalOpen(true)}>Accept Quote</Button>
+          <Button icon={<DownloadOutlined />} onClick={handleExport}>Download PDF</Button>
+          {accepted ? (
+            <Tag color="success" style={{ fontSize: 13, padding: '4px 12px' }}><CheckCircleOutlined /> Quote Accepted</Tag>
+          ) : (
+            <Button type="primary" icon={<CheckCircleOutlined />} onClick={() => setAcceptModalOpen(true)}>Accept Quote</Button>
+          )}
         </Space>
       </div>
 
@@ -157,67 +172,57 @@ export const ClientEnquiryDetail: React.FC = () => {
         </Col>
       </Row>
 
-      {/* Line Items with Comments */}
+      {/* Line Items */}
       <Card size="small" title={<Text strong style={{ fontSize: 13 }}>Quote Line Items</Text>} styles={{ body: { padding: 0 } }}>
         <Table
           dataSource={lineItems}
           rowKey="key"
           pagination={false}
           size="small"
-          expandable={{
-            expandedRowRender: (record) => (
-              <div style={{ padding: '8px 16px' }}>
-                {/* Comments */}
-                {record.comments.length > 0 && (
-                  <div style={{ marginBottom: 12 }}>
-                    {record.comments.map(c => (
-                      <div key={c.id} style={{ display: 'flex', gap: 8, marginBottom: 8, justifyContent: c.role === 'Client' ? 'flex-end' : 'flex-start' }}>
-                        <div style={{
-                          maxWidth: '70%', padding: '6px 10px',
-                          borderRadius: c.role === 'Client' ? '10px 10px 2px 10px' : '10px 10px 10px 2px',
-                          background: c.role === 'Client' ? token.colorPrimary : token.colorFillAlter,
-                          color: c.role === 'Client' ? '#fff' : token.colorText,
-                          fontSize: 12, lineHeight: 1.5,
-                        }}>
-                          <Text strong style={{ fontSize: 11, color: c.role === 'Client' ? 'rgba(255,255,255,0.85)' : token.colorTextSecondary, display: 'block' }}>{c.author}</Text>
-                          {c.text}
-                          <div style={{ fontSize: 10, marginTop: 2, opacity: 0.7 }}>{c.time}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                {/* Add comment */}
-                <div style={{ display: 'flex', gap: 8 }}>
-                  <Input
-                    size="small"
-                    placeholder="Add a comment on this line item..."
-                    value={commentInputs[record.key] || ''}
-                    onChange={e => setCommentInputs(prev => ({ ...prev, [record.key]: e.target.value }))}
-                    onPressEnter={() => addComment(record.key)}
-                    style={{ fontSize: 12 }}
-                  />
-                  <Button size="small" type="primary" icon={<SendOutlined />} onClick={() => addComment(record.key)} disabled={!commentInputs[record.key]?.trim()} />
-                </div>
-              </div>
-            ),
-            rowExpandable: () => true,
-          }}
           columns={[
             { title: '#', key: 'idx', width: 40, render: (_, __, idx) => <Text type="secondary" style={{ fontSize: 11 }}>{idx + 1}</Text> },
-            { title: 'Item', dataIndex: 'item', key: 'item', render: (v, r) => (
-              <div>
-                <Text style={{ fontSize: 12 }}>{v}</Text>
-                {r.comments.length > 0 && <Badge count={r.comments.length} size="small" style={{ marginLeft: 6 }} />}
-              </div>
-            ) },
+            { title: 'Item', dataIndex: 'item', key: 'item', render: (v) => <Text style={{ fontSize: 12 }}>{v}</Text> },
             { title: 'Category', dataIndex: 'category', key: 'category', width: 120, render: v => <Tag style={{ fontSize: 10 }}>{v}</Tag> },
             { title: 'Qty', dataIndex: 'qty', key: 'qty', width: 60, align: 'center' },
             { title: 'Unit Price', dataIndex: 'unitPrice', key: 'unitPrice', width: 120, align: 'right', render: v => fmt(v) },
             { title: 'Total', key: 'total', width: 120, align: 'right', render: (_, r) => <Text strong>{fmt(r.unitPrice * r.qty)}</Text> },
+            {
+              title: 'Comments', key: 'comments', width: 100, align: 'center',
+              render: (_, r) => (
+                <Badge count={r.comments.length} size="small">
+                  <Button type="text" size="small" icon={<CommentOutlined />} onClick={() => openComments(r.key)} />
+                </Badge>
+              ),
+            },
           ]}
         />
       </Card>
+
+      {/* Comment Modal (matches admin QuoteDetail style) */}
+      <Modal
+        title={`Comments — ${lineItems.find(i => i.key === activeCommentItem)?.item || ''}`}
+        open={commentModalVisible}
+        onCancel={() => setCommentModalVisible(false)}
+        footer={null}
+      >
+        <List
+          dataSource={lineItems.find(i => i.key === activeCommentItem)?.comments || []}
+          renderItem={(comment: any) => (
+            <List.Item>
+              <List.Item.Meta
+                avatar={<Avatar>{comment.author.charAt(0)}</Avatar>}
+                title={<Space><Text strong>{comment.author}</Text><Text type="secondary" style={{ fontSize: 12 }}>{comment.time}</Text></Space>}
+                description={comment.text}
+              />
+            </List.Item>
+          )}
+          locale={{ emptyText: 'No comments yet.' }}
+        />
+        <div style={{ marginTop: 16, display: 'flex', gap: 8 }}>
+          <Input value={newComment} onChange={e => setNewComment(e.target.value)} placeholder="Add a comment..." onPressEnter={handleAddComment} />
+          <Button type="primary" onClick={handleAddComment}>Post</Button>
+        </div>
+      </Modal>
 
       {/* Accept Modal */}
       <Modal
