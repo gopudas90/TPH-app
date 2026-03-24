@@ -178,14 +178,14 @@ export const Pipeline: React.FC = () => {
   const toStageName = checklistModal.toStageId ? PIPELINE_STAGES.find(s => s.id === checklistModal.toStageId)?.name : '';
 
   const listColumns = [
-    { title: 'Deal Name', dataIndex: 'name', key: 'name', render: (text: string, record: any) => <a onClick={() => navigate(`/deal/${record.id}`)}>{text}</a> },
-    { title: 'Client', dataIndex: 'client', key: 'client' },
-    { title: 'Stage', dataIndex: 'stageId', key: 'stageId', render: (val: string) => PIPELINE_STAGES.find(s => s.id === val)?.name },
-    { title: 'Value', dataIndex: 'value', key: 'value', render: (val: number) => formatCurrency(val) },
-    { title: 'Priority', dataIndex: 'priority', key: 'priority', render: (val: string) => <Tag color={getPriorityColor(val)}>{val}</Tag> },
-    { title: 'Lead Score', dataIndex: 'leadScore', key: 'leadScore', render: (val: number, record: any) => <Tooltip title={record.leadScoreExplanation || "AI Lead Score"}><Space><FireOutlined style={{ color: token.colorWarning }} />{val}</Space></Tooltip> },
-    { title: 'Probability', dataIndex: 'probability', key: 'probability', render: (val: number) => <Tag color={getProbabilityColor(val)}>{val}%</Tag> },
-    { title: 'Owner', dataIndex: 'owner', key: 'owner' },
+    { title: 'Deal Name', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (text: string, record: any) => <a onClick={() => navigate(`/deal/${record.id}`)}>{text}</a> },
+    { title: 'Client', dataIndex: 'client', key: 'client', sorter: (a, b) => a.client.localeCompare(b.client) },
+    { title: 'Stage', dataIndex: 'stageId', key: 'stageId', sorter: (a, b) => parseInt(a.stageId) - parseInt(b.stageId), render: (val: string) => PIPELINE_STAGES.find(s => s.id === val)?.name },
+    { title: 'Value', dataIndex: 'value', key: 'value', sorter: (a, b) => a.value - b.value, render: (val: number) => formatCurrency(val) },
+    { title: 'Priority', dataIndex: 'priority', key: 'priority', filters: [{ text: 'High', value: 'High' }, { text: 'Mid', value: 'Mid' }, { text: 'Low', value: 'Low' }], onFilter: (v, r) => r.priority === v, render: (val: string) => <Tag color={getPriorityColor(val)}>{val}</Tag> },
+    { title: 'Lead Score', dataIndex: 'leadScore', key: 'leadScore', sorter: (a, b) => a.leadScore - b.leadScore, render: (val: number, record: any) => <Tooltip title={record.leadScoreExplanation || "AI Lead Score"}><Space><FireOutlined style={{ color: token.colorWarning }} />{val}</Space></Tooltip> },
+    { title: 'Probability', dataIndex: 'probability', key: 'probability', sorter: (a, b) => a.probability - b.probability, render: (val: number) => <Tag color={getProbabilityColor(val)}>{val}%</Tag> },
+    { title: 'Owner', dataIndex: 'owner', key: 'owner', filters: [...new Set(MOCK_DEALS.map(d => d.owner))].map(o => ({ text: o, value: o })), onFilter: (v, r) => r.owner === v },
   ];
 
   return (

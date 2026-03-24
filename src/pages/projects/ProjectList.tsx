@@ -61,6 +61,7 @@ export const ProjectList: React.FC = () => {
     {
       title: 'Project Name',
       key: 'name',
+      sorter: (a: any, b: any) => a.name.localeCompare(b.name),
       render: (_: any, record: any) => (
         <Button
           type="link"
@@ -75,6 +76,7 @@ export const ProjectList: React.FC = () => {
       title: 'Client',
       dataIndex: 'client',
       key: 'client',
+      sorter: (a: any, b: any) => a.client.localeCompare(b.client),
       render: (v: string) => <Text style={{ fontSize: 13 }}>{v}</Text>,
     },
     {
@@ -151,6 +153,7 @@ export const ProjectList: React.FC = () => {
       title: 'Project Director',
       dataIndex: 'projectDirector',
       key: 'projectDirector',
+      sorter: (a: any, b: any) => a.projectDirector.localeCompare(b.projectDirector),
       render: (v: string) => <Text style={{ fontSize: 13 }}>{v}</Text>,
     },
     {

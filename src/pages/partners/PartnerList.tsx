@@ -33,6 +33,7 @@ export const PartnerList: React.FC = () => {
       title: 'Partner Name',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a: any, b: any) => a.name.localeCompare(b.name),
       render: (text: string, record: any) => (
         <span>
           <a onClick={() => navigate(`/partner/${record.id}`)} style={{ fontWeight: 500 }}>{text}</a>
@@ -45,6 +46,8 @@ export const PartnerList: React.FC = () => {
       title: 'Service Categories',
       dataIndex: 'serviceCategories',
       key: 'serviceCategories',
+      filters: [...new Set(MOCK_PARTNERS.flatMap(p => p.serviceCategories))].map(c => ({ text: c, value: c })),
+      onFilter: (v: any, r: any) => r.serviceCategories.includes(v),
       render: (cats: string[]) => (
         <Space size={[0, 4]} wrap>
           {cats.slice(0, 2).map(c => <Tag key={c}>{c}</Tag>)}
@@ -56,6 +59,7 @@ export const PartnerList: React.FC = () => {
       title: 'Rating',
       dataIndex: 'avgRating',
       key: 'avgRating',
+      sorter: (a: any, b: any) => a.avgRating - b.avgRating,
       render: (val: number) => <Rate disabled defaultValue={val} allowHalf style={{ fontSize: 13 }} />
     },
     {
@@ -95,17 +99,20 @@ export const PartnerList: React.FC = () => {
       title: 'On-Time',
       dataIndex: 'onTimeRate',
       key: 'onTimeRate',
+      sorter: (a: any, b: any) => a.onTimeRate - b.onTimeRate,
       render: (val: number) => <Tag color={val >= 90 ? 'success' : val >= 80 ? 'warning' : 'error'}>{val}%</Tag>
     },
     {
       title: 'Engagements',
       dataIndex: 'engagements',
       key: 'engagements',
+      sorter: (a: any, b: any) => a.engagements - b.engagements,
     },
     {
       title: 'Total Spend',
       dataIndex: 'totalSpend',
       key: 'totalSpend',
+      sorter: (a: any, b: any) => a.totalSpend - b.totalSpend,
       render: (val: number) => formatCurrency(val)
     },
     {

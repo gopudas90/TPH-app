@@ -95,7 +95,7 @@ export const InventoryList: React.FC = () => {
 
   const inventoryColumns = [
     {
-      title: 'Item', dataIndex: 'name', key: 'name', width: 280,
+      title: 'Item', dataIndex: 'name', key: 'name', width: 280, sorter: (a: any, b: any) => a.name.localeCompare(b.name),
       render: (text: string, record: any) => (
         <div>
           <Text strong style={{ fontSize: 13 }}>{text}</Text>
@@ -140,7 +140,7 @@ export const InventoryList: React.FC = () => {
       }
     },
     {
-      title: 'Unit Price', dataIndex: 'lastPurchasePrice', key: 'price',
+      title: 'Unit Price', dataIndex: 'lastPurchasePrice', key: 'price', sorter: (a: any, b: any) => a.lastPurchasePrice - b.lastPurchasePrice,
       render: (val: number) => formatCurrency(val)
     },
     {
@@ -158,7 +158,7 @@ export const InventoryList: React.FC = () => {
       )
     },
     {
-      title: 'Last Purchased', dataIndex: 'lastPurchaseDate', key: 'lastPurchaseDate',
+      title: 'Last Purchased', dataIndex: 'lastPurchaseDate', key: 'lastPurchaseDate', sorter: (a: any, b: any) => new Date(a.lastPurchaseDate).getTime() - new Date(b.lastPurchaseDate).getTime(),
       render: (val: string) => <Text type="secondary" style={{ fontSize: 12 }}>{val}</Text>
     },
     {

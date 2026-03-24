@@ -36,10 +36,11 @@ export const EmployeeList: React.FC = () => {
       title: 'Name',
       dataIndex: 'name',
       key: 'name',
+      sorter: (a: any, b: any) => a.name.localeCompare(b.name),
       render: (text: string, record: any) => <a onClick={() => navigate(`/employee/${record.id}`)} style={{ fontWeight: 500 }}>{text}</a>
     },
-    { title: 'Designation', dataIndex: 'designation', key: 'designation' },
-    { title: 'Department', dataIndex: 'department', key: 'department' },
+    { title: 'Designation', dataIndex: 'designation', key: 'designation', sorter: (a: any, b: any) => a.designation.localeCompare(b.designation) },
+    { title: 'Department', dataIndex: 'department', key: 'department', filters: [...new Set(MOCK_EMPLOYEES.map(e => e.department))].map(d => ({ text: d, value: d })), onFilter: (v: any, r: any) => r.department === v },
     {
       title: 'Role',
       key: 'role',
@@ -55,6 +56,8 @@ export const EmployeeList: React.FC = () => {
       title: 'Type',
       dataIndex: 'employmentType',
       key: 'employmentType',
+      filters: [{ text: 'Full-time', value: 'Full-time' }, { text: 'Part-time', value: 'Part-time' }, { text: 'Freelance', value: 'Freelance' }],
+      onFilter: (v: any, r: any) => r.employmentType === v,
       render: (val: string) => {
         let color = 'default';
         if (val === 'Full-time') color = 'blue';
@@ -78,6 +81,8 @@ export const EmployeeList: React.FC = () => {
       title: 'Availability',
       dataIndex: 'availability',
       key: 'availability',
+      filters: [{ text: 'Available', value: 'available' }, { text: 'On Project', value: 'on-project' }, { text: 'Unavailable', value: 'unavailable' }],
+      onFilter: (v: any, r: any) => r.availability === v,
       render: (val: string) => {
         let color = 'default';
         let label = val;
@@ -91,6 +96,7 @@ export const EmployeeList: React.FC = () => {
       title: 'Daily Rate',
       dataIndex: 'dailyRate',
       key: 'dailyRate',
+      sorter: (a: any, b: any) => a.dailyRate - b.dailyRate,
       render: (val: number) => formatCurrency(val)
     },
     {

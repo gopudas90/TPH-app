@@ -29,17 +29,20 @@ export const CustomerList: React.FC = () => {
   };
 
   const columns = [
-    { 
-      title: 'Company Name', 
-      dataIndex: 'name', 
-      key: 'name', 
-      render: (text: string, record: any) => <a onClick={() => navigate(`/customer/${record.id}`)} style={{ fontWeight: 500 }}>{text}</a> 
+    {
+      title: 'Company Name',
+      dataIndex: 'name',
+      key: 'name',
+      sorter: (a: any, b: any) => a.name.localeCompare(b.name),
+      render: (text: string, record: any) => <a onClick={() => navigate(`/customer/${record.id}`)} style={{ fontWeight: 500 }}>{text}</a>
     },
-    { title: 'Industry', dataIndex: 'industry', key: 'industry' },
-    { 
-      title: 'Tier', 
-      dataIndex: 'tier', 
-      key: 'tier', 
+    { title: 'Industry', dataIndex: 'industry', key: 'industry', sorter: (a: any, b: any) => a.industry.localeCompare(b.industry), filters: [...new Set(MOCK_CUSTOMERS.map(c => c.industry))].map(i => ({ text: i, value: i })), onFilter: (v: any, r: any) => r.industry === v },
+    {
+      title: 'Tier',
+      dataIndex: 'tier',
+      key: 'tier',
+      filters: [{ text: 'Platinum', value: 'Platinum' }, { text: 'Gold', value: 'Gold' }, { text: 'Silver', value: 'Silver' }],
+      onFilter: (v: any, r: any) => r.tier === v,
       render: (val: string) => {
         let color = 'default';
         if (val === 'Platinum') color = 'purple';
@@ -48,7 +51,7 @@ export const CustomerList: React.FC = () => {
         return <Tag color={color}>{val}</Tag>;
       }
     },
-    { title: 'Account Manager', dataIndex: 'accountManager', key: 'accountManager' },
+    { title: 'Account Manager', dataIndex: 'accountManager', key: 'accountManager', filters: [...new Set(MOCK_CUSTOMERS.map(c => c.accountManager))].map(m => ({ text: m, value: m })), onFilter: (v: any, r: any) => r.accountManager === v },
     {
       title: 'Health Score',
       dataIndex: 'healthScore',
@@ -83,9 +86,9 @@ export const CustomerList: React.FC = () => {
         );
       }
     },
-    { title: 'Active Projects', dataIndex: 'activeProjects', key: 'activeProjects' },
-    { title: 'Total Revenue', dataIndex: 'totalRevenue', key: 'totalRevenue', render: (val: number) => formatCurrency(val) },
-    { title: 'Last Contact', dataIndex: 'lastContact', key: 'lastContact' },
+    { title: 'Active Projects', dataIndex: 'activeProjects', key: 'activeProjects', sorter: (a: any, b: any) => a.activeProjects - b.activeProjects },
+    { title: 'Total Revenue', dataIndex: 'totalRevenue', key: 'totalRevenue', sorter: (a: any, b: any) => a.totalRevenue - b.totalRevenue, render: (val: number) => formatCurrency(val) },
+    { title: 'Last Contact', dataIndex: 'lastContact', key: 'lastContact', sorter: (a: any, b: any) => new Date(a.lastContact).getTime() - new Date(b.lastContact).getTime() },
     {
       title: 'Action',
       key: 'action',
