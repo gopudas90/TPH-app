@@ -1,6 +1,7 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { Popover, Button, Typography, Badge, Tabs, Space, Tag, Avatar, theme, Empty, Tooltip, Divider } from 'antd';
+import { useNavigate } from 'react-router-dom';
 import {
   BellOutlined, CheckOutlined, CheckCircleOutlined, ClockCircleOutlined,
   DollarOutlined, TeamOutlined, CalendarOutlined, WarningOutlined,
@@ -47,6 +48,7 @@ const MOCK_NOTIFICATIONS: Notification[] = [
 
 export const NotificationsDropdown: React.FC = () => {
   const { token } = theme.useToken();
+  const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>(MOCK_NOTIFICATIONS);
   const [open, setOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
@@ -150,7 +152,7 @@ export const NotificationsDropdown: React.FC = () => {
       {/* Footer */}
       {filtered.length > 0 && (
         <div style={{ padding: '8px 16px', borderTop: `1px solid ${token.colorBorderSecondary}`, textAlign: 'center' }}>
-          <Button type="link" size="small" style={{ fontSize: 12 }}>View All Notifications</Button>
+          <Button type="link" size="small" style={{ fontSize: 12 }} onClick={() => { setOpen(false); navigate('/notifications'); }}>View All Notifications</Button>
         </div>
       )}
     </div>

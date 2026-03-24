@@ -8,7 +8,7 @@ import {
   UserOutlined, MailOutlined, PhoneOutlined, EditOutlined, CameraOutlined,
   LockOutlined, BellOutlined, GlobalOutlined, SaveOutlined, KeyOutlined,
   CheckCircleOutlined, ClockCircleOutlined, ProjectOutlined, DollarOutlined,
-  TeamOutlined, SafetyCertificateOutlined,
+  TeamOutlined, SafetyCertificateOutlined, CalendarOutlined,
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
