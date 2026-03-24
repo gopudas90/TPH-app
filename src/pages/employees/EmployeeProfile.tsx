@@ -4,6 +4,7 @@ import { Typography, Card, Tabs, Button, Descriptions, Tag, Row, Col, Table, Spa
 import { ArrowLeftOutlined, EditOutlined, PhoneOutlined, MailOutlined, WhatsAppOutlined, UserOutlined, DollarOutlined, FormOutlined, FolderOpenOutlined, DeleteOutlined, PlusOutlined, SafetyCertificateOutlined, CalendarOutlined, TeamOutlined, CloseOutlined, SaveOutlined, FilePdfOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_EMPLOYEES } from '../../data/mockData';
+import { defaultUsers, defaultRoles } from '../../data/rolesData';
 
 const { Title, Text } = Typography;
 const { TextArea } = Input;
@@ -98,7 +99,14 @@ export const EmployeeProfile: React.FC = () => {
             <Tag color={getAvailabilityColor(employee.availability)}>{getAvailabilityLabel(employee.availability)}</Tag>
             <Tag color={getEmploymentTypeColor(employee.employmentType)}>{employee.employmentType}</Tag>
           </Title>
-          <Text type="secondary">{employee.designation} • {employee.department}{employee.reportingTo ? ` • Reports to: ${employee.reportingTo}` : ''}</Text>
+          <Space size={4}>
+            <Text type="secondary">{employee.designation} • {employee.department}{employee.reportingTo ? ` • Reports to: ${employee.reportingTo}` : ''}</Text>
+            {(() => {
+              const userAccount = defaultUsers.find(u => u.employeeId === employee.id);
+              const role = userAccount ? defaultRoles.find(r => r.id === userAccount.roleId) : null;
+              return role ? <Tag color={role.color} style={{ margin: 0 }}>{role.name}</Tag> : null;
+            })()}
+          </Space>
         </div>
       </div>
 

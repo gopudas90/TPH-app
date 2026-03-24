@@ -19,6 +19,7 @@ import { ClientEnquiryDetail } from './pages/client/ClientEnquiryDetail';
 import { ClientProjects, ClientProjectDetail } from './pages/client/ClientProjects';
 import { ClientMessages } from './pages/client/ClientMessages';
 import { ClientProfile } from './pages/client/ClientProfile';
+import { UserManagement } from './pages/admin/UserManagement';
 import { Dashboard } from './pages/sales/Dashboard';
 import { Pipeline } from './pages/sales/Pipeline';
 import { PipelineSettings } from './pages/sales/PipelineSettings';
@@ -92,6 +93,7 @@ export default function App() {
               <Route path="employees/dashboard" element={<EmployeeDashboard />} />
               <Route path="employees" element={<EmployeeList />} />
               <Route path="employee/:id" element={<EmployeeProfile />} />
+              <Route path="user-management" element={<UserManagement />} />
               <Route path="partners/dashboard" element={<PartnerDashboard />} />
               <Route path="partners" element={<PartnerList />} />
               <Route path="partner/:id" element={<PartnerProfile />} />

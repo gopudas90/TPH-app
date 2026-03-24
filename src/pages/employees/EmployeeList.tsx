@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Typography, Card, Table, Tag, Input, Button, Space, theme, Popconfirm, message } from 'antd';
 import { SearchOutlined, PlusOutlined, FilterOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { MOCK_EMPLOYEES } from '../../data/mockData';
+import { defaultUsers, defaultRoles } from '../../data/rolesData';
 import { useNavigate } from 'react-router-dom';
 
 const { Title, Text } = Typography;
@@ -39,6 +40,17 @@ export const EmployeeList: React.FC = () => {
     },
     { title: 'Designation', dataIndex: 'designation', key: 'designation' },
     { title: 'Department', dataIndex: 'department', key: 'department' },
+    {
+      title: 'Role',
+      key: 'role',
+      width: 140,
+      render: (_: any, record: any) => {
+        const userAccount = defaultUsers.find(u => u.employeeId === record.id);
+        if (!userAccount) return <Tag style={{ fontSize: 10 }}>No Account</Tag>;
+        const role = defaultRoles.find(r => r.id === userAccount.roleId);
+        return role ? <Tag color={role.color} style={{ margin: 0 }}>{role.name}</Tag> : <Tag>Unknown</Tag>;
+      },
+    },
     {
       title: 'Type',
       dataIndex: 'employmentType',

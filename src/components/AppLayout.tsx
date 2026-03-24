@@ -17,6 +17,7 @@ import {
   CalendarOutlined,
   UnorderedListOutlined,
   DashboardOutlined,
+  SafetyCertificateOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { AIChatFAB } from './AIChatFAB';
@@ -42,7 +43,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
   useEffect(() => {
     if (location.pathname.startsWith('/customers') || location.pathname.startsWith('/customer/')) {
       setCurrentModule('customers');
-    } else if (location.pathname.startsWith('/employees') || location.pathname.startsWith('/employee/')) {
+    } else if (location.pathname.startsWith('/employees') || location.pathname.startsWith('/employee/') || location.pathname.startsWith('/user-management')) {
       setCurrentModule('employees');
     } else if (location.pathname.startsWith('/partners') || location.pathname.startsWith('/partner/')) {
       setCurrentModule('partners');
@@ -98,6 +99,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
       key: '/employees',
       icon: <TeamOutlined />,
       label: 'Employees',
+    },
+    {
+      key: '/user-management',
+      icon: <SafetyCertificateOutlined />,
+      label: 'User Management',
     },
   ];
 
