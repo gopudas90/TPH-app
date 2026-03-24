@@ -1,13 +1,14 @@
 import React from 'react';
 import { Button, Tooltip, theme } from 'antd';
-import { FormOutlined, FolderOpenOutlined } from '@ant-design/icons';
+import { FormOutlined, FolderOpenOutlined, MessageOutlined } from '@ant-design/icons';
 
 interface SideTriggerPaneProps {
   onNotesClick: () => void;
   onDocumentsClick: () => void;
+  onChatClick?: () => void;
 }
 
-export const SideTriggerPane: React.FC<SideTriggerPaneProps> = ({ onNotesClick, onDocumentsClick }) => {
+export const SideTriggerPane: React.FC<SideTriggerPaneProps> = ({ onNotesClick, onDocumentsClick, onChatClick }) => {
   const { token } = theme.useToken();
 
   return (
@@ -43,6 +44,15 @@ export const SideTriggerPane: React.FC<SideTriggerPaneProps> = ({ onNotesClick, 
           onClick={onDocumentsClick}
         />
       </Tooltip>
+      {onChatClick && (
+        <Tooltip title="Chat" placement="left">
+          <Button
+            type="text"
+            icon={<MessageOutlined style={{ fontSize: 20, color: token.colorTextSecondary }} />}
+            onClick={onChatClick}
+          />
+        </Tooltip>
+      )}
     </div>
   );
 };

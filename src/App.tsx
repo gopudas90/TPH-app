@@ -114,7 +114,7 @@ export default function App() {
                 <Route path="master-data/enquiry-types" element={<MasterEnquiryTypes />} />
                 <Route path="master-data/event-types" element={<MasterEventTypes />} />
               </>}
-              <Route path="*" element={<div style={{ padding: 24 }}>Page Not Found</div>} />
+              <Route path="*" element={<Navigate to="/dashboard" replace />} />
             </Route>
           </Routes>
         )}

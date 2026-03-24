@@ -3,10 +3,12 @@ import React, { useState } from 'react';
 import {
   Typography, Card, Table, Tag, Progress, Space, Input, theme, Button, Collapse,
   Steps, Tooltip, Avatar, Badge, Row, Col, Statistic, Descriptions, Empty, Drawer, Divider,
+  Segmented, Timeline, List, message,
 } from 'antd';
 import {
   SearchOutlined, ProjectOutlined, CheckCircleOutlined, ClockCircleOutlined,
   CalendarOutlined, ArrowLeftOutlined, TeamOutlined, FireOutlined, EyeOutlined,
+  BarsOutlined, TableOutlined, SendOutlined, CommentOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -111,13 +113,22 @@ export const ClientProjectDetail: React.FC = () => {
   const { id } = useParams();
   const project = MOCK_PROJECTS.find(p => p.id === id) || MOCK_PROJECTS[0];
   const [search, setSearch] = useState('');
+  const [viewMode, setViewMode] = useState<'list' | 'gantt' | 'timeline'>('list');
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
   const [milestoneDrawerOpen, setMilestoneDrawerOpen] = useState(false);
+  const [taskComment, setTaskComment] = useState('');
 
-  const openTaskDrawer = (task: any, milestone: any) => { setSelectedTask({ ...task, milestoneName: milestone.name, milestoneColor: milestone.color }); setTaskDrawerOpen(true); };
+  const openTaskDrawer = (task: any, milestone: any) => { setSelectedTask({ ...task, milestoneName: milestone.name, milestoneColor: milestone.color, comments: task.comments || [] }); setTaskDrawerOpen(true); };
   const openMilestoneDrawer = (milestone: any) => { setSelectedMilestone(milestone); setMilestoneDrawerOpen(true); };
+
+  const addTaskComment = () => {
+    if (!taskComment.trim() || !selectedTask) return;
+    setSelectedTask(prev => ({ ...prev, comments: [...(prev.comments || []), { id: Date.now().toString(), author: 'Jane Doe', text: taskComment.trim(), time: 'Just now' }] }));
+    setTaskComment('');
+    message.success('Comment added');
+  };
 
   const allTasks = project.milestones.flatMap(m => m.tasks);
   const doneTasks = allTasks.filter(t => t.status === 'Completed').length;
@@ -175,11 +186,69 @@ export const ClientProjectDetail: React.FC = () => {
         />
       </Card>
 
-      {/* Tasks by milestone */}
-      <div style={{ marginBottom: 12 }}>
+      {/* View toggle + search */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+        <Segmented
+          value={viewMode}
+          onChange={v => setViewMode(v as any)}
+          options={[
+            { value: 'list', label: 'List', icon: <BarsOutlined /> },
+            { value: 'gantt', label: 'Gantt', icon: <TableOutlined /> },
+            { value: 'timeline', label: 'Timeline', icon: <ClockCircleOutlined /> },
+          ]}
+          size="small"
+        />
         <Input prefix={<SearchOutlined />} placeholder="Search tasks..." value={search} onChange={e => setSearch(e.target.value)} allowClear size="small" style={{ width: 250 }} />
       </div>
-      <Collapse
+      {/* Gantt View */}
+      {viewMode === 'gantt' && (
+        <Card size="small" styles={{ body: { padding: '16px 20px', overflowX: 'auto' } }}>
+          {project.milestones.map(milestone => (
+            <div key={milestone.id} style={{ marginBottom: 16 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
+                <div style={{ width: 10, height: 10, borderRadius: 2, background: milestone.color }} />
+                <Text strong style={{ fontSize: 13 }}>{milestone.name}</Text>
+                <Tag color={statusColors[milestone.status]} style={{ fontSize: 10 }}>{milestone.status}</Tag>
+              </div>
+              {milestone.tasks.map(task => {
+                const pct = task.status === 'Completed' ? 100 : task.status === 'In Progress' ? 50 : 0;
+                return (
+                  <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6, paddingLeft: 18 }}>
+                    <Text style={{ fontSize: 11, width: 160, flexShrink: 0 }} ellipsis={{ tooltip: task.name }}>{task.name}</Text>
+                    <div style={{ flex: 1, height: 18, background: token.colorFillSecondary, borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
+                      <div style={{ width: `${pct}%`, height: '100%', background: milestone.color, borderRadius: 4, transition: 'width 0.3s' }} />
+                      <Text style={{ position: 'absolute', right: 6, top: 0, fontSize: 10, lineHeight: '18px', color: pct > 60 ? '#fff' : token.colorText }}>{pct}%</Text>
+                    </div>
+                    <Tag color={statusColors[task.status]} style={{ margin: 0, fontSize: 10 }}>{task.status}</Tag>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
+        </Card>
+      )}
+
+      {/* Timeline View */}
+      {viewMode === 'timeline' && (
+        <Card size="small">
+          <Timeline items={project.milestones.flatMap(m => m.tasks).map(task => ({
+            color: task.status === 'Completed' ? 'green' : task.status === 'In Progress' ? 'blue' : task.status === 'Blocked' ? 'red' : 'gray',
+            children: (
+              <div>
+                <Button type="link" style={{ padding: 0, fontSize: 13, fontWeight: 500, height: 'auto' }} onClick={() => openTaskDrawer(task, project.milestones.find(m => m.tasks.includes(task)))}>{task.name}</Button>
+                <div>
+                  <Tag color={priorityColors[task.priority]} style={{ fontSize: 10 }}>{task.priority}</Tag>
+                  <Tag color={statusColors[task.status]} style={{ fontSize: 10 }}>{task.status}</Tag>
+                  <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>{task.owner} · Due: {task.dueDate}</Text>
+                </div>
+              </div>
+            ),
+          }))} />
+        </Card>
+      )}
+
+      {/* List View */}
+      {viewMode === 'list' && <Collapse
         defaultActiveKey={project.milestones.filter(m => m.status !== 'Completed').map(m => m.id)}
         items={project.milestones.map(milestone => {
           const mTasks = milestone.tasks.filter(t => !search || t.name.toLowerCase().includes(search.toLowerCase()));
@@ -221,10 +290,10 @@ export const ClientProjectDetail: React.FC = () => {
             ),
           };
         })}
-      />
+      />}
 
       {/* Task Detail Drawer */}
-      <Drawer title={selectedTask?.name || 'Task Details'} open={taskDrawerOpen} onClose={() => setTaskDrawerOpen(false)} width={420}>
+      <Drawer title={selectedTask?.name || 'Task Details'} open={taskDrawerOpen} onClose={() => setTaskDrawerOpen(false)} width={440}>
         {selectedTask && (
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
@@ -237,6 +306,27 @@ export const ClientProjectDetail: React.FC = () => {
               <Descriptions.Item label="Owner">{selectedTask.owner}</Descriptions.Item>
               <Descriptions.Item label="Due Date">{selectedTask.dueDate}</Descriptions.Item>
             </Descriptions>
+
+            <Divider style={{ margin: '12px 0' }} />
+            <Text strong style={{ fontSize: 13, marginBottom: 8, display: 'block' }}>Comments</Text>
+            <List
+              dataSource={selectedTask.comments || []}
+              renderItem={(c: any) => (
+                <List.Item style={{ padding: '6px 0' }}>
+                  <List.Item.Meta
+                    avatar={<Avatar size={24} style={{ background: token.colorPrimary, fontSize: 10 }}>{c.author?.charAt(0)}</Avatar>}
+                    title={<Space><Text strong style={{ fontSize: 11 }}>{c.author}</Text><Text type="secondary" style={{ fontSize: 10 }}>{c.time}</Text></Space>}
+                    description={<Text style={{ fontSize: 12 }}>{c.text}</Text>}
+                  />
+                </List.Item>
+              )}
+              locale={{ emptyText: 'No comments yet' }}
+              style={{ marginBottom: 12 }}
+            />
+            <div style={{ display: 'flex', gap: 8 }}>
+              <Input value={taskComment} onChange={e => setTaskComment(e.target.value)} placeholder="Add a comment..." onPressEnter={addTaskComment} size="small" />
+              <Button size="small" type="primary" icon={<SendOutlined />} onClick={addTaskComment} disabled={!taskComment.trim()} />
+            </div>
           </div>
         )}
       </Drawer>

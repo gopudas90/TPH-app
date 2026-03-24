@@ -26,6 +26,7 @@ import { NotesDrawer } from '../../components/shared/NotesDrawer';
 import { DocumentsDrawer } from '../../components/shared/DocumentsDrawer';
 import { SideTriggerPane } from '../../components/shared/SideTriggerPane';
 import { AIChatDrawer } from '../../components/AIChatDrawer';
+import { DealChatDrawer } from '../../components/DealChatDrawer';
 import type { Task, SubTask, Milestone } from '../../data/projectMockData';
 
 const { Title, Text } = Typography;
@@ -81,6 +82,7 @@ export const ProjectProfile: React.FC = () => {
   const [docsOpen, setDocsOpen] = useState(false);
   const [aiChatOpen, setAiChatOpen] = useState(false);
   const [activityDrawerOpen, setActivityDrawerOpen] = useState(false);
+  const [chatDrawerOpen, setChatDrawerOpen] = useState(false);
   const [selectedSubtask, setSelectedSubtask] = useState<(SubTask & { parentTaskName?: string; milestoneName?: string; milestoneColor?: string }) | null>(null);
   const [subtaskDrawerOpen, setSubtaskDrawerOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
@@ -568,7 +570,6 @@ export const ProjectProfile: React.FC = () => {
               { value: 'calendar', label: 'Calendar', icon: <CalendarOutlined /> },
             ]}
           />
-          <Button size="small" icon={<PlusOutlined />} onClick={() => setMilestoneModalOpen(true)}>Add Milestone</Button>
         </Space>
         {taskView === 'calendar' && (
           <Segmented
@@ -1453,188 +1454,55 @@ export const ProjectProfile: React.FC = () => {
 
   const quoteTab = (
     <div>
-      {/* Toolbar */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginBottom: 20 }}>
-        <Tooltip title="Export functionality coming soon">
-          <Button icon={<DownloadOutlined />} disabled>Download PDF</Button>
-        </Tooltip>
+      {/* Quote header */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+        <Space>
+          <Text strong style={{ fontSize: 14 }}>Quote — {quoteRef}</Text>
+          <Tag color="success">Approved</Tag>
+          <Text type="secondary" style={{ fontSize: 12 }}>Date: {quoteDate} · Valid Until: {quoteValidUntil}</Text>
+        </Space>
+        <Button icon={<DownloadOutlined />} onClick={() => message.info('Quote PDF downloaded')}>Download PDF</Button>
       </div>
 
-      {/* Quote Document */}
-      <div style={{
-        maxWidth: 860,
-        margin: '0 auto',
-        background: '#fff',
-        color: '#1a1a1a',
-        fontFamily: 'Inter, system-ui, sans-serif',
-        padding: '48px 56px',
-        borderRadius: 8,
-        border: '1px solid #e8e8e8',
-        boxShadow: '0 2px 16px rgba(0,0,0,0.06)',
-      }}>
-        {/* Header */}
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 40 }}>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-              <div style={{
-                width: 40, height: 40, background: '#ff6b6b', borderRadius: 8,
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                color: '#fff', fontWeight: 'bold', fontSize: 20,
-              }}>T</div>
-              <div>
-                <div style={{ fontSize: 20, fontWeight: 700, color: '#1a1a1a' }}>The Production House</div>
-                <div style={{ fontSize: 11, color: '#888' }}>Event Production & Management</div>
-              </div>
-            </div>
-            <div style={{ fontSize: 11, color: '#888', lineHeight: 1.8, marginTop: 8 }}>
-              10 Anson Road, #12-01<br />
-              International Plaza, Singapore 079903<br />
-              +65 6789 0123 · quotes@tph.sg
-            </div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 28, fontWeight: 700, color: '#ff6b6b', marginBottom: 4 }}>QUOTATION</div>
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 2 }}>{quoteRef}</div>
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 2 }}>Date: {quoteDate}</div>
-            <div style={{ fontSize: 12, color: '#666', marginBottom: 8 }}>Valid Until: {quoteValidUntil}</div>
-            <span style={{
-              display: 'inline-block', padding: '2px 10px', borderRadius: 4, fontSize: 11,
-              background: '#f6ffed', color: '#52c41a', border: '1px solid #b7eb8f',
-            }}>Approved</span>
-          </div>
-        </div>
+      {/* Quote summary cards */}
+      <Row gutter={[12, 12]} style={{ marginBottom: 16 }}>
+        <Col span={6}><Card size="small"><Statistic title="Subtotal" value={project.revenue} precision={0} prefix="SGD" styles={{ content: { fontSize: 16 } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="GST (9%)" value={quoteGST} precision={0} prefix="SGD" styles={{ content: { fontSize: 16 } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="Total" value={quoteTotal} precision={0} prefix="SGD" styles={{ content: { fontSize: 16, color: token.colorPrimary } }} /></Card></Col>
+        <Col span={6}><Card size="small"><Statistic title="Prepared By" value={project.projectDirector} styles={{ content: { fontSize: 14 } }} /></Card></Col>
+      </Row>
 
-        {/* Client & Event Block */}
-        <div style={{ background: '#f8f9fa', borderRadius: 6, padding: '16px 20px', marginBottom: 32 }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-            <div>
-              <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Prepared For</div>
-              <div style={{ fontSize: 15, fontWeight: 600 }}>{project.client}</div>
-              <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>Attn: James Lim, Head of Corporate Affairs</div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Event</div>
-              <div style={{ fontSize: 15, fontWeight: 600 }}>{project.eventName}</div>
-              <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>{project.eventVenue}</div>
-            </div>
-            <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 10, color: '#888', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 4 }}>Event Date</div>
-              <div style={{ fontSize: 15, fontWeight: 600 }}>
-                {new Date(project.eventDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
-              </div>
-              <div style={{ fontSize: 12, color: '#666', marginTop: 2 }}>Prepared by: {project.projectDirector}</div>
-            </div>
-          </div>
-        </div>
+      {/* Line items table */}
+      <Card size="small" title={<Text strong style={{ fontSize: 13 }}>Line Items</Text>} styles={{ body: { padding: 0 } }} style={{ marginBottom: 16 }}>
+        <Table
+          dataSource={quoteLineItems}
+          rowKey="key"
+          pagination={false}
+          size="small"
+          columns={[
+            { title: '#', dataIndex: 'no', key: 'no', width: 40 },
+            { title: 'Description', dataIndex: 'description', key: 'description', render: (v) => <Text style={{ fontSize: 12 }}>{v}</Text> },
+            { title: 'Unit Price', dataIndex: 'unitPrice', key: 'unitPrice', width: 130, align: 'right' as const, render: (v) => fmtSGD(v) },
+            { title: 'Total', dataIndex: 'unitPrice', key: 'total', width: 130, align: 'right' as const, render: (v) => <Text strong>{fmtSGD(v)}</Text> },
+          ]}
+        />
+      </Card>
 
-        {/* Line Items */}
-        <table style={{ width: '100%', borderCollapse: 'collapse', marginBottom: 24 }}>
-          <thead>
-            <tr style={{ borderBottom: '2px solid #1a1a1a' }}>
-              {['#', 'Service / Deliverable', 'Qty', 'Unit Price (SGD)', 'Total (SGD)'].map((h, i) => (
-                <th key={i} style={{
-                  padding: '10px 8px', textAlign: i === 0 ? 'left' : i === 1 ? 'left' : 'right',
-                  fontSize: 11, fontWeight: 600, color: '#1a1a1a',
-                  textTransform: 'uppercase', letterSpacing: 0.5,
-                }}>{h}</th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {quoteLineItems.map(item => (
-              <tr key={item.key} style={{ borderBottom: '1px solid #e8e8e8' }}>
-                <td style={{ padding: '12px 8px', fontSize: 12, color: '#888', width: 28 }}>{item.no}</td>
-                <td style={{ padding: '12px 8px', fontSize: 13, fontWeight: 500 }}>{item.description}</td>
-                <td style={{ padding: '12px 8px', textAlign: 'right', fontSize: 13 }}>1</td>
-                <td style={{ padding: '12px 8px', textAlign: 'right', fontSize: 13 }}>
-                  {fmtSGD(item.unitPrice)}
-                </td>
-                <td style={{ padding: '12px 8px', textAlign: 'right', fontSize: 13, fontWeight: 600 }}>
-                  {fmtSGD(item.unitPrice)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-
-        {/* Totals */}
-        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 36 }}>
-          <div style={{ width: 300 }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', fontSize: 13, borderBottom: '1px solid #f0f0f0' }}>
-              <span style={{ color: '#666' }}>Subtotal</span>
-              <span style={{ fontWeight: 500 }}>{fmtSGD(project.revenue)}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', fontSize: 13, borderBottom: '1px solid #f0f0f0' }}>
-              <span style={{ color: '#666' }}>Discount</span>
-              <span style={{ color: '#888' }}>—</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '7px 0', fontSize: 13, borderBottom: '1px solid #f0f0f0' }}>
-              <span style={{ color: '#666' }}>GST (9%)</span>
-              <span>{fmtSGD(quoteGST)}</span>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px 0', fontSize: 18, fontWeight: 700, borderTop: '2px solid #1a1a1a', marginTop: 4 }}>
-              <span>Total</span>
-              <span style={{ color: '#ff6b6b' }}>{fmtSGD(quoteTotal)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Payment Schedule */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12, textTransform: 'uppercase', letterSpacing: 0.5 }}>Payment Schedule</div>
-          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid #d9d9d9', background: '#fafafa' }}>
-                {['Milestone', '%', 'Amount (SGD)', 'Due Date'].map((h, i) => (
-                  <th key={i} style={{
-                    padding: '8px 10px', textAlign: i < 2 ? 'left' : 'right',
-                    fontSize: 11, color: '#888', fontWeight: 600,
-                  }}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {paymentSchedule.map((p, idx) => (
-                <tr key={idx} style={{ borderBottom: '1px solid #f0f0f0' }}>
-                  <td style={{ padding: '8px 10px', fontSize: 12 }}>{p.name}</td>
-                  <td style={{ padding: '8px 10px', fontSize: 12 }}>{p.pct}%</td>
-                  <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12, fontWeight: 500 }}>{fmtSGD(p.amount)}</td>
-                  <td style={{ padding: '8px 10px', textAlign: 'right', fontSize: 12 }}>{p.dueDate}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Terms */}
-        <div style={{ marginBottom: 36 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 10, textTransform: 'uppercase', letterSpacing: 0.5 }}>Terms & Conditions</div>
-          <div style={{ fontSize: 12, color: '#555', lineHeight: 1.9 }}>
-            1. This quotation is valid for 30 days from the date of issue.<br />
-            2. All prices are in Singapore Dollars (SGD) and subject to 9% GST.<br />
-            3. A signed acceptance and deposit payment of 30% is required to confirm the booking.<br />
-            4. Cancellation within 30 days of the event date will forfeit the deposit.<br />
-            5. Any changes to scope after acceptance may be subject to a Change Order and additional charges.<br />
-            6. The Production House retains the right to use event photography for portfolio purposes unless otherwise agreed.
-          </div>
-        </div>
-
-        {/* Signatures */}
-        <div style={{ borderTop: '1px solid #e8e8e8', paddingTop: 24, display: 'flex', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>Authorized by</div>
-            <div style={{ width: 200, borderBottom: '1px solid #bbb', height: 44, marginBottom: 6 }} />
-            <div style={{ fontSize: 13, fontWeight: 500 }}>{project.projectDirector}</div>
-            <div style={{ fontSize: 11, color: '#888' }}>The Production House Singapore</div>
-          </div>
-          <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 11, color: '#888', marginBottom: 6 }}>Client Acceptance</div>
-            <div style={{ width: 200, borderBottom: '1px solid #bbb', height: 44, marginBottom: 6 }} />
-            <div style={{ fontSize: 13, fontWeight: 500 }}>{project.client}</div>
-            <div style={{ fontSize: 11, color: '#888' }}>Date: _______________</div>
-          </div>
-        </div>
-      </div>
+      {/* Payment schedule */}
+      <Card size="small" title={<Text strong style={{ fontSize: 13 }}>Payment Schedule</Text>} styles={{ body: { padding: 0 } }}>
+        <Table
+          dataSource={paymentSchedule}
+          rowKey="name"
+          pagination={false}
+          size="small"
+          columns={[
+            { title: 'Milestone', dataIndex: 'name', key: 'name' },
+            { title: '%', dataIndex: 'pct', key: 'pct', width: 60, render: (v) => `${v}%` },
+            { title: 'Amount', dataIndex: 'amount', key: 'amount', width: 130, align: 'right' as const, render: (v) => fmtSGD(v) },
+            { title: 'Due Date', dataIndex: 'dueDate', key: 'dueDate', width: 130 },
+          ]}
+        />
+      </Card>
     </div>
   );
 
@@ -1859,17 +1727,8 @@ export const ProjectProfile: React.FC = () => {
             </div>
           </div>
           <Space wrap>
-            <Button
-              icon={<RobotOutlined />}
-              onClick={handleAIRiskScan}
-              danger={project.risks.length > 0}
-            >
-              AI Risk Scan
-              {project.risks.length > 0 && <Tag color="red" style={{ marginLeft: 4, fontSize: 10 }}>{project.risks.length}</Tag>}
-            </Button>
-            <Tooltip title="Export functionality coming soon">
-              <Button icon={<DownloadOutlined />} disabled>Export</Button>
-            </Tooltip>
+            <Button type="primary" icon={<PlusOutlined />} onClick={() => setMilestoneModalOpen(true)}>Add Milestone</Button>
+            <Button icon={<DownloadOutlined />}>Export</Button>
           </Space>
         </div>
       </div>
@@ -1977,10 +1836,20 @@ export const ProjectProfile: React.FC = () => {
         dealId={project.id}
       />
 
-      {/* Sticky Side Trigger for Notes & Docs */}
+      <DealChatDrawer
+        open={chatDrawerOpen}
+        onClose={() => setChatDrawerOpen(false)}
+        dealName={project.name}
+        contacts={[
+          { id: '1', name: 'James Lim', role: 'Head of Corporate Affairs', email: 'james.lim@client.com', phone: '+65 9876 5432' },
+        ]}
+      />
+
+      {/* Sticky Side Trigger for Notes, Docs & Chat */}
       <SideTriggerPane
         onNotesClick={() => setNotesOpen(true)}
         onDocumentsClick={() => setDocsOpen(true)}
+        onChatClick={() => setChatDrawerOpen(true)}
       />
 
       {/* Subtask Detail Drawer */}

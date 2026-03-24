@@ -1,9 +1,10 @@
 // @ts-nocheck
 import React from 'react';
-import { Typography, Row, Col, Card, Statistic, Tag, theme, Space, Timeline, Progress, Button } from 'antd';
+import { Typography, Row, Col, Card, Statistic, Tag, theme, Space, Timeline, Progress, Button, Avatar } from 'antd';
 import {
   FileTextOutlined, ProjectOutlined, CheckCircleOutlined, ClockCircleOutlined,
   DollarOutlined, CalendarOutlined, RightOutlined, ExclamationCircleOutlined,
+  MessageOutlined, WarningOutlined, BellOutlined,
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 
@@ -123,9 +124,69 @@ export const ClientDashboard: React.FC = () => {
           </Card>
         </Col>
 
+        {/* Pending Actions */}
+        <Col span={8}>
+          <Card size="small" title={<Space size={6}><WarningOutlined style={{ color: token.colorWarning }} /><Text strong style={{ fontSize: 13 }}>Action Required</Text></Space>}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { text: 'Review quote for Tech Summit 2026', type: 'Quote review', urgent: true },
+                { text: 'Approve AV equipment upgrade', type: 'Approval', urgent: true },
+                { text: 'Confirm VIP lounge floor preference', type: 'Feedback', urgent: false },
+              ].map((a, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 6, background: a.urgent ? token.colorWarningBg : token.colorFillAlter, border: `1px solid ${a.urgent ? token.colorWarningBorder : token.colorBorderSecondary}` }}>
+                  <Text style={{ fontSize: 12 }}>{a.text}</Text>
+                  <Tag color={a.urgent ? 'warning' : 'default'} style={{ margin: 0, fontSize: 10 }}>{a.type}</Tag>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </Col>
+
+        {/* Upcoming Events */}
+        <Col span={8}>
+          <Card size="small" title={<Space size={6}><CalendarOutlined style={{ color: token.colorPrimary }} /><Text strong style={{ fontSize: 13 }}>Upcoming Events</Text></Space>}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { name: 'Q1 Town Hall 2026', date: '28 Mar 2026', daysLeft: 4 },
+                { name: 'Tech Summit 2026', date: '15 Sep 2026', daysLeft: 175 },
+                { name: 'Holiday Party 2026', date: '15 Dec 2026', daysLeft: 266 },
+              ].map((e, idx) => (
+                <div key={idx} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 10px', borderRadius: 6, border: `1px solid ${token.colorBorderSecondary}` }}>
+                  <div>
+                    <Text strong style={{ fontSize: 12, display: 'block' }}>{e.name}</Text>
+                    <Text type="secondary" style={{ fontSize: 11 }}>{e.date}</Text>
+                  </div>
+                  <Tag color={e.daysLeft <= 7 ? 'error' : e.daysLeft <= 30 ? 'warning' : 'default'} style={{ margin: 0, fontSize: 10 }}>{e.daysLeft}d</Tag>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </Col>
+
+        {/* Recent Messages */}
+        <Col span={8}>
+          <Card size="small" title={<Space size={6}><MessageOutlined style={{ color: token.colorPrimary }} /><Text strong style={{ fontSize: 13 }}>Recent Messages</Text></Space>} extra={<Button type="link" size="small" onClick={() => navigate('/client/messages')}>View All</Button>}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {[
+                { from: 'Sarah Jenkins', text: 'I\'ll check with MBS on Level 5 availability...', time: '2 hrs ago' },
+                { from: 'Mark Davis', text: 'We\'ve received your enquiry and will get back...', time: '3 days ago' },
+              ].map((m, idx) => (
+                <div key={idx} style={{ display: 'flex', gap: 8, padding: '6px 10px', borderRadius: 6, border: `1px solid ${token.colorBorderSecondary}`, cursor: 'pointer' }} onClick={() => navigate('/client/messages')}>
+                  <Avatar size={24} style={{ background: token.colorPrimary, fontSize: 10, flexShrink: 0 }}>{m.from.split(' ').map(n => n[0]).join('')}</Avatar>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <Text strong style={{ fontSize: 11 }}>{m.from}</Text>
+                    <Text type="secondary" style={{ fontSize: 11, display: 'block' }} ellipsis>{m.text}</Text>
+                  </div>
+                  <Text type="secondary" style={{ fontSize: 10, flexShrink: 0 }}>{m.time}</Text>
+                </div>
+              ))}
+            </div>
+          </Card>
+        </Col>
+
         {/* Activity */}
         <Col span={24}>
-          <Card size="small" title={<Text strong style={{ fontSize: 13 }}>Recent Activity</Text>} style={{ marginTop: 0 }}>
+          <Card size="small" title={<Text strong style={{ fontSize: 13 }}>Recent Activity</Text>}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
               {MOCK_CLIENT_DATA.activity.map((a, idx) => (
                 <div key={idx} style={{ display: 'flex', gap: 10, alignItems: 'flex-start' }}>
