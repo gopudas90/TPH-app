@@ -11,6 +11,7 @@ import { getThemeConfig } from './theme';
 import { AppLayout } from './components/AppLayout';
 import { LoginPage } from './pages/auth/LoginPage';
 import { ClientPortal } from './pages/auth/ClientPortal';
+import { ProfilePage } from './pages/ProfilePage';
 import { Dashboard } from './pages/sales/Dashboard';
 import { Pipeline } from './pages/sales/Pipeline';
 import { PipelineSettings } from './pages/sales/PipelineSettings';
@@ -59,6 +60,7 @@ export default function App() {
             <Route path="/" element={<AppLayout isDarkMode={isDarkMode} toggleTheme={toggleTheme} onLogout={handleLogout} userRole={user.role} />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
+              <Route path="profile" element={<ProfilePage />} />
               <Route path="pipeline" element={<Pipeline />} />
               <Route path="pipeline-settings" element={<PipelineSettings />} />
               <Route path="deal/:id" element={<DealProfile />} />

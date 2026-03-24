@@ -9,7 +9,6 @@ import {
   UserOutlined,
   MoonOutlined,
   SunOutlined,
-  BellOutlined,
   SwapOutlined,
   TeamOutlined,
   ShopOutlined,
@@ -21,6 +20,7 @@ import {
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { AIChatFAB } from './AIChatFAB';
+import { NotificationsDropdown } from './NotificationsDropdown';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -314,11 +314,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
               icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />} 
               onClick={toggleTheme}
             />
-            <Button type="text" icon={<BellOutlined />} />
+            <NotificationsDropdown />
             <Dropdown
               menu={{
                 items: [
-                  { key: 'profile', label: 'Profile', icon: <UserOutlined /> },
+                  { key: 'profile', label: 'Profile', icon: <UserOutlined />, onClick: () => navigate('/profile') },
                   { type: 'divider' },
                   { key: 'logout', label: 'Sign Out', danger: true, onClick: onLogout },
                 ],
