@@ -5,7 +5,7 @@ import {
   Typography, Space, message, theme, Tooltip,
 } from 'antd';
 import {
-  PlusOutlined, EditOutlined, DeleteOutlined,
+  PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined,
 } from '@ant-design/icons';
 import {
   defaultAssetCategories, defaultAssetConditions, defaultCustomerTiers,
@@ -18,12 +18,23 @@ import { ColorSwatchPicker } from '../../components/masterdata/ColorSwatchPicker
 const { Text } = Typography;
 
 // ─── Shared header row ───────────────────────────────────────
-const SectionHeader = ({ subtitle, onAdd, addLabel }) => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+const SectionHeader = ({ subtitle, onAdd, addLabel, searchValue, onSearch, searchPlaceholder }: any) => (
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16, gap: 12 }}>
     {subtitle
-      ? <Text type="secondary" style={{ fontSize: 13 }}>{subtitle}</Text>
+      ? <Text type="secondary" style={{ fontSize: 13, flexShrink: 0 }}>{subtitle}</Text>
       : <span />}
-    <Button type="primary" icon={<PlusOutlined />} size="small" onClick={onAdd}>{addLabel}</Button>
+    <Space>
+      <Input
+        prefix={<SearchOutlined />}
+        placeholder={searchPlaceholder || 'Search...'}
+        value={searchValue}
+        onChange={e => onSearch(e.target.value)}
+        allowClear
+        size="small"
+        style={{ width: 220 }}
+      />
+      <Button type="primary" icon={<PlusOutlined />} size="small" onClick={onAdd}>{addLabel}</Button>
+    </Space>
   </div>
 );
 
@@ -31,6 +42,7 @@ const SectionHeader = ({ subtitle, onAdd, addLabel }) => (
 const AssetCategoriesTab = () => {
   const { token } = theme.useToken();
   const [categories, setCategories] = useState<AssetCategory[]>(defaultAssetCategories);
+  const [search, setSearch] = useState('');
   const [catModal, setCatModal] = useState(false);
   const [editingCat, setEditingCat] = useState<AssetCategory | null>(null);
   const [subModal, setSubModal] = useState(false);
@@ -120,7 +132,7 @@ const AssetCategoriesTab = () => {
   );
 
   const columns = [
-    { title: 'Category Name', dataIndex: 'name', key: 'name', render: (name) => <Text strong>{name}</Text> },
+    { title: 'Category Name', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (name) => <Text strong>{name}</Text> },
     {
       title: 'Sub-Categories', key: 'subCount',
       render: (_, cat) => <Tag>{cat.subCategories.length} sub-{cat.subCategories.length === 1 ? 'category' : 'categories'}</Tag>,
@@ -148,9 +160,12 @@ const AssetCategoriesTab = () => {
         subtitle="Organise assets by category and sub-category"
         onAdd={() => openCatModal()}
         addLabel="Add Category"
+        searchValue={search}
+        onSearch={setSearch}
+        searchPlaceholder="Search categories..."
       />
       <Table
-        dataSource={categories}
+        dataSource={categories.filter(c => !search || c.name.toLowerCase().includes(search.toLowerCase()) || c.subCategories.some(s => s.name.toLowerCase().includes(search.toLowerCase())))}
         columns={columns}
         rowKey="id"
         expandable={{ expandedRowRender }}
@@ -196,6 +211,7 @@ const AssetCategoriesTab = () => {
 // ─── 2. Asset Conditions Tab ──────────────────────────────────
 const AssetConditionsTab = () => {
   const [conditions, setConditions] = useState<AssetCondition[]>(defaultAssetConditions);
+  const [search, setSearch] = useState('');
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<AssetCondition | null>(null);
   const [form] = Form.useForm();
@@ -219,7 +235,7 @@ const AssetConditionsTab = () => {
   const del = (id) => { setConditions(prev => prev.filter(c => c.id !== id)); message.success('Condition deleted'); };
 
   const columns = [
-    { title: 'Condition', dataIndex: 'name', key: 'name', render: (name) => <Text strong>{name}</Text> },
+    { title: 'Condition', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (name) => <Text strong>{name}</Text> },
     { title: 'Tag Color', dataIndex: 'color', key: 'color', render: (color, rec) => <Tag color={color}>{rec.name}</Tag> },
     {
       title: 'Actions', key: 'actions', width: 100,
@@ -236,8 +252,8 @@ const AssetConditionsTab = () => {
 
   return (
     <>
-      <SectionHeader subtitle="Define conditions used to classify asset state" onAdd={() => openModal()} addLabel="Add Condition" />
-      <Table dataSource={conditions} columns={columns} rowKey="id" pagination={false} size="middle" />
+      <SectionHeader subtitle="Define conditions used to classify asset state" onAdd={() => openModal()} addLabel="Add Condition" searchValue={search} onSearch={setSearch} searchPlaceholder="Search conditions..." />
+      <Table dataSource={conditions.filter(c => !search || c.name.toLowerCase().includes(search.toLowerCase()))} columns={columns} rowKey="id" pagination={false} size="middle" />
       <Modal
         title={editing ? 'Edit Condition' : 'Add Condition'}
         open={modal}
@@ -263,6 +279,7 @@ const AssetConditionsTab = () => {
 // ─── 3. Customer Tiers Tab ────────────────────────────────────
 const CustomerTiersTab = () => {
   const [tiers, setTiers] = useState<CustomerTier[]>(defaultCustomerTiers);
+  const [search, setSearch] = useState('');
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<CustomerTier | null>(null);
   const [form] = Form.useForm();
@@ -286,7 +303,7 @@ const CustomerTiersTab = () => {
   const del = (id) => { setTiers(prev => prev.filter(t => t.id !== id)); message.success('Tier deleted'); };
 
   const columns = [
-    { title: 'Tier', dataIndex: 'name', key: 'name', render: (name) => <Text strong>{name}</Text> },
+    { title: 'Tier', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (name) => <Text strong>{name}</Text> },
     { title: 'Tag Color', key: 'color', render: (_, rec) => <Tag color={rec.color}>{rec.name}</Tag> },
     { title: 'Description', dataIndex: 'description', key: 'description', render: (d) => <Text type="secondary" style={{ fontSize: 12 }}>{d || '—'}</Text> },
     {
@@ -304,8 +321,8 @@ const CustomerTiersTab = () => {
 
   return (
     <>
-      <SectionHeader subtitle="Classify customers by engagement and value level" onAdd={() => openModal()} addLabel="Add Tier" />
-      <Table dataSource={tiers} columns={columns} rowKey="id" pagination={false} size="middle" />
+      <SectionHeader subtitle="Classify customers by engagement and value level" onAdd={() => openModal()} addLabel="Add Tier" searchValue={search} onSearch={setSearch} searchPlaceholder="Search tiers..." />
+      <Table dataSource={tiers.filter(t => !search || t.name.toLowerCase().includes(search.toLowerCase()) || (t.description || '').toLowerCase().includes(search.toLowerCase()))} columns={columns} rowKey="id" pagination={false} size="middle" />
       <Modal
         title={editing ? 'Edit Tier' : 'Add Tier'}
         open={modal}
@@ -334,6 +351,7 @@ const CustomerTiersTab = () => {
 // ─── 4. Customer Industries Tab ───────────────────────────────
 const CustomerIndustriesTab = () => {
   const [industries, setIndustries] = useState<CustomerIndustry[]>(defaultCustomerIndustries);
+  const [search, setSearch] = useState('');
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<CustomerIndustry | null>(null);
   const [form] = Form.useForm();
@@ -357,7 +375,7 @@ const CustomerIndustriesTab = () => {
   const del = (id) => { setIndustries(prev => prev.filter(i => i.id !== id)); message.success('Industry deleted'); };
 
   const columns = [
-    { title: 'Industry', dataIndex: 'name', key: 'name', render: (name) => <Text>{name}</Text> },
+    { title: 'Industry', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (name) => <Text>{name}</Text> },
     {
       title: 'Actions', key: 'actions', width: 100,
       render: (_, rec) => (
@@ -373,8 +391,8 @@ const CustomerIndustriesTab = () => {
 
   return (
     <>
-      <SectionHeader subtitle="Industry verticals for customer segmentation" onAdd={() => openModal()} addLabel="Add Industry" />
-      <Table dataSource={industries} columns={columns} rowKey="id" pagination={false} size="middle" />
+      <SectionHeader subtitle="Industry verticals for customer segmentation" onAdd={() => openModal()} addLabel="Add Industry" searchValue={search} onSearch={setSearch} searchPlaceholder="Search industries..." />
+      <Table dataSource={industries.filter(i => !search || i.name.toLowerCase().includes(search.toLowerCase()))} columns={columns} rowKey="id" pagination={false} size="middle" />
       <Modal
         title={editing ? 'Edit Industry' : 'Add Industry'}
         open={modal}
@@ -397,6 +415,7 @@ const CustomerIndustriesTab = () => {
 const DepartmentsTab = () => {
   const { token } = theme.useToken();
   const [departments, setDepartments] = useState<Department[]>(defaultDepartments);
+  const [search, setSearch] = useState('');
   const [deptModal, setDeptModal] = useState(false);
   const [editingDept, setEditingDept] = useState<Department | null>(null);
   const [desModal, setDesModal] = useState(false);
@@ -483,7 +502,7 @@ const DepartmentsTab = () => {
   );
 
   const columns = [
-    { title: 'Department', dataIndex: 'name', key: 'name', render: (name) => <Text strong>{name}</Text> },
+    { title: 'Department', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (name) => <Text strong>{name}</Text> },
     {
       title: 'Designations', key: 'desCount',
       render: (_, dept) => <Tag>{dept.designations.length} {dept.designations.length === 1 ? 'designation' : 'designations'}</Tag>,
@@ -507,9 +526,12 @@ const DepartmentsTab = () => {
         subtitle="Organise your workforce by department and job designation"
         onAdd={() => openDeptModal()}
         addLabel="Add Department"
+        searchValue={search}
+        onSearch={setSearch}
+        searchPlaceholder="Search departments..."
       />
       <Table
-        dataSource={departments}
+        dataSource={departments.filter(d => !search || d.name.toLowerCase().includes(search.toLowerCase()) || d.designations.some(x => x.name.toLowerCase().includes(search.toLowerCase())))}
         columns={columns}
         rowKey="id"
         expandable={{ expandedRowRender }}
@@ -553,6 +575,7 @@ const DepartmentsTab = () => {
 // ─── 6. Enquiry Types Tab ──────────────────────────────────
 const EnquiryTypesTab = () => {
   const [items, setItems] = useState<EnquiryType[]>(defaultEnquiryTypes);
+  const [search, setSearch] = useState('');
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<EnquiryType | null>(null);
   const [form] = Form.useForm();
@@ -576,7 +599,7 @@ const EnquiryTypesTab = () => {
   const del = (id) => { setItems(prev => prev.filter(i => i.id !== id)); message.success('Enquiry type deleted'); };
 
   const columns = [
-    { title: 'Enquiry Type', dataIndex: 'name', key: 'name', render: (name) => <Text>{name}</Text> },
+    { title: 'Enquiry Type', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (name) => <Text>{name}</Text> },
     {
       title: 'Actions', key: 'actions', width: 100,
       render: (_, rec) => (
@@ -592,8 +615,8 @@ const EnquiryTypesTab = () => {
 
   return (
     <>
-      <SectionHeader subtitle="Sources and types of client enquiries" onAdd={() => openModal()} addLabel="Add Enquiry Type" />
-      <Table dataSource={items} columns={columns} rowKey="id" pagination={false} size="middle" />
+      <SectionHeader subtitle="Sources and types of client enquiries" onAdd={() => openModal()} addLabel="Add Enquiry Type" searchValue={search} onSearch={setSearch} searchPlaceholder="Search enquiry types..." />
+      <Table dataSource={items.filter(i => !search || i.name.toLowerCase().includes(search.toLowerCase()))} columns={columns} rowKey="id" pagination={false} size="middle" />
       <Modal
         title={editing ? 'Edit Enquiry Type' : 'Add Enquiry Type'}
         open={modal}
@@ -615,6 +638,7 @@ const EnquiryTypesTab = () => {
 // ─── 7. Event Types Tab ────────────────────────────────────
 const EventTypesTab = () => {
   const [items, setItems] = useState<EventType[]>(defaultEventTypes);
+  const [search, setSearch] = useState('');
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState<EventType | null>(null);
   const [form] = Form.useForm();
@@ -638,7 +662,7 @@ const EventTypesTab = () => {
   const del = (id) => { setItems(prev => prev.filter(i => i.id !== id)); message.success('Event type deleted'); };
 
   const columns = [
-    { title: 'Event Type', dataIndex: 'name', key: 'name', render: (name) => <Text>{name}</Text> },
+    { title: 'Event Type', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (name) => <Text>{name}</Text> },
     {
       title: 'Actions', key: 'actions', width: 100,
       render: (_, rec) => (
@@ -654,8 +678,8 @@ const EventTypesTab = () => {
 
   return (
     <>
-      <SectionHeader subtitle="Types of events TPH produces" onAdd={() => openModal()} addLabel="Add Event Type" />
-      <Table dataSource={items} columns={columns} rowKey="id" pagination={false} size="middle" />
+      <SectionHeader subtitle="Types of events TPH produces" onAdd={() => openModal()} addLabel="Add Event Type" searchValue={search} onSearch={setSearch} searchPlaceholder="Search event types..." />
+      <Table dataSource={items.filter(i => !search || i.name.toLowerCase().includes(search.toLowerCase()))} columns={columns} rowKey="id" pagination={false} size="middle" />
       <Modal
         title={editing ? 'Edit Event Type' : 'Add Event Type'}
         open={modal}

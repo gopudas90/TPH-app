@@ -1,56 +1,63 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import {
-  Typography, Card, Table, Tag, Space, Button, theme, Tabs, Input, Select,
-  Modal, Form, Switch, Popconfirm, message, Tooltip, Badge, Checkbox, Avatar,
-  Collapse, Divider,
+  Typography, Card, Table, Tag, Space, Button, theme, Input, Select,
+  Modal, Form, Popconfirm, message, Tooltip, Badge, Checkbox, Avatar, Switch,
 } from 'antd';
 import {
-  PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined, UserOutlined,
-  SafetyCertificateOutlined, CheckCircleOutlined, LockOutlined, CopyOutlined,
+  PlusOutlined, EditOutlined, DeleteOutlined, SearchOutlined,
+  SafetyCertificateOutlined, CopyOutlined,
 } from '@ant-design/icons';
-import {
-  defaultRoles, defaultUsers, PERMISSION_MODULES, ALL_PERMISSIONS,
-  Role, UserAccount,
-} from '../../data/rolesData';
-import { MOCK_EMPLOYEES } from '../../data/mockData';
+import { defaultRoles, defaultUsers, Role } from '../../data/rolesData';
 
 const { Title, Text } = Typography;
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
 
+// Module list for the CRUD permission table
+const MODULES = [
+  'Sales', 'Projects', 'Customers', 'Employees', 'Partners', 'Assets', 'Master Data', 'Reports',
+];
+
 export const UserManagement: React.FC = () => {
   const { token } = theme.useToken();
-  const [roles, setRoles] = useState<Role[]>(defaultRoles);
-  const [users, setUsers] = useState<UserAccount[]>(defaultUsers);
-  const [activeTab, setActiveTab] = useState('users');
-
-  // ── Role modal ──
-  const [roleModal, setRoleModal] = useState<{ open: boolean; editing: Role | null }>({ open: false, editing: null });
+  const [roles, setRoles] = useState<Role[]>(() =>
+    defaultRoles.map(r => ({
+      ...r,
+      // Convert existing permission keys into a simple CRUD map per module
+      crud: MODULES.reduce((acc, mod) => {
+        const modKey = mod.toLowerCase().replace(/ /g, '');
+        acc[mod] = {
+          create: r.permissions.some(p => p.includes(`${modKey}.create`) || p.includes('admin.')),
+          read: r.permissions.some(p => p.includes(`${modKey}.view`) || p.includes(`${modKey}.dashboard`) || p.includes('admin.')),
+          edit: r.permissions.some(p => p.includes(`${modKey}.edit`) || p.includes(`${modKey}.manage`) || p.includes('admin.')),
+          delete: r.permissions.some(p => p.includes(`${modKey}.delete`) || p.includes('admin.')),
+        };
+        return acc;
+      }, {} as Record<string, { create: boolean; read: boolean; edit: boolean; delete: boolean }>),
+    }))
+  );
+  const [search, setSearch] = useState('');
+  const [roleModal, setRoleModal] = useState<{ open: boolean; editing: any | null }>({ open: false, editing: null });
   const [roleForm] = Form.useForm();
-  const [rolePermissions, setRolePermissions] = useState<string[]>([]);
+  const [editCrud, setEditCrud] = useState<Record<string, { create: boolean; read: boolean; edit: boolean; delete: boolean }>>({});
 
-  // ── User modal ──
-  const [userModal, setUserModal] = useState<{ open: boolean; editing: UserAccount | null }>({ open: false, editing: null });
-  const [userForm] = Form.useForm();
+  const users = defaultUsers;
+  const getUserCount = (roleId: string) => users.filter(u => u.roleId === roleId).length;
 
-  // ── Filters ──
-  const [userSearch, setUserSearch] = useState('');
-  const [roleFilter, setRoleFilter] = useState('All');
-
-  // ── Role CRUD ──
-  const openRoleModal = (role?: Role) => {
+  // ── Open modal ──
+  const openRoleModal = (role?: any) => {
     setRoleModal({ open: true, editing: role || null });
-    setRolePermissions(role?.permissions || []);
     roleForm.setFieldsValue(role ? { name: role.name, description: role.description, color: role.color } : { name: '', description: '', color: 'blue' });
+    setEditCrud(role?.crud || MODULES.reduce((acc, mod) => { acc[mod] = { create: false, read: false, edit: false, delete: false }; return acc; }, {}));
   };
 
   const saveRole = (vals: any) => {
     if (roleModal.editing) {
-      setRoles(prev => prev.map(r => r.id === roleModal.editing!.id ? { ...r, name: vals.name, description: vals.description, color: vals.color, permissions: rolePermissions } : r));
+      setRoles(prev => prev.map(r => r.id === roleModal.editing.id ? { ...r, name: vals.name, description: vals.description, color: vals.color, crud: { ...editCrud } } : r));
       message.success('Role updated');
     } else {
-      setRoles(prev => [...prev, { id: `role-${uid()}`, name: vals.name, description: vals.description, color: vals.color, permissions: rolePermissions, isSystem: false }]);
+      setRoles(prev => [...prev, { id: `role-${uid()}`, name: vals.name, description: vals.description, color: vals.color, permissions: [], isSystem: false, crud: { ...editCrud } }]);
       message.success('Role created');
     }
     setRoleModal({ open: false, editing: null });
@@ -58,116 +65,43 @@ export const UserManagement: React.FC = () => {
   };
 
   const deleteRole = (id: string) => {
-    const usersWithRole = users.filter(u => u.roleId === id);
-    if (usersWithRole.length > 0) { message.error(`Cannot delete — ${usersWithRole.length} user(s) assigned to this role`); return; }
+    const count = getUserCount(id);
+    if (count > 0) { message.error(`Cannot delete — ${count} user(s) assigned`); return; }
     setRoles(prev => prev.filter(r => r.id !== id));
     message.success('Role deleted');
   };
 
-  const duplicateRole = (role: Role) => {
-    const clone = { ...role, id: `role-${uid()}`, name: `${role.name} (Copy)`, isSystem: false, permissions: [...role.permissions] };
+  const duplicateRole = (role: any) => {
+    const clone = { ...role, id: `role-${uid()}`, name: `${role.name} (Copy)`, isSystem: false, crud: JSON.parse(JSON.stringify(role.crud)) };
     setRoles(prev => [...prev, clone]);
     message.success('Role duplicated');
   };
 
-  const togglePermission = (key: string) => {
-    setRolePermissions(prev => prev.includes(key) ? prev.filter(p => p !== key) : [...prev, key]);
+  const toggleCrud = (mod: string, action: 'create' | 'read' | 'edit' | 'delete') => {
+    setEditCrud(prev => ({ ...prev, [mod]: { ...prev[mod], [action]: !prev[mod][action] } }));
   };
 
-  const toggleModuleAll = (modulePerms: string[]) => {
-    const allChecked = modulePerms.every(p => rolePermissions.includes(p));
-    if (allChecked) {
-      setRolePermissions(prev => prev.filter(p => !modulePerms.includes(p)));
-    } else {
-      setRolePermissions(prev => [...new Set([...prev, ...modulePerms])]);
-    }
+  const toggleModuleAll = (mod: string) => {
+    const all = editCrud[mod];
+    const allChecked = all.create && all.read && all.edit && all.delete;
+    setEditCrud(prev => ({ ...prev, [mod]: { create: !allChecked, read: !allChecked, edit: !allChecked, delete: !allChecked } }));
   };
 
-  // ── User CRUD ──
-  const openUserModal = (user?: UserAccount) => {
-    setUserModal({ open: true, editing: user || null });
-    userForm.setFieldsValue(user ? { employeeId: user.employeeId, roleId: user.roleId, status: user.status } : { employeeId: '', roleId: '', status: 'Active' });
+  const selectAllPermissions = () => {
+    const totalChecked = MODULES.reduce((s, m) => s + (editCrud[m]?.create ? 1 : 0) + (editCrud[m]?.read ? 1 : 0) + (editCrud[m]?.edit ? 1 : 0) + (editCrud[m]?.delete ? 1 : 0), 0);
+    const allOn = totalChecked === MODULES.length * 4;
+    const val = !allOn;
+    setEditCrud(MODULES.reduce((acc, mod) => { acc[mod] = { create: val, read: val, edit: val, delete: val }; return acc; }, {}));
   };
 
-  const saveUser = (vals: any) => {
-    const emp = MOCK_EMPLOYEES.find(e => e.id === vals.employeeId);
-    if (!emp) return;
-    if (userModal.editing) {
-      setUsers(prev => prev.map(u => u.id === userModal.editing!.id ? { ...u, roleId: vals.roleId, status: vals.status } : u));
-      message.success('User updated');
-    } else {
-      if (users.find(u => u.employeeId === vals.employeeId)) { message.error('This employee already has a user account'); return; }
-      setUsers(prev => [...prev, { id: `U-${uid()}`, employeeId: vals.employeeId, name: emp.name, email: emp.email, roleId: vals.roleId, status: vals.status, lastLogin: 'Never' }]);
-      message.success('User account created');
-    }
-    setUserModal({ open: false, editing: null });
-    userForm.resetFields();
-  };
+  const filtered = roles.filter(r => !search || r.name.toLowerCase().includes(search.toLowerCase()) || r.description.toLowerCase().includes(search.toLowerCase()));
 
-  const deleteUser = (id: string) => {
-    setUsers(prev => prev.filter(u => u.id !== id));
-    message.success('User account removed');
-  };
+  // Count total permissions for a role
+  const countPerms = (crud: any) => MODULES.reduce((s, m) => s + (crud[m]?.create ? 1 : 0) + (crud[m]?.read ? 1 : 0) + (crud[m]?.edit ? 1 : 0) + (crud[m]?.delete ? 1 : 0), 0);
 
-  // Filtered users
-  const filteredUsers = users.filter(u => {
-    if (roleFilter !== 'All' && u.roleId !== roleFilter) return false;
-    if (userSearch && !u.name.toLowerCase().includes(userSearch.toLowerCase()) && !u.email.toLowerCase().includes(userSearch.toLowerCase())) return false;
-    return true;
-  });
-
-  const getRoleName = (roleId: string) => roles.find(r => r.id === roleId)?.name || 'Unknown';
-  const getRoleColor = (roleId: string) => roles.find(r => r.id === roleId)?.color || 'default';
-
-  const statusColors = { Active: 'success', Inactive: 'default', Suspended: 'error' };
-
-  // ── Users tab columns ──
-  const userColumns = [
+  const columns = [
     {
-      title: 'User', key: 'name',
-      render: (_, r) => (
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <Avatar size={32} style={{ background: token.colorPrimary }}>{r.name.split(' ').map(n => n[0]).join('')}</Avatar>
-          <div>
-            <Text strong style={{ fontSize: 13 }}>{r.name}</Text>
-            <Text type="secondary" style={{ fontSize: 11, display: 'block' }}>{r.email}</Text>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: 'Role', dataIndex: 'roleId', key: 'role', width: 160,
-      render: (v: string) => <Tag color={getRoleColor(v)} style={{ margin: 0 }}>{getRoleName(v)}</Tag>,
-    },
-    {
-      title: 'Employee ID', dataIndex: 'employeeId', key: 'employeeId', width: 100,
-      render: (v: string) => <Text type="secondary" style={{ fontSize: 12 }}>{v}</Text>,
-    },
-    {
-      title: 'Status', dataIndex: 'status', key: 'status', width: 100,
-      render: (v: string) => <Tag color={statusColors[v]}>{v}</Tag>,
-    },
-    {
-      title: 'Last Login', dataIndex: 'lastLogin', key: 'lastLogin', width: 180,
-      render: (v: string) => <Text type="secondary" style={{ fontSize: 12 }}>{v}</Text>,
-    },
-    {
-      title: '', key: 'actions', width: 100,
-      render: (_, r) => (
-        <Space size={4}>
-          <Tooltip title="Edit"><Button type="text" size="small" icon={<EditOutlined />} onClick={() => openUserModal(r)} /></Tooltip>
-          <Popconfirm title="Remove this user account?" onConfirm={() => deleteUser(r.id)} okText="Remove" okType="danger">
-            <Tooltip title="Remove"><Button type="text" size="small" icon={<DeleteOutlined />} danger /></Tooltip>
-          </Popconfirm>
-        </Space>
-      ),
-    },
-  ];
-
-  // ── Roles tab columns ──
-  const roleColumns = [
-    {
-      title: 'Role', key: 'name',
+      title: 'Role', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name),
       render: (_, r) => (
         <div>
           <Space size={6}>
@@ -179,13 +113,13 @@ export const UserManagement: React.FC = () => {
       ),
     },
     {
-      title: 'Permissions', key: 'permissions', width: 120,
-      render: (_, r) => <Text style={{ fontSize: 12 }}>{r.permissions.length} / {ALL_PERMISSIONS.length}</Text>,
+      title: 'Permissions', key: 'perms', width: 120,
+      render: (_, r) => <Text style={{ fontSize: 12 }}>{countPerms(r.crud)} / {MODULES.length * 4}</Text>,
     },
     {
       title: 'Users', key: 'users', width: 80,
       render: (_, r) => {
-        const count = users.filter(u => u.roleId === r.id).length;
+        const count = getUserCount(r.id);
         return <Badge count={count} showZero style={{ backgroundColor: count > 0 ? token.colorPrimary : token.colorTextQuaternary }} />;
       },
     },
@@ -205,58 +139,65 @@ export const UserManagement: React.FC = () => {
     },
   ];
 
+  // Permission matrix table columns for the modal
+  const permColumns = [
+    {
+      title: (
+        <Checkbox
+          checked={MODULES.every(m => editCrud[m]?.create && editCrud[m]?.read && editCrud[m]?.edit && editCrud[m]?.delete)}
+          indeterminate={MODULES.some(m => editCrud[m]?.create || editCrud[m]?.read || editCrud[m]?.edit || editCrud[m]?.delete) && !MODULES.every(m => editCrud[m]?.create && editCrud[m]?.read && editCrud[m]?.edit && editCrud[m]?.delete)}
+          onChange={selectAllPermissions}
+        >
+          <Text strong style={{ fontSize: 12 }}>Module</Text>
+        </Checkbox>
+      ),
+      dataIndex: 'module',
+      key: 'module',
+      render: (mod: string) => {
+        const all = editCrud[mod];
+        const allChecked = all?.create && all?.read && all?.edit && all?.delete;
+        const someChecked = (all?.create || all?.read || all?.edit || all?.delete) && !allChecked;
+        return (
+          <Checkbox checked={allChecked} indeterminate={someChecked} onChange={() => toggleModuleAll(mod)}>
+            <Text style={{ fontSize: 12 }}>{mod}</Text>
+          </Checkbox>
+        );
+      },
+    },
+    { title: 'Create', key: 'create', width: 80, align: 'center' as const, render: (_, r) => <Checkbox checked={editCrud[r.module]?.create} onChange={() => toggleCrud(r.module, 'create')} /> },
+    { title: 'Read', key: 'read', width: 80, align: 'center' as const, render: (_, r) => <Checkbox checked={editCrud[r.module]?.read} onChange={() => toggleCrud(r.module, 'read')} /> },
+    { title: 'Edit', key: 'edit', width: 80, align: 'center' as const, render: (_, r) => <Checkbox checked={editCrud[r.module]?.edit} onChange={() => toggleCrud(r.module, 'edit')} /> },
+    { title: 'Delete', key: 'delete', width: 80, align: 'center' as const, render: (_, r) => <Checkbox checked={editCrud[r.module]?.delete} onChange={() => toggleCrud(r.module, 'delete')} /> },
+  ];
+
+  const permData = MODULES.map(m => ({ key: m, module: m }));
+
   return (
     <div>
-      <div style={{ marginBottom: 20 }}>
-        <Title level={3} style={{ margin: 0 }}>User Management</Title>
-        <Text type="secondary">Manage user accounts, roles, and permission matrix.</Text>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <div>
+          <Title level={3} style={{ margin: 0 }}>Roles & Permissions</Title>
+          <Text type="secondary">Define roles and control module-level access.</Text>
+        </div>
+        <Button type="primary" icon={<PlusOutlined />} onClick={() => openRoleModal()}>Create Role</Button>
       </div>
 
-      <Card size="small" styles={{ body: { padding: '0 16px 16px' } }}>
-        <Tabs
-          activeKey={activeTab}
-          onChange={setActiveTab}
-          tabBarExtraContent={
-            activeTab === 'users'
-              ? <Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => openUserModal()}>Add User</Button>
-              : <Button type="primary" size="small" icon={<PlusOutlined />} onClick={() => openRoleModal()}>Create Role</Button>
-          }
-          items={[
-            {
-              key: 'users',
-              label: <Space size={4}><UserOutlined />Users ({users.length})</Space>,
-              children: (
-                <>
-                  <div style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-                    <Input prefix={<SearchOutlined />} placeholder="Search users..." value={userSearch} onChange={e => setUserSearch(e.target.value)} allowClear size="small" style={{ width: 250 }} />
-                    <Select value={roleFilter} onChange={setRoleFilter} size="small" style={{ width: 180 }} options={[
-                      { value: 'All', label: 'All Roles' },
-                      ...roles.map(r => ({ value: r.id, label: r.name })),
-                    ]} />
-                  </div>
-                  <Table dataSource={filteredUsers} columns={userColumns} rowKey="id" size="small" pagination={false} />
-                </>
-              ),
-            },
-            {
-              key: 'roles',
-              label: <Space size={4}><SafetyCertificateOutlined />Roles ({roles.length})</Space>,
-              children: (
-                <Table dataSource={roles} columns={roleColumns} rowKey="id" size="small" pagination={false} />
-              ),
-            },
-          ]}
-        />
+      <div style={{ marginBottom: 16 }}>
+        <Input prefix={<SearchOutlined />} placeholder="Search roles..." value={search} onChange={e => setSearch(e.target.value)} allowClear size="small" style={{ width: 280 }} />
+      </div>
+
+      <Card size="small" styles={{ body: { padding: 0 } }}>
+        <Table dataSource={filtered} columns={columns} rowKey="id" size="small" pagination={false} />
       </Card>
 
-      {/* ── Role Modal with Permission Matrix ── */}
+      {/* ── Role Modal with CRUD Permission Table ── */}
       <Modal
         title={roleModal.editing ? 'Edit Role' : 'Create Role'}
         open={roleModal.open}
         onCancel={() => { setRoleModal({ open: false, editing: null }); roleForm.resetFields(); }}
         onOk={() => roleForm.submit()}
         okText={roleModal.editing ? 'Save' : 'Create'}
-        width={700}
+        width={640}
         destroyOnClose
       >
         <Form form={roleForm} layout="vertical" onFinish={saveRole} style={{ marginTop: 16 }}>
@@ -277,96 +218,23 @@ export const UserManagement: React.FC = () => {
             </Form.Item>
           </div>
           <Form.Item name="description" label="Description">
-            <Input placeholder="Brief description of this role's purpose" />
+            <Input placeholder="Brief description of this role" />
           </Form.Item>
         </Form>
 
-        <Divider style={{ margin: '8px 0 16px' }} />
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-          <Text strong style={{ fontSize: 14 }}>Permission Matrix</Text>
-          <Text type="secondary" style={{ fontSize: 12 }}>{rolePermissions.length} / {ALL_PERMISSIONS.length} selected</Text>
-        </div>
-
-        <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-          <Collapse
-            size="small"
-            defaultActiveKey={PERMISSION_MODULES.map(m => m.module)}
-            items={PERMISSION_MODULES.map(mod => {
-              const modKeys = mod.permissions.map(p => p.key);
-              const checkedCount = modKeys.filter(k => rolePermissions.includes(k)).length;
-              const allChecked = checkedCount === modKeys.length;
-              const someChecked = checkedCount > 0 && !allChecked;
-              return {
-                key: mod.module,
-                label: (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <Checkbox
-                      checked={allChecked}
-                      indeterminate={someChecked}
-                      onClick={e => { e.stopPropagation(); toggleModuleAll(modKeys); }}
-                    />
-                    <Text strong style={{ fontSize: 13 }}>{mod.module}</Text>
-                    <Text type="secondary" style={{ fontSize: 11 }}>({checkedCount}/{modKeys.length})</Text>
-                  </div>
-                ),
-                children: (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6, paddingLeft: 24 }}>
-                    {mod.permissions.map(p => (
-                      <Checkbox
-                        key={p.key}
-                        checked={rolePermissions.includes(p.key)}
-                        onChange={() => togglePermission(p.key)}
-                      >
-                        <Text style={{ fontSize: 12 }}>{p.label}</Text>
-                      </Checkbox>
-                    ))}
-                  </div>
-                ),
-              };
-            })}
-          />
-        </div>
-      </Modal>
-
-      {/* ── User Modal ── */}
-      <Modal
-        title={userModal.editing ? 'Edit User' : 'Add User'}
-        open={userModal.open}
-        onCancel={() => { setUserModal({ open: false, editing: null }); userForm.resetFields(); }}
-        onOk={() => userForm.submit()}
-        okText={userModal.editing ? 'Save' : 'Add'}
-        destroyOnClose
-      >
-        <Form form={userForm} layout="vertical" onFinish={saveUser} style={{ marginTop: 16 }}>
-          <Form.Item name="employeeId" label="Employee" rules={[{ required: true }]}>
-            <Select
-              placeholder="Select employee..."
-              showSearch
-              optionFilterProp="label"
-              disabled={!!userModal.editing}
-              options={MOCK_EMPLOYEES.map(e => ({
-                value: e.id,
-                label: `${e.name} — ${e.designation} (${e.department})`,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item name="roleId" label="Role" rules={[{ required: true }]}>
-            <Select
-              placeholder="Select role..."
-              options={roles.map(r => ({
-                value: r.id,
-                label: <Space size={4}><Tag color={r.color} style={{ margin: 0 }}>{r.name}</Tag><Text type="secondary" style={{ fontSize: 11 }}>{r.permissions.length} permissions</Text></Space>,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item name="status" label="Status" initialValue="Active">
-            <Select options={[
-              { value: 'Active', label: 'Active' },
-              { value: 'Inactive', label: 'Inactive' },
-              { value: 'Suspended', label: 'Suspended' },
-            ]} />
-          </Form.Item>
-        </Form>
+        <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 8 }}>Permission Matrix</Text>
+        <Table
+          dataSource={permData}
+          columns={permColumns}
+          rowKey="key"
+          size="small"
+          pagination={false}
+          bordered
+          style={{ marginBottom: 8 }}
+        />
+        <Text type="secondary" style={{ fontSize: 11 }}>
+          {MODULES.reduce((s, m) => s + (editCrud[m]?.create ? 1 : 0) + (editCrud[m]?.read ? 1 : 0) + (editCrud[m]?.edit ? 1 : 0) + (editCrud[m]?.delete ? 1 : 0), 0)} / {MODULES.length * 4} permissions selected
+        </Text>
       </Modal>
     </div>
   );

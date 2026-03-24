@@ -93,7 +93,7 @@ export default function App() {
               <Route path="employees/dashboard" element={<EmployeeDashboard />} />
               <Route path="employees" element={<EmployeeList />} />
               <Route path="employee/:id" element={<EmployeeProfile />} />
-              <Route path="user-management" element={<UserManagement />} />
+              <Route path="roles-permissions" element={<UserManagement />} />
               <Route path="partners/dashboard" element={<PartnerDashboard />} />
               <Route path="partners" element={<PartnerList />} />
               <Route path="partner/:id" element={<PartnerProfile />} />

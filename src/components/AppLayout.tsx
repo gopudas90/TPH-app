@@ -43,7 +43,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
   useEffect(() => {
     if (location.pathname.startsWith('/customers') || location.pathname.startsWith('/customer/')) {
       setCurrentModule('customers');
-    } else if (location.pathname.startsWith('/employees') || location.pathname.startsWith('/employee/') || location.pathname.startsWith('/user-management')) {
+    } else if (location.pathname.startsWith('/employees') || location.pathname.startsWith('/employee/') || location.pathname.startsWith('/roles-permissions')) {
       setCurrentModule('employees');
     } else if (location.pathname.startsWith('/partners') || location.pathname.startsWith('/partner/')) {
       setCurrentModule('partners');
@@ -101,9 +101,9 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
       label: 'Employees',
     },
     {
-      key: '/user-management',
+      key: '/roles-permissions',
       icon: <SafetyCertificateOutlined />,
-      label: 'User Management',
+      label: 'Roles & Permissions',
     },
   ];
 
