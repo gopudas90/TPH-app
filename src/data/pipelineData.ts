@@ -105,18 +105,17 @@ const DEFAULT_STAGES: PipelineStage[] = [
   },
 ];
 
-// Deep-clone stages so each pipeline gets its own copy
-const cloneStages = (): PipelineStage[] =>
-  JSON.parse(JSON.stringify(DEFAULT_STAGES)).map((s: PipelineStage, i: number) => ({
+// Deep-clone stages — keep original stage IDs so MOCK_DEALS stageId references still match
+const cloneStages = (pipelinePrefix: string): PipelineStage[] =>
+  JSON.parse(JSON.stringify(DEFAULT_STAGES)).map((s: PipelineStage) => ({
     ...s,
-    id: `${s.id}-${uid()}`,
-    checklist: s.checklist.map((c: ChecklistItem) => ({ ...c, id: `${c.id}-${uid()}` })),
+    checklist: s.checklist.map((c: ChecklistItem) => ({ ...c, id: `${c.id}-${pipelinePrefix}` })),
   }));
 
 export const defaultPipelines: PipelineConfig[] = [
-  { id: 'pipe-1', name: 'Corporate Events Pipeline', typeKey: 'Corporate Events', stages: cloneStages() },
-  { id: 'pipe-2', name: 'Experiential Activations Pipeline', typeKey: 'Experiential Activations', stages: cloneStages() },
-  { id: 'pipe-3', name: 'Exhibitions & Trade Shows Pipeline', typeKey: 'Exhibitions & Trade Shows', stages: cloneStages() },
-  { id: 'pipe-4', name: 'Roadshows & Touring Pipeline', typeKey: 'Roadshows & Touring', stages: cloneStages() },
-  { id: 'pipe-5', name: 'Retainer / Framework Agreement Pipeline', typeKey: 'Retainer / Framework Agreement', stages: cloneStages() },
+  { id: 'pipe-1', name: 'Corporate Events Pipeline', typeKey: 'Corporate Events', stages: cloneStages('p1') },
+  { id: 'pipe-2', name: 'Experiential Activations Pipeline', typeKey: 'Experiential Activations', stages: cloneStages('p2') },
+  { id: 'pipe-3', name: 'Exhibitions & Trade Shows Pipeline', typeKey: 'Exhibitions & Trade Shows', stages: cloneStages('p3') },
+  { id: 'pipe-4', name: 'Roadshows & Touring Pipeline', typeKey: 'Roadshows & Touring', stages: cloneStages('p4') },
+  { id: 'pipe-5', name: 'Retainer / Framework Agreement Pipeline', typeKey: 'Retainer / Framework Agreement', stages: cloneStages('p5') },
 ];
