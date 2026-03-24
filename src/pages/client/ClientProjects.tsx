@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import {
   Typography, Card, Table, Tag, Progress, Space, Input, theme, Button, Collapse,
   Steps, Tooltip, Avatar, Badge, Row, Col, Statistic, Descriptions, Empty, Drawer, Divider,
-  Segmented, Timeline, List, message,
+  Segmented, Timeline, List, message, Select,
 } from 'antd';
 import {
   SearchOutlined, ProjectOutlined, CheckCircleOutlined, ClockCircleOutlined,
@@ -113,7 +113,9 @@ export const ClientProjectDetail: React.FC = () => {
   const { id } = useParams();
   const project = MOCK_PROJECTS.find(p => p.id === id) || MOCK_PROJECTS[0];
   const [search, setSearch] = useState('');
-  const [viewMode, setViewMode] = useState<'list' | 'gantt' | 'timeline'>('list');
+  const [viewMode, setViewMode] = useState<'list' | 'gantt' | 'calendar'>('list');
+  const [taskStatusFilter, setTaskStatusFilter] = useState('All');
+  const [taskPriorityFilter, setTaskPriorityFilter] = useState('All');
   const [selectedTask, setSelectedTask] = useState<any>(null);
   const [taskDrawerOpen, setTaskDrawerOpen] = useState(false);
   const [selectedMilestone, setSelectedMilestone] = useState<any>(null);
@@ -186,7 +188,7 @@ export const ClientProjectDetail: React.FC = () => {
         />
       </Card>
 
-      {/* View toggle + search */}
+      {/* View toggle + filters */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
         <Segmented
           value={viewMode}
@@ -194,53 +196,84 @@ export const ClientProjectDetail: React.FC = () => {
           options={[
             { value: 'list', label: 'List', icon: <BarsOutlined /> },
             { value: 'gantt', label: 'Gantt', icon: <TableOutlined /> },
-            { value: 'timeline', label: 'Timeline', icon: <ClockCircleOutlined /> },
+            { value: 'calendar', label: 'Calendar', icon: <CalendarOutlined /> },
           ]}
           size="small"
         />
-        <Input prefix={<SearchOutlined />} placeholder="Search tasks..." value={search} onChange={e => setSearch(e.target.value)} allowClear size="small" style={{ width: 250 }} />
+        <Space>
+          <Input prefix={<SearchOutlined />} placeholder="Search tasks..." value={search} onChange={e => setSearch(e.target.value)} allowClear size="small" style={{ width: 200 }} />
+          <Select value={taskStatusFilter} onChange={setTaskStatusFilter} size="small" style={{ width: 140 }} options={[
+            { value: 'All', label: 'All Statuses' }, { value: 'Not Started', label: 'Not Started' }, { value: 'In Progress', label: 'In Progress' },
+            { value: 'Completed', label: 'Completed' }, { value: 'Blocked', label: 'Blocked' },
+          ]} />
+          <Select value={taskPriorityFilter} onChange={setTaskPriorityFilter} size="small" style={{ width: 130 }} options={[
+            { value: 'All', label: 'All Priorities' }, { value: 'Low', label: 'Low' }, { value: 'Medium', label: 'Medium' },
+            { value: 'High', label: 'High' }, { value: 'Critical', label: 'Critical' },
+          ]} />
+        </Space>
       </div>
       {/* Gantt View */}
       {viewMode === 'gantt' && (
         <Card size="small" styles={{ body: { padding: '16px 20px', overflowX: 'auto' } }}>
-          {project.milestones.map(milestone => (
-            <div key={milestone.id} style={{ marginBottom: 16 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <div style={{ width: 10, height: 10, borderRadius: 2, background: milestone.color }} />
-                <Text strong style={{ fontSize: 13 }}>{milestone.name}</Text>
-                <Tag color={statusColors[milestone.status]} style={{ fontSize: 10 }}>{milestone.status}</Tag>
-              </div>
-              {milestone.tasks.map(task => {
-                const pct = task.status === 'Completed' ? 100 : task.status === 'In Progress' ? 50 : 0;
-                return (
-                  <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6, paddingLeft: 18 }}>
-                    <Text style={{ fontSize: 11, width: 160, flexShrink: 0 }} ellipsis={{ tooltip: task.name }}>{task.name}</Text>
-                    <div style={{ flex: 1, height: 18, background: token.colorFillSecondary, borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
-                      <div style={{ width: `${pct}%`, height: '100%', background: milestone.color, borderRadius: 4, transition: 'width 0.3s' }} />
-                      <Text style={{ position: 'absolute', right: 6, top: 0, fontSize: 10, lineHeight: '18px', color: pct > 60 ? '#fff' : token.colorText }}>{pct}%</Text>
+          {project.milestones.map(milestone => {
+            const mTasks = milestone.tasks.filter(t => {
+              if (taskStatusFilter !== 'All' && t.status !== taskStatusFilter) return false;
+              if (taskPriorityFilter !== 'All' && t.priority !== taskPriorityFilter) return false;
+              if (search && !t.name.toLowerCase().includes(search.toLowerCase())) return false;
+              return true;
+            });
+            if (mTasks.length === 0) return null;
+            return (
+              <div key={milestone.id} style={{ marginBottom: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: 2, background: milestone.color }} />
+                  <Button type="link" style={{ padding: 0, fontWeight: 600, fontSize: 13, height: 'auto' }} onClick={e => { e.stopPropagation(); openMilestoneDrawer(milestone); }}>{milestone.name}</Button>
+                  <Tag color={statusColors[milestone.status]} style={{ fontSize: 10 }}>{milestone.status}</Tag>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{milestone.startDate} → {milestone.endDate}</Text>
+                </div>
+                {mTasks.map(task => {
+                  const pct = task.status === 'Completed' ? 100 : task.status === 'In Progress' ? 50 : 0;
+                  return (
+                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 6, paddingLeft: 18 }}>
+                      <Button type="link" size="small" style={{ padding: 0, fontSize: 11, width: 170, textAlign: 'left', height: 'auto' }} onClick={() => openTaskDrawer(task, milestone)}>{task.name}</Button>
+                      <Tag color={priorityColors[task.priority]} style={{ margin: 0, fontSize: 9 }}>{task.priority}</Tag>
+                      <div style={{ flex: 1, height: 20, background: token.colorFillSecondary, borderRadius: 4, position: 'relative', overflow: 'hidden' }}>
+                        <div style={{ width: `${pct}%`, height: '100%', background: milestone.color, borderRadius: 4, transition: 'width 0.3s' }} />
+                        <Text style={{ position: 'absolute', right: 6, top: 0, fontSize: 10, lineHeight: '20px', color: pct > 60 ? '#fff' : token.colorText }}>{pct}%</Text>
+                      </div>
+                      <Text type="secondary" style={{ fontSize: 10, flexShrink: 0 }}>{task.owner}</Text>
+                      <Tag color={statusColors[task.status]} style={{ margin: 0, fontSize: 10 }}>{task.status}</Tag>
                     </div>
-                    <Tag color={statusColors[task.status]} style={{ margin: 0, fontSize: 10 }}>{task.status}</Tag>
-                  </div>
-                );
-              })}
-            </div>
-          ))}
+                  );
+                })}
+              </div>
+            );
+          })}
         </Card>
       )}
 
-      {/* Timeline View */}
-      {viewMode === 'timeline' && (
+      {/* Calendar View */}
+      {viewMode === 'calendar' && (
         <Card size="small">
-          <Timeline items={project.milestones.flatMap(m => m.tasks).map(task => ({
+          <Timeline items={project.milestones.flatMap(m => m.tasks).filter(t => {
+            if (taskStatusFilter !== 'All' && t.status !== taskStatusFilter) return false;
+            if (taskPriorityFilter !== 'All' && t.priority !== taskPriorityFilter) return false;
+            if (search && !t.name.toLowerCase().includes(search.toLowerCase())) return false;
+            return true;
+          }).sort((a, b) => a.dueDate.localeCompare(b.dueDate)).map(task => ({
             color: task.status === 'Completed' ? 'green' : task.status === 'In Progress' ? 'blue' : task.status === 'Blocked' ? 'red' : 'gray',
             children: (
               <div>
-                <Button type="link" style={{ padding: 0, fontSize: 13, fontWeight: 500, height: 'auto' }} onClick={() => openTaskDrawer(task, project.milestones.find(m => m.tasks.includes(task)))}>{task.name}</Button>
-                <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  {task.priority === 'Critical' && <FireOutlined style={{ color: '#ff4d4f', fontSize: 11 }} />}
+                  <Button type="link" style={{ padding: 0, fontSize: 13, fontWeight: 500, height: 'auto' }} onClick={() => openTaskDrawer(task, project.milestones.find(m => m.tasks.includes(task)))}>{task.name}</Button>
+                </div>
+                <Space size={4} style={{ marginTop: 2 }}>
                   <Tag color={priorityColors[task.priority]} style={{ fontSize: 10 }}>{task.priority}</Tag>
                   <Tag color={statusColors[task.status]} style={{ fontSize: 10 }}>{task.status}</Tag>
-                  <Text type="secondary" style={{ fontSize: 11, marginLeft: 4 }}>{task.owner} · Due: {task.dueDate}</Text>
-                </div>
+                  <Text type="secondary" style={{ fontSize: 11 }}>{task.owner}</Text>
+                  <Text type="secondary" style={{ fontSize: 11 }}>Due: {task.dueDate}</Text>
+                </Space>
               </div>
             ),
           }))} />
@@ -251,7 +284,12 @@ export const ClientProjectDetail: React.FC = () => {
       {viewMode === 'list' && <Collapse
         defaultActiveKey={project.milestones.filter(m => m.status !== 'Completed').map(m => m.id)}
         items={project.milestones.map(milestone => {
-          const mTasks = milestone.tasks.filter(t => !search || t.name.toLowerCase().includes(search.toLowerCase()));
+          const mTasks = milestone.tasks.filter(t => {
+              if (taskStatusFilter !== 'All' && t.status !== taskStatusFilter) return false;
+              if (taskPriorityFilter !== 'All' && t.priority !== taskPriorityFilter) return false;
+              if (search && !t.name.toLowerCase().includes(search.toLowerCase())) return false;
+              return true;
+            });
           const mDone = milestone.tasks.filter(t => t.status === 'Completed').length;
           const mPct = milestone.tasks.length > 0 ? Math.round((mDone / milestone.tasks.length) * 100) : 0;
           return {
@@ -275,14 +313,14 @@ export const ClientProjectDetail: React.FC = () => {
                 pagination={false}
                 size="small"
                 columns={[
-                  { title: 'Task', dataIndex: 'name', key: 'name', render: (v, r) => (
+                  { title: 'Task', dataIndex: 'name', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name), render: (v, r) => (
                     <Space size={4}>
                       {r.priority === 'Critical' && <FireOutlined style={{ color: '#ff4d4f', fontSize: 12 }} />}
                       <Button type="link" size="small" style={{ padding: 0, fontSize: 12, height: 'auto' }} onClick={() => openTaskDrawer(r, milestone)}>{v}</Button>
                     </Space>
                   ) },
-                  { title: 'Priority', dataIndex: 'priority', key: 'priority', width: 90, render: v => <Tag color={priorityColors[v]} style={{ fontSize: 11 }}>{v}</Tag> },
-                  { title: 'Owner', dataIndex: 'owner', key: 'owner', width: 120, render: v => <Text style={{ fontSize: 12 }}>{v}</Text> },
+                  { title: 'Priority', dataIndex: 'priority', key: 'priority', width: 90, sorter: (a, b) => a.priority.localeCompare(b.priority), render: v => <Tag color={priorityColors[v]} style={{ fontSize: 11 }}>{v}</Tag> },
+                  { title: 'Owner', dataIndex: 'owner', key: 'owner', width: 120, sorter: (a, b) => a.owner.localeCompare(b.owner), render: v => <Text style={{ fontSize: 12 }}>{v}</Text> },
                   { title: 'Due', dataIndex: 'dueDate', key: 'dueDate', width: 100, render: v => <Text style={{ fontSize: 12 }}>{v}</Text> },
                   { title: 'Status', dataIndex: 'status', key: 'status', width: 120, render: v => <Tag color={statusColors[v]} style={{ fontSize: 11 }}>{v}</Tag> },
                 ]}

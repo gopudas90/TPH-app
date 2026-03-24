@@ -181,7 +181,7 @@ export const ClientEnquiryDetail: React.FC = () => {
           size="small"
           columns={[
             { title: '#', key: 'idx', width: 40, render: (_, __, idx) => <Text type="secondary" style={{ fontSize: 11 }}>{idx + 1}</Text> },
-            { title: 'Item', dataIndex: 'item', key: 'item', render: (v) => <Text style={{ fontSize: 12 }}>{v}</Text> },
+            { title: 'Item', dataIndex: 'item', key: 'item', sorter: (a, b) => a.item.localeCompare(b.item), render: (v) => <Text style={{ fontSize: 12 }}>{v}</Text> },
             { title: 'Category', dataIndex: 'category', key: 'category', width: 120, render: v => <Tag style={{ fontSize: 10 }}>{v}</Tag> },
             { title: 'Qty', dataIndex: 'qty', key: 'qty', width: 60, align: 'center' },
             { title: 'Unit Price', dataIndex: 'unitPrice', key: 'unitPrice', width: 120, align: 'right', render: v => fmt(v) },

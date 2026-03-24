@@ -39,7 +39,7 @@ export const ClientEnquiries: React.FC = () => {
 
   const columns = [
     {
-      title: 'Enquiry', key: 'name',
+      title: 'Enquiry', key: 'name', sorter: (a, b) => a.name.localeCompare(b.name),
       render: (_, r) => (
         <div>
           <Text strong style={{ fontSize: 13 }}>{r.name}</Text>
@@ -49,14 +49,17 @@ export const ClientEnquiries: React.FC = () => {
     },
     {
       title: 'Event Date', dataIndex: 'eventDate', key: 'eventDate', width: 120,
+      sorter: (a, b) => new Date(a.eventDate).getTime() - new Date(b.eventDate).getTime(),
       render: (v: string) => <Text style={{ fontSize: 12 }}>{new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>,
     },
     {
       title: 'Submitted', dataIndex: 'submittedDate', key: 'submittedDate', width: 120,
+      sorter: (a, b) => new Date(a.submittedDate).getTime() - new Date(b.submittedDate).getTime(),
       render: (v: string) => <Text type="secondary" style={{ fontSize: 12 }}>{new Date(v).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</Text>,
     },
     {
       title: 'Quote', key: 'quote', width: 140,
+      sorter: (a, b) => (a.quoteValue || 0) - (b.quoteValue || 0),
       render: (_, r) => r.quoteValue ? (
         <div>
           <Text strong style={{ fontSize: 12 }}>{fmt(r.quoteValue)}</Text>
@@ -66,6 +69,8 @@ export const ClientEnquiries: React.FC = () => {
     },
     {
       title: 'Assigned To', dataIndex: 'assignedTo', key: 'assignedTo', width: 130,
+      filters: [...new Set(MOCK_ENQUIRIES.map(e => e.assignedTo))].map(a => ({ text: a, value: a })),
+      onFilter: (v, r) => r.assignedTo === v,
       render: (v: string) => <Text style={{ fontSize: 12 }}>{v}</Text>,
     },
     {
