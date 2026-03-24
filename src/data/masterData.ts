@@ -164,4 +164,40 @@ export const defaultDepartments: Department[] = [
   },
 ];
 
+export interface EnquiryType {
+  id: string;
+  name: string;
+}
+
+export interface EventType {
+  id: string;
+  name: string;
+}
+
+export const defaultEnquiryTypes: EnquiryType[] = [
+  { id: 'enq-1', name: 'Inbound — Website Form' },
+  { id: 'enq-2', name: 'Inbound — Phone Call' },
+  { id: 'enq-3', name: 'Inbound — Email' },
+  { id: 'enq-4', name: 'Inbound — Referral' },
+  { id: 'enq-5', name: 'Outbound — Cold Outreach' },
+  { id: 'enq-6', name: 'Outbound — Event Networking' },
+  { id: 'enq-7', name: 'Repeat Client' },
+  { id: 'enq-8', name: 'RFP / Tender' },
+];
+
+export const defaultEventTypes: EventType[] = [
+  { id: 'evt-1', name: 'Conference' },
+  { id: 'evt-2', name: 'Gala Dinner' },
+  { id: 'evt-3', name: 'Product Launch' },
+  { id: 'evt-4', name: 'Exhibition / Trade Show' },
+  { id: 'evt-5', name: 'Corporate Retreat' },
+  { id: 'evt-6', name: 'Roadshow' },
+  { id: 'evt-7', name: 'Awards Ceremony' },
+  { id: 'evt-8', name: 'Workshop / Seminar' },
+  { id: 'evt-9', name: 'Town Hall / AGM' },
+  { id: 'evt-10', name: 'Brand Activation' },
+  { id: 'evt-11', name: 'Hybrid / Virtual Event' },
+  { id: 'evt-12', name: 'Festival / Concert' },
+];
+
 export const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2);

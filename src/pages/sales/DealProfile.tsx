@@ -1,10 +1,11 @@
 // @ts-nocheck
 import React, { useState } from 'react';
 import { Typography, Card, Tabs, Button, Descriptions, Tag, Divider, Row, Col, Table, Space, Avatar, Timeline, Input, Progress, theme, Steps, FloatButton, List, Tooltip, Drawer, Checkbox } from 'antd';
-import { ArrowLeftOutlined, EditOutlined, FilePdfOutlined, CheckCircleOutlined, UserOutlined, PlusOutlined, RobotOutlined, FormOutlined, FireOutlined, FolderOpenOutlined, DeleteOutlined, UpOutlined, DownOutlined, HolderOutlined } from '@ant-design/icons';
+import { ArrowLeftOutlined, EditOutlined, FilePdfOutlined, CheckCircleOutlined, UserOutlined, PlusOutlined, RobotOutlined, FormOutlined, FireOutlined, FolderOpenOutlined, DeleteOutlined, UpOutlined, DownOutlined, HolderOutlined, MessageOutlined } from '@ant-design/icons';
 import { useParams, useNavigate } from 'react-router-dom';
 import { MOCK_DEALS, PIPELINE_STAGES } from '../../data/mockData';
 import { AIChatDrawer } from '../../components/AIChatDrawer';
+import { DealChatDrawer } from '../../components/DealChatDrawer';
 import {
   DndContext,
   closestCenter,
@@ -94,7 +95,7 @@ export const DealProfile: React.FC = () => {
   const deal = MOCK_DEALS.find(d => d.id === id) || MOCK_DEALS[0];
 
   const [activeTab, setActiveTab] = useState('1');
-  const [activeDrawer, setActiveDrawer] = useState<'notes' | 'documents' | null>(null);
+  const [activeDrawer, setActiveDrawer] = useState<'notes' | 'documents' | 'chat' | null>(null);
   const [isChatOpen, setIsChatOpen] = useState(false);
   
   // Notes State
@@ -588,6 +589,9 @@ export const DealProfile: React.FC = () => {
         <Tooltip title="Documents" placement="left">
           <Button type="text" icon={<FolderOpenOutlined style={{ fontSize: 20, color: token.colorTextSecondary }} />} onClick={() => setActiveDrawer('documents')} />
         </Tooltip>
+        <Tooltip title="Chat" placement="left">
+          <Button type="text" icon={<MessageOutlined style={{ fontSize: 20, color: token.colorTextSecondary }} />} onClick={() => setActiveDrawer('chat')} />
+        </Tooltip>
       </div>
 
       {/* Drawers */}
@@ -674,6 +678,13 @@ export const DealProfile: React.FC = () => {
         onClose={() => setIsChatOpen(false)}
         dealName={deal.name}
         dealId={deal.id}
+      />
+
+      <DealChatDrawer
+        open={activeDrawer === 'chat'}
+        onClose={() => setActiveDrawer(null)}
+        dealName={deal.name}
+        contacts={contacts}
       />
     </div>
   );

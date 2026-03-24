@@ -13,6 +13,7 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { ClientPortal } from './pages/auth/ClientPortal';
 import { Dashboard } from './pages/sales/Dashboard';
 import { Pipeline } from './pages/sales/Pipeline';
+import { PipelineSettings } from './pages/sales/PipelineSettings';
 import { DealProfile } from './pages/sales/DealProfile';
 import { QuoteDetail } from './pages/sales/QuoteDetail';
 import { CustomerDashboard } from './pages/customers/CustomerDashboard';
@@ -35,6 +36,7 @@ import { ProjectProfile } from './pages/projects/ProjectProfile';
 import {
   MasterAssetCategories, MasterAssetConditions,
   MasterCustomerTiers, MasterCustomerIndustries, MasterDepartments,
+  MasterEnquiryTypes, MasterEventTypes,
 } from './pages/masterdata/MasterData';
 
 export default function App() {
@@ -58,6 +60,7 @@ export default function App() {
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<Dashboard />} />
               <Route path="pipeline" element={<Pipeline />} />
+              <Route path="pipeline-settings" element={<PipelineSettings />} />
               <Route path="deal/:id" element={<DealProfile />} />
               <Route path="quote/:id" element={<QuoteDetail />} />
               <Route path="customers/dashboard" element={<CustomerDashboard />} />
@@ -83,6 +86,8 @@ export default function App() {
                 <Route path="master-data/customer-tiers" element={<MasterCustomerTiers />} />
                 <Route path="master-data/customer-industries" element={<MasterCustomerIndustries />} />
                 <Route path="master-data/departments" element={<MasterDepartments />} />
+                <Route path="master-data/enquiry-types" element={<MasterEnquiryTypes />} />
+                <Route path="master-data/event-types" element={<MasterEventTypes />} />
               </>}
               <Route path="*" element={<div style={{ padding: 24 }}>Page Not Found</div>} />
             </Route>

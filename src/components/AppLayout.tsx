@@ -20,6 +20,7 @@ import {
   DashboardOutlined,
 } from '@ant-design/icons';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { AIChatFAB } from './AIChatFAB';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -66,6 +67,11 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
       key: '/pipeline',
       icon: <ProjectOutlined />,
       label: 'Pipelines',
+    },
+    {
+      key: '/pipeline-settings',
+      icon: <SettingOutlined />,
+      label: 'Pipeline Settings',
     },
   ];
 
@@ -163,6 +169,13 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
       type: 'group', label: 'Employees',
       children: [
         { key: '/master-data/departments', icon: <TeamOutlined />, label: 'Departments' },
+      ],
+    },
+    {
+      type: 'group', label: 'Sales',
+      children: [
+        { key: '/master-data/enquiry-types', icon: <FileTextOutlined />, label: 'Enquiry Types' },
+        { key: '/master-data/event-types', icon: <CalendarOutlined />, label: 'Event Types' },
       ],
     },
   ];
@@ -320,6 +333,7 @@ export const AppLayout: React.FC<AppLayoutProps> = ({ isDarkMode, toggleTheme, o
           <Outlet />
         </Content>
       </Layout>
+      <AIChatFAB pageContext={({ sales: 'Sales Dashboard', customers: 'Customer Dashboard', employees: 'Employee Dashboard', partners: 'Partner Dashboard', assets: 'Asset Dashboard', projects: 'Project Dashboard', masterdata: 'Master Data' })[currentModule] || 'Dashboard'} />
     </Layout>
   );
 };

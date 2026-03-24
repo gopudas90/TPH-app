@@ -9,8 +9,9 @@ import {
 } from '@ant-design/icons';
 import {
   defaultAssetCategories, defaultAssetConditions, defaultCustomerTiers,
-  defaultCustomerIndustries, defaultDepartments, uid,
+  defaultCustomerIndustries, defaultDepartments, defaultEnquiryTypes, defaultEventTypes, uid,
   AssetCategory, AssetSubCategory, AssetCondition, CustomerTier, CustomerIndustry, Department, Designation,
+  EnquiryType, EventType,
 } from '../../data/masterData';
 import { ColorSwatchPicker } from '../../components/masterdata/ColorSwatchPicker';
 
@@ -549,8 +550,134 @@ const DepartmentsTab = () => {
   );
 };
 
+// ─── 6. Enquiry Types Tab ──────────────────────────────────
+const EnquiryTypesTab = () => {
+  const [items, setItems] = useState<EnquiryType[]>(defaultEnquiryTypes);
+  const [modal, setModal] = useState(false);
+  const [editing, setEditing] = useState<EnquiryType | null>(null);
+  const [form] = Form.useForm();
+
+  const openModal = (item?: EnquiryType) => {
+    setEditing(item || null);
+    form.setFieldsValue(item ? { name: item.name } : { name: '' });
+    setModal(true);
+  };
+  const save = (vals) => {
+    if (editing) {
+      setItems(prev => prev.map(i => i.id === editing.id ? { ...i, ...vals } : i));
+      message.success('Enquiry type updated');
+    } else {
+      setItems(prev => [...prev, { id: uid(), ...vals }]);
+      message.success('Enquiry type added');
+    }
+    setModal(false);
+    form.resetFields();
+  };
+  const del = (id) => { setItems(prev => prev.filter(i => i.id !== id)); message.success('Enquiry type deleted'); };
+
+  const columns = [
+    { title: 'Enquiry Type', dataIndex: 'name', key: 'name', render: (name) => <Text>{name}</Text> },
+    {
+      title: 'Actions', key: 'actions', width: 100,
+      render: (_, rec) => (
+        <Space size={4}>
+          <Tooltip title="Edit"><Button type="text" size="small" icon={<EditOutlined />} onClick={() => openModal(rec)} /></Tooltip>
+          <Popconfirm title="Delete this enquiry type?" onConfirm={() => del(rec.id)} okText="Delete" okType="danger">
+            <Tooltip title="Delete"><Button type="text" size="small" icon={<DeleteOutlined />} danger /></Tooltip>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <SectionHeader subtitle="Sources and types of client enquiries" onAdd={() => openModal()} addLabel="Add Enquiry Type" />
+      <Table dataSource={items} columns={columns} rowKey="id" pagination={false} size="middle" />
+      <Modal
+        title={editing ? 'Edit Enquiry Type' : 'Add Enquiry Type'}
+        open={modal}
+        onCancel={() => { setModal(false); form.resetFields(); }}
+        onOk={() => form.submit()}
+        okText={editing ? 'Save' : 'Add'}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" onFinish={save} style={{ marginTop: 16 }}>
+          <Form.Item name="name" label="Enquiry Type Name" rules={[{ required: true, message: 'Required' }]}>
+            <Input placeholder="e.g. Inbound — Website Form" />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
+
+// ─── 7. Event Types Tab ────────────────────────────────────
+const EventTypesTab = () => {
+  const [items, setItems] = useState<EventType[]>(defaultEventTypes);
+  const [modal, setModal] = useState(false);
+  const [editing, setEditing] = useState<EventType | null>(null);
+  const [form] = Form.useForm();
+
+  const openModal = (item?: EventType) => {
+    setEditing(item || null);
+    form.setFieldsValue(item ? { name: item.name } : { name: '' });
+    setModal(true);
+  };
+  const save = (vals) => {
+    if (editing) {
+      setItems(prev => prev.map(i => i.id === editing.id ? { ...i, ...vals } : i));
+      message.success('Event type updated');
+    } else {
+      setItems(prev => [...prev, { id: uid(), ...vals }]);
+      message.success('Event type added');
+    }
+    setModal(false);
+    form.resetFields();
+  };
+  const del = (id) => { setItems(prev => prev.filter(i => i.id !== id)); message.success('Event type deleted'); };
+
+  const columns = [
+    { title: 'Event Type', dataIndex: 'name', key: 'name', render: (name) => <Text>{name}</Text> },
+    {
+      title: 'Actions', key: 'actions', width: 100,
+      render: (_, rec) => (
+        <Space size={4}>
+          <Tooltip title="Edit"><Button type="text" size="small" icon={<EditOutlined />} onClick={() => openModal(rec)} /></Tooltip>
+          <Popconfirm title="Delete this event type?" onConfirm={() => del(rec.id)} okText="Delete" okType="danger">
+            <Tooltip title="Delete"><Button type="text" size="small" icon={<DeleteOutlined />} danger /></Tooltip>
+          </Popconfirm>
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <>
+      <SectionHeader subtitle="Types of events TPH produces" onAdd={() => openModal()} addLabel="Add Event Type" />
+      <Table dataSource={items} columns={columns} rowKey="id" pagination={false} size="middle" />
+      <Modal
+        title={editing ? 'Edit Event Type' : 'Add Event Type'}
+        open={modal}
+        onCancel={() => { setModal(false); form.resetFields(); }}
+        onOk={() => form.submit()}
+        okText={editing ? 'Save' : 'Add'}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" onFinish={save} style={{ marginTop: 16 }}>
+          <Form.Item name="name" label="Event Type Name" rules={[{ required: true, message: 'Required' }]}>
+            <Input placeholder="e.g. Conference" />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
+
 export const MasterAssetCategories: React.FC = () => <AssetCategoriesTab />;
 export const MasterAssetConditions: React.FC = () => <AssetConditionsTab />;
 export const MasterCustomerTiers: React.FC = () => <CustomerTiersTab />;
 export const MasterCustomerIndustries: React.FC = () => <CustomerIndustriesTab />;
 export const MasterDepartments: React.FC = () => <DepartmentsTab />;
+export const MasterEnquiryTypes: React.FC = () => <EnquiryTypesTab />;
+export const MasterEventTypes: React.FC = () => <EventTypesTab />;
