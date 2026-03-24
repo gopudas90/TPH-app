@@ -13,6 +13,12 @@ import { LoginPage } from './pages/auth/LoginPage';
 import { ClientPortal } from './pages/auth/ClientPortal';
 import { ProfilePage } from './pages/ProfilePage';
 import { NotificationsPage } from './pages/NotificationsPage';
+import { ClientDashboard } from './pages/client/ClientDashboard';
+import { ClientEnquiries } from './pages/client/ClientEnquiries';
+import { ClientEnquiryDetail } from './pages/client/ClientEnquiryDetail';
+import { ClientProjects, ClientProjectDetail } from './pages/client/ClientProjects';
+import { ClientMessages } from './pages/client/ClientMessages';
+import { ClientProfile } from './pages/client/ClientProfile';
 import { Dashboard } from './pages/sales/Dashboard';
 import { Pipeline } from './pages/sales/Pipeline';
 import { PipelineSettings } from './pages/sales/PipelineSettings';
@@ -55,7 +61,20 @@ export default function App() {
         {!user ? (
           <LoginPage onLogin={handleLogin} />
         ) : user.role === 'client' ? (
-          <ClientPortal onLogout={handleLogout} isDarkMode={isDarkMode} toggleTheme={toggleTheme} />
+          <Routes>
+            <Route path="/" element={<ClientPortal onLogout={handleLogout} isDarkMode={isDarkMode} toggleTheme={toggleTheme} />}>
+              <Route index element={<Navigate to="/client" replace />} />
+              <Route path="client" element={<ClientDashboard />} />
+              <Route path="client/enquiries" element={<ClientEnquiries />} />
+              <Route path="client/enquiries/:id" element={<ClientEnquiryDetail />} />
+              <Route path="client/projects" element={<ClientProjects />} />
+              <Route path="client/projects/:id" element={<ClientProjectDetail />} />
+              <Route path="client/messages" element={<ClientMessages />} />
+              <Route path="client/profile" element={<ClientProfile />} />
+              <Route path="client/notifications" element={<NotificationsPage />} />
+              <Route path="*" element={<Navigate to="/client" replace />} />
+            </Route>
+          </Routes>
         ) : (
           <Routes>
             <Route path="/" element={<AppLayout isDarkMode={isDarkMode} toggleTheme={toggleTheme} onLogout={handleLogout} userRole={user.role} />}>

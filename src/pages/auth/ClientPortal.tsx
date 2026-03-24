@@ -1,10 +1,12 @@
 // @ts-nocheck
 import React, { useState } from 'react';
-import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, theme } from 'antd';
+import { Layout, Menu, Button, Avatar, Dropdown, Space, Typography, theme, Badge } from 'antd';
 import {
-  AppstoreOutlined, UserOutlined, BellOutlined, MoonOutlined, SunOutlined,
-  CalendarOutlined, FileTextOutlined, CheckSquareOutlined, MessageOutlined,
+  AppstoreOutlined, UserOutlined, MoonOutlined, SunOutlined,
+  CalendarOutlined, FileTextOutlined, ProjectOutlined, MessageOutlined,
 } from '@ant-design/icons';
+import { Outlet, useNavigate, useLocation } from 'react-router-dom';
+import { NotificationsDropdown } from '../../components/NotificationsDropdown';
 
 const { Header, Sider, Content } = Layout;
 const { Text } = Typography;
@@ -15,17 +17,25 @@ interface ClientPortalProps {
   toggleTheme: () => void;
 }
 
-const menuItems = [
-  { key: '1', icon: <AppstoreOutlined />, label: 'Dashboard' },
-  { key: '2', icon: <CalendarOutlined />, label: 'My Events' },
-  { key: '3', icon: <FileTextOutlined />, label: 'Quotes & Invoices' },
-  { key: '4', icon: <CheckSquareOutlined />, label: 'Project Tracker' },
-  { key: '5', icon: <MessageOutlined />, label: 'Messages' },
-];
-
 export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout, isDarkMode, toggleTheme }) => {
   const { token } = theme.useToken();
+  const navigate = useNavigate();
+  const location = useLocation();
   const [collapsed, setCollapsed] = useState(false);
+
+  const menuItems = [
+    { key: '/client', icon: <AppstoreOutlined />, label: 'Dashboard' },
+    { key: '/client/enquiries', icon: <FileTextOutlined />, label: 'My Enquiries' },
+    { key: '/client/projects', icon: <ProjectOutlined />, label: 'Project Tracker' },
+    { key: '/client/messages', icon: <MessageOutlined />, label: 'Messages' },
+  ];
+
+  // Derive active key from path
+  const selectedKey = menuItems.find(m => location.pathname === m.key)?.key
+    || menuItems.find(m => m.key !== '/client' && location.pathname.startsWith(m.key))?.key
+    || '/client';
+
+  const headerLabel = menuItems.find(m => m.key === selectedKey)?.label || 'Client Portal';
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -53,8 +63,9 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout, isDarkMode
         <Menu
           theme={isDarkMode ? 'dark' : 'light'}
           mode="inline"
-          selectedKeys={[]}
+          selectedKeys={[selectedKey]}
           items={menuItems}
+          onClick={({ key }) => navigate(key)}
           style={{ borderRight: 0 }}
         />
       </Sider>
@@ -66,14 +77,14 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout, isDarkMode
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           borderBottom: `1px solid ${token.colorBorderSecondary}`,
         }}>
-          <Text strong style={{ fontSize: 16 }}>Client Portal</Text>
+          <Text strong style={{ fontSize: 16 }}>{headerLabel}</Text>
           <Space size="middle">
             <Button type="text" icon={isDarkMode ? <SunOutlined /> : <MoonOutlined />} onClick={toggleTheme} />
-            <Button type="text" icon={<BellOutlined />} />
+            <NotificationsDropdown />
             <Dropdown
               menu={{
                 items: [
-                  { key: 'profile', label: 'Profile', icon: <UserOutlined /> },
+                  { key: 'profile', label: 'Profile', icon: <UserOutlined />, onClick: () => navigate('/client/profile') },
                   { type: 'divider' },
                   { key: 'logout', label: 'Sign Out', danger: true, onClick: onLogout },
                 ],
@@ -84,7 +95,9 @@ export const ClientPortal: React.FC<ClientPortalProps> = ({ onLogout, isDarkMode
             </Dropdown>
           </Space>
         </Header>
-        <Content style={{ margin: '24px 16px', minHeight: 280, background: token.colorBgContainer, borderRadius: token.borderRadiusLG }} />
+        <Content style={{ margin: '24px 16px', padding: 24, minHeight: 280, background: token.colorBgContainer, borderRadius: token.borderRadiusLG, overflow: 'auto' }}>
+          <Outlet />
+        </Content>
       </Layout>
     </Layout>
   );
